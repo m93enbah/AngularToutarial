@@ -1,0 +1,26 @@
+<div class="form-group editor-control" [ngClass]="{'col-md-3': control.width ==1 ,'col-md-6': control.width==2, 'col-md-9':control.width==3,'col-md-12':control.width==4 }">
+  <div [formGroup]="form" class="prime-form-control">
+    <span class="ui-float-label">
+
+      <p-calendar [id]="control.key"
+                  [name]="control.key"
+                  [placeholder]="control.placeholder"
+                  [formControlName]="control.key"
+                  [required]="control.required"
+                  [defaultDate]="control.defaultDate"
+                  [minDate]="control.minDate"
+                  [maxDate]="control.maxDate"
+                  [selectionMode]="control.selectionMode"
+                  [dateFormat]="control.dateFormat"
+                  [showTime]="control.showTime"
+                  [hourFormat]="control.hourFormat"
+                  [timeOnly]="control.timeOnly"
+                  [showIcon]="control.showIcon"
+                  [showButtonBar]="control.showButtonBar"
+                  [appDisable]="control.disabled"></p-calendar>
+
+
+      <label [attr.for]="control.key" class="component-label">{{control.name}}</label>
+    </span>
+  </div>
+</div>

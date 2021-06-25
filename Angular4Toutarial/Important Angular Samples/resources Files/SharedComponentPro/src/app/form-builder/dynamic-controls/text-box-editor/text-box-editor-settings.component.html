@@ -1,0 +1,33 @@
+<div class=" panel panel-default">
+  <form class="panel-body" name="addEditForm" [formGroup]="form">
+
+    <!-- order -->
+    <div class="form-row settings-row">
+      <label class="filter-col settings-label">Order</label>
+      <input type="number" class="form-control input-sm" name="order" placeholder="Order" [value]="control.order" formControlName="order" readonly>
+    </div>
+
+    <!-- Key -->
+    <div class="form-row settings-row">
+      <label class="filter-col settings-label">Key</label>
+      <input type="text" class="form-control input-sm" name="key" placeholder="Key" formControlName="key"  >
+    </div>
+
+    <!-- Width/Size(number) -->
+    <div class="form-row settings-row">
+      <label class="filter-col settings-label">Width</label>
+      <p-selectButton class="form-control-ng" [options]="widthOptions" formControlName="width"></p-selectButton>
+    </div>
+
+    <!-- Disabled -->
+    <div class="form-row settings-checkbox-row">
+      <p-triStateCheckbox label="Disabled" class="settings-label" formControlName="disabled"></p-triStateCheckbox>
+    </div>
+
+
+  </form>
+  <!-- Save Button -->
+  <div class="form-row box-footer settings-row">
+    <button class="btn btn-primary fb-button" (click)="save($event)">Save</button>
+  </div>
+</div>

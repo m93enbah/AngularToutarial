@@ -1,0 +1,7 @@
+<p-contextMenu *ngIf="global" [global]="global" [model]="globalItems"></p-contextMenu>
+<p-blockUI [blocked]="blockedScreen"></p-blockUI>
+
+
+<p-contextMenu *ngIf="!global" [global]="global" [target]="target" [model]="controlItems">  
+</p-contextMenu>
+

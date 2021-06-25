@@ -1,0 +1,39 @@
+
+:host nb-layout-column {
+  background: none !important;
+  color: white !important;
+  padding-left: 0px !important;
+  padding-bottom: 0px !important;
+  padding-right: 0px !important;
+  padding-top: 0px !important;
+  
+}
+
+nb-layout {
+  background: none !important;
+  color: #E5EFFB !important;
+  padding-left: 0px !important;
+  padding-bottom: 0px !important;
+  padding-right: 0px !important;
+  padding-top: 0px !important;
+  overflow: hidden !important;
+  width: 75% !important;
+}
+.widgets {
+  margin-bottom: 10px;
+}
+/*#profit {
+  margin-left: 15px !important;
+}
+
+#earning {
+  margin-right: 15px !important;
+}*/
+.user-profile {
+  margin-left: 15px !important;
+  margin-right: 15px !important;
+}
+.user-traffic {
+  margin-left: 2px !important;
+  margin-right: 2px !important;
+}

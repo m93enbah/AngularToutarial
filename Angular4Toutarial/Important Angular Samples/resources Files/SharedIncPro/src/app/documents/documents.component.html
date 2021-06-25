@@ -1,0 +1,285 @@
+<!--Document Group Search-->
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <form [formGroup]="DocumentsGroupSearchfrm">
+        <div class="card-header">
+          <h6 class="card-title">Document Search</h6>
+          <div class="card-tools">
+            <div class="buttons-group">
+              <button pButton type="button" icon="pi pi-refresh" pTooltip="Reset" tooltipPosition="top"
+                (click)="ResetDocumentGroupsSearchForm()"></button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <div class="row form-row" dragula="sortable">
+
+
+            <div class="col-md-3 form-group" #InsuranceSystems>
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblDGInsuranceSystemsResource">Insurance Systems</label>
+                <p-dropdown [options]="InsuranceSystem" formControlName="SystemId"
+                  (onChange)="InsuranceSystemValuechangeSearch($event.value)"></p-dropdown>
+                <css-context-menu [global]="false" [target]="InsuranceSystems"></css-context-menu>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group" #ClassId>
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblDGClassIdResource">Insurance Class</label>
+                <p-dropdown [options]="InsuranceClassesSearch" formControlName="ClassId"
+                  (onChange)="InsuranceClassesValuechangeSearch($event.value)"></p-dropdown>
+                <css-context-menu [global]="false" [target]="ClassId"></css-context-menu>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group" #PolicyType>
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblDGPolicyTypeResource">Sub Line Of Business</label>
+                <p-dropdown [options]="ClassesPolicyTypesSearch" formControlName="PolicyType"></p-dropdown>
+                <css-context-menu [global]="false" [target]="PolicyType"></css-context-menu>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblDGNameResource">Document Group Name</label>
+                <input id="float-input" type="text" pInputText formControlName="Name"
+                  class="ui-inputtext ui-corner-all">
+
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <div class="buttons-group">
+                <button pButton type="button" label="Search" (click)="SubmitDocumentGroupsSearchForm()"></button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!--Document Group Grid-->
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="card-title">Documents Group List</h6>
+        <div class="card-tools">
+          <div class="buttons-group">
+            <button pButton type="submit" icon="pi pi-file" pTooltip="Add" tooltipPosition="top"
+              (click)="ResetDocumentGroupsEntryForm()"></button>
+            <button pButton type="button" icon="pi pi-trash" pTooltip="Remove" tooltipPosition="top"
+              (click)="RemoveDocumentGroups()"></button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row form-row">
+          <div class="col-md-12 form-group">
+            <css-datatable (OnRowClicked)="onCheckboxSelectedDG($event)" [cols]="DocumentGroupCols"
+              [showCheckBox]="true" [mouseHover]="true" [title]="gridHeader" [rows]="DocumentGroupsGrid">
+            </css-datatable>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!---->
+
+
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="card-title">Document Group Entry</h6>
+
+      </div>
+      <div class="card-body">
+        <form [formGroup]="DocuemntGroupsEntryfrm">
+          <div class="row form-row" dragula="sortable">
+
+            <div class="col-md-3 form-group" #InsuranceSystems>
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblDGInsuranceSystemsResource">Insurance Systems</label>
+                <p-dropdown [options]="InsuranceSystem" formControlName="SystemId"
+                  (onChange)="InsuranceSystemValuechangeEntry($event.value)" required></p-dropdown>
+                <css-context-menu [global]="false" [target]="InsuranceSystems"></css-context-menu>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group" #ClassId>
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblDGClassIdResource">Insurance Class</label>
+                <p-dropdown [options]="InsuranceClassesEntry" formControlName="ClassId"
+                  (onChange)="InsuranceClassesValuechangeEntry($event.value)" ></p-dropdown>
+                <css-context-menu [global]="false" [target]="ClassId"></css-context-menu>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group" #PolicyType>
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblDGPolicyTypeResource">Sub Line Of Business</label>
+                <p-dropdown [options]="ClassesPolicyTypesEntry" formControlName="PolicyType" ></p-dropdown>
+                <css-context-menu [global]="false" [target]="PolicyType"></css-context-menu>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblDGNameResource">Document Group Name</label>
+                <input id="float-input" type="text" pInputText formControlName="Name" class="ui-inputtext ui-corner-all"
+                  required>
+
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblDGName2Resource">Document Group Name2</label>
+                <input id="float-input" type="text" pInputText formControlName="Name2"
+                  class="ui-inputtext ui-corner-all">
+
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group" #type>
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblDGTypeResource">Apply To</label>
+                <!--Apply to options will change after domain value is done-->
+                <p-dropdown [options]="InsuranceSystem"  formControlName="type"></p-dropdown>
+                <css-context-menu [global]="false" [target]="type"></css-context-menu>
+              </div>
+            </div>
+
+
+            <div class="col-md-6 form-group">
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblDGNotesResource">Notes</label>
+                <textarea id="float-input" pInputTextarea formControlName="Notes" class="ui-inputtext ui-corner-all"
+                  rows="3"></textarea>
+
+              </div>
+            </div>
+
+
+          </div>
+          <div class="card-footer">
+            <div class="buttons-group">
+              <button pButton type="Button" [label]="DGEntryAction" (click)="SaveDocumentGroups()"></button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!---->
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="card-title">Documents List</h6>
+        <div class="card-tools">
+          <div class="buttons-group">
+            <button pButton type="submit" icon="pi pi-file" pTooltip="Add" tooltipPosition="top"
+              (click)="ResetDocumentsEntryForm()"></button>
+            <button pButton type="submit" icon="pi pi-trash" pTooltip="Remove" tooltipPosition="top"
+              (click)="RemoveDocuments()"></button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row form-row">
+          <div class="col-md-12 form-group">
+            <css-datatable (OnRowClicked)="onCheckboxSelectedD($event)" [cols]="DocumentCols" [showCheckBox]="true"
+              [mouseHover]="true" [title]="gridHeader" [rows]="DocumentsGrid"
+              (OnRowcheckboxSelected)="RequiredCheckboxChange($event)">
+            </css-datatable>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!---->
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <form [formGroup]="DocumentsEntryfrm">
+        <div class="card-header">
+          <h6 class="card-title">Document Entry</h6>
+          <div class="card-tools">
+
+          </div>
+        </div>
+        <div class="card-body">
+
+          <div class="row form-row" dragula="sortable">
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblDNameResource">Attachment Name</label>
+                <input id="float-input" type="text" pInputText formControlName="Name" class="ui-inputtext ui-corner-all"
+                  required>
+
+              </div>
+            </div>
+
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblDName2Resource">Attachment Name2</label>
+                <input id="float-input" type="text" pInputText formControlName="Name2"
+                  class="ui-inputtext ui-corner-all">
+
+              </div>
+            </div>
+
+            <div class="col-md-6 form-group">
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblDNotesResource">Notes</label>
+                <textarea id="float-input" pInputTextarea class="ui-inputtext ui-corner-all" formControlName="Notes"
+                  rows="3"></textarea>
+
+              </div>
+            </div>
+
+
+            <div class="card-footer">
+              <div class="buttons-group">
+                <button pButton type="button" [label]="DEntryAction" (click)="SaveDocuments()"></button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!---->

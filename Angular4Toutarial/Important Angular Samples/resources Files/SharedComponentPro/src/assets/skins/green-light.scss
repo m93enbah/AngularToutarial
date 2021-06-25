@@ -1,0 +1,120 @@
+$mainBg: #4caf50;
+
+.wrapper {
+    .main-header {
+      background: $mainBg;
+      .system-logo{
+        color: #fff!important;
+        .logo-img-dark{
+            display: none
+        }
+        .logo-img-light{
+            display: inline-block!important
+        }
+    }
+    .navbar-header{
+    > .mat-icon-button{
+      color: #fff!important
+  }
+}
+.top-navbar {
+  > ul {
+      > li{
+          color: #fff!important;
+          > a{
+              color: #fff!important
+          }
+          .logo-wrapper{
+            .logo-upload{
+                .upload-open{
+                    background: $mainBg!important;
+                    &:hover{
+                        background: #fff!important;
+                        color: $mainBg!important;
+                    }
+                }
+                .upload-select {
+                    .upload-header{
+                        background: $mainBg!important;
+                    }
+                            .upload-logo-btn{
+                            background: $mainBg!important;
+                        }
+                    }
+            }
+        }  
+      }
+  }
+}
+    }
+    .main-sidebar {
+      .ui-panelmenu {
+        .ui-panelmenu-panel{
+          .ui-panelmenu-content-wrapper{
+            .ui-panelmenu-content{
+              background: lighten($mainBg, 5)!important;
+            }
+          }
+        }
+      }
+    }
+    .content-wrapper.sidebar-mini{
+        .ui-panelmenu {
+            .ui-panelmenu-panel{
+              .ui-panelmenu-header{
+                > a{
+                  .ui-menuitem-text{
+                    background: darken($mainBg, 10)!important;
+                  }
+                }
+              }
+            }
+          }
+    }
+    .mat-table thead,
+    .ngx-datatable.material .datatable-header {
+      background: darken($mainBg, 25);
+    }
+    .mat-header-cell,
+    .mat-sort-header-arrow,
+    .ngx-datatable.material .datatable-header .datatable-header-cell {
+      color: #fff
+    }
+    .tools-settings{
+      .tools-list{
+          .tools-header{
+              background: lighten($mainBg, 25);
+          }
+      }
+  }
+    .tools-button{
+      background-color: $mainBg!important
+    }
+    .ui-state-active,
+  .ui-button {
+    border-color:  $mainBg!important;
+    background-color: $mainBg!important;
+  }
+  .ui-state-highlight{
+    border-color:  lighten($mainBg, 10)!important;
+    background-color: lighten($mainBg, 10)!important;
+  }
+  .ui-button:hover,
+  .ui-button:focus{
+    border-color:  darken($mainBg, 10)!important;
+    background-color: darken($mainBg, 10)!important;
+  }
+  .to-do-list{
+      h3{
+          background-color: $mainBg!important
+      }
+  }
+  .tabs-group{
+      .mat-tab-label.mat-tab-label-active {
+    background-color: $mainBg!important
+  }
+  }
+  }
+  ::-webkit-scrollbar-thumb {
+      background: lighten($mainBg, 10);
+  }

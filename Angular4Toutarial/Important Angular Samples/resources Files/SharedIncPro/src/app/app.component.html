@@ -1,0 +1,13 @@
+<ngx-spinner style="z-index: 1000000;" bdColor="rgba(51,51,51,0.8)" size="large" color="#0082B9" type="line-scale-pulse-out">
+</ngx-spinner>
+
+<p-confirmDialog></p-confirmDialog>
+
+<p-growl [(value)]="msgs" baseZIndex="1000000" life="3000"></p-growl>
+
+<div class="wrapper-overlay-login" *ngIf="!showMasterPage">
+  <router-outlet></router-outlet>
+</div>
+<div class="wrapper-overlay" *ngIf="showMasterPage">
+  <css-master-page class="master-component"></css-master-page>
+</div>

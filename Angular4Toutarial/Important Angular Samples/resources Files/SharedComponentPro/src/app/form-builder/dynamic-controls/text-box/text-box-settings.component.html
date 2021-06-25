@@ -1,0 +1,131 @@
+<div class=" panel panel-default">
+  <form class="panel-body" name="addEditForm" [formGroup]="form">
+
+    <!-- Order -->
+    <div class="form-row">
+      <label class="settings-label">Order</label>
+      <input type="number" class="form-control input-sm" name="order" placeholder="Order" [value]="control.order" formControlName="order" readonly>
+    </div>
+
+    <!-- key -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Key</label>
+      <input type="text" class="form-control input-sm" name="key" placeholder="Key" [value]="control.key" formControlName="key" >
+    </div>
+
+    <!-- Input Type -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Input Type</label>
+      <input type="text" class="form-control input-sm" name="inputType" placeholder="Input Type" [value]="control.inputType" formControlName="inputType" readonly>
+    </div>
+
+    <!-- Number Type -->
+    <div class="form-row settings-row" *ngIf="control.inputType =='number'|| control.numberType == this.percentage || control.numberType == this.decimal">
+      <label class="settings-label">Number Type</label>
+      <select id="numberType" formControlName="numberType" name="numberType" class=" form-control input-sm settings-dropdown-height"  required>
+        <option *ngFor="let key of keys" [value]="key">{{numberTypes[key]}}</option>
+      </select>
+    </div>
+
+    <!-- Labels Text -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Label's Text</label>
+      <input type="text" class="form-control input-sm" name="label" placeholder="Text" [value]="control.name" formControlName="name">
+    </div>
+
+    <!-- PlaceHolder -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Placeholder</label>
+      <input type="text" class="form-control input-sm" name="placeholder" placeholder="Placeholder" [value]="control.placeholder" formControlName="placeholder" >
+    </div>
+
+    <!-- MinLength -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Minimum Length</label>
+      <input type="number" class="form-control input-sm" name="minlength" placeholder="Minimum Length" [value]="control.minlength" formControlName="minlength">
+    </div>
+
+    <!-- MaxLength -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Maximum Length</label>
+      <input type="number" class="form-control input-sm" name="maxlength" placeholder="Maximum Length" formControlName="maxlength" [value]="control.maxlength">
+    </div>
+
+    <!-- Width -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Width</label>
+      <p-selectButton class="form-control-ng" [options]="widthOptions" formControlName="width"></p-selectButton>
+    </div>
+
+    <!-- Number Only Attributes -->
+    <div *ngIf="control.inputType == 'number'|| control.numberType == this.decimal ">
+
+      <!-- Minimum Value -->
+      <div class="form-row settings-row">
+        <label class="settings-label">Minimum value</label>
+        <input type="number" class="form-control input-sm" name="min" placeholder="Minimum value" [value]="control.min" formControlName="min">
+      </div>
+
+      <!-- Maximum Value -->
+      <div class="form-row settings-row">
+        <label class="settings-label">Maximum value</label>
+        <input type="number" class="form-control input-sm" name="max" placeholder="Maximum value" [value]="control.max" formControlName="max">
+      </div>
+
+      <!-- Step Value -->
+      <div class="form-row settings-row">
+        <label class="settings-label">Step value</label>
+        <input type="number" class="form-control input-sm" name="step" placeholder="Step" [value]="control.step" formControlName="step">
+      </div>
+
+      <!-- Decimal Only Settings -->
+      <div *ngIf="control.numberType == this.decimal">
+        <!-- Minimum Decimal Point-->
+        <div class="form-row settings-row">
+          <label class="settings-label">Minimum Decimal Point</label>
+          <input type="number" class="form-control input-sm" name="minDecimalPoint" placeholder="Minimum Decimal Point" [value]="control.minDecimalPoint"
+                 formControlName="minDecimalPoint">
+        </div>
+
+        <!-- Maximum Decimal Point-->
+        <div class="form-row settings-row">
+          <label class="settings-label">Maximum Decimal Point</label>
+          <input type="number" class="form-control input-sm" name="maxDecimalPoint" placeholder="Maximum Decimal Point" [value]="control.maxDecimalPoint"
+                 formControlName="maxDecimalPoint">
+        </div>
+      </div>
+
+      <!-- allowNegative  -->
+      <div class="form-row settings-checkbox-row">
+        <p-triStateCheckbox label="Allow Negative" name="allowNegative" class="settings-label" formControlName="allowNegative"></p-triStateCheckbox>
+      </div>
+
+      <!-- currencyFormat  -->
+      <div *ngIf=" control.numberType == this.decimal " class="form-row settings-checkbox-row">
+        <p-triStateCheckbox label="Currency Format" name="currencyFormat" class="settings-label" formControlName="currencyFormat"></p-triStateCheckbox>
+      </div>
+    </div>
+
+    <!-- Email Only Attributes -->
+    <div *ngIf="control.inputType=='email'">
+      <div class="form-row settings-row">
+        <label class="settings-label">Pattern</label>
+        <input type="number" class="form-control input-sm" name="pattern" placeholder="example@domain.com" formControlName="pattern" readonly>
+      </div>
+    </div>
+
+    <!-- Disabled -->
+    <div class="form-row settings-checkbox-row">
+      <p-triStateCheckbox label="Disabled" class="settings-label" formControlName="disabled"></p-triStateCheckbox>
+    </div>
+
+    <!-- Required -->
+    <div class="form-row settings-checkbox-row">
+      <p-triStateCheckbox label="Required" class="settings-label" formControlName="required"></p-triStateCheckbox>
+    </div>
+  </form>
+  <!-- Save/Clear Buttons -->
+  <div class="form-row  box-footer settings-row">
+    <button class="btn btn-primary fb-button"  [disabled]="!form.valid" (click)="save()">Save</button>
+  </div>
+</div>

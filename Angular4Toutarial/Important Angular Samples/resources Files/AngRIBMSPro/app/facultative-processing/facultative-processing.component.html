@@ -1,0 +1,649 @@
+
+  <ribms-search-block [show]="show" (onSearch)="onSearch($event)" (onSelectedRow)="OnSelectedRow($event)" [cols]="Cols" [rows]="rows" [showCheckBox]="true"
+                      [dialogTitle]="dialogTitle" [searchTitle]="searchTitle" [resultTitle]="resultTitle" [controls]="controls" (emitSuggest)="GetSuggestVal($event)"></ribms-search-block>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="nav-tabs-custom tab-blue box-blue">
+        <ul class="nav nav-tabs">
+          <li class="active">
+            <a href="#FacProcessingProgram" data-toggle="tab">Fac Inward Processing</a>
+          </li>
+          <li>
+            <a href="#FacOutwardProcessing" data-toggle="tab">Fac Outward Processing</a>
+          </li>
+          <li>
+            <a href="#FacClaimProcessing" data-toggle="tab">Fac Claim Processing</a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div id="FacProcessingProgram" class="tab-pane active">
+            <div class="row">
+              <div class="box-body">
+                <form id="FacInwardForm" [formGroup]="FacInwardForm">
+                  <div class="box box-blue box-solid">
+                    <div class="box-header with-border">
+                      <h3 class="box-title">
+                        <span>Inward Entry</span>
+                      </h3>
+                      <div class="box-tools pull-right">
+                        <!--<a class="btn btn-box-tool" href="" data-toggle="modal" (click)="showFacInwardModel()" data-target=".search-modal-lg">
+                          <i class="fa fa-search" aria-hidden="true"></i>
+                        </a>-->
+                        <a class="btn btn-box-tool" href="javascript:void(0);" (click)="resetFacInwardForm()">
+                          <i class="fa fa-plus-square" aria-hidden="true"></i>
+                        </a>
+                        <a class="btn btn-box-tool" href="javascript:void(0);" (click)="deleteFacInward()">
+                          <i class="fa fa-trash" aria-hidden="true"></i>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="box-body">
+                      <div id="divCollapse">
+                        <div class="row form-row" dragula="sortable">
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Inward Type</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <div class="radioBtnContainer">
+                                  <p-dropdown class="form-control-ng" [options]="inwardTypeList" required="required" formControlName="inwardType" (onChange)="OnInwardTypeChange($event)"></p-dropdown>
+                                  <!--<input type="radio" formControlName="policyInwardType" name="policyInwardType" (click)="OnInwardTypeChange(false)" [checked]="IsChecked">
+            <label class="margin-right-10px">Policy</label>
+            <input type="radio" formControlName="endorsementInwardType" name="endorsementInwardType" (click)="OnInwardTypeChange(true)" [checked]="!IsChecked">
+            <label>Endorsement</label>-->
+                                </div>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <div *ngIf="showHidePolicyNo">
+                              <label class="control-label col-sm-5 col-xs-12">Policy No</label>
+                              <ul class="input-group col-sm-7 col-xs-12">
+                                <li>
+                                  <p-autoComplete formControlName="policyNo" [suggestions]="filteredPolicyNo" (completeMethod)="filterPolicyNo($event)" [forceSelection]="true"
+                                                  [size]="30" [minLength]="1" field="label" dataKey="value" class="form-control-ng" [dropdown]="true" required="required">
+                                  </p-autoComplete>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row form-row" dragula="sortable">
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Account Hnadler</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-autoComplete formControlName="accountHnadler" [suggestions]="filteredAccountHnadler" (completeMethod)="filterAccountHnadler($event)" [forceSelection]="true"
+                                                [size]="30" [minLength]="1" field="label" dataKey="value" class="form-control-ng" [dropdown]="true" required="required">
+                                </p-autoComplete>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Received Date</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-calendar class="form-control-ng" showIcon="true" utc="false" required="required" formControlName="receivedDate" dateFormat="{{ calenderDateFormat }}"></p-calendar>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Account Status</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-dropdown class="form-control-ng" [options]="accountStatusList" required="required" formControlName="accountStatus"></p-dropdown>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div class="row form-row" dragula="sortable">
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Inception Date</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-calendar class="form-control-ng" showIcon="true" utc="true" required="required" formControlName="inceptionDate" dateFormat="{{ calenderDateFormat }}"></p-calendar>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Expiry Date</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-calendar class="form-control-ng" showIcon="true" utc="true" required="required" formControlName="expiryDate" dateFormat="{{ calenderDateFormat }}"></p-calendar>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">LTA</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <input type="checkbox" class="icheckbox_minimal-blue" formControlName="longTermAgreement" />
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div class="row form-row" dragula="sortable">
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Order %</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <input type="text" class="form-control" min="1" max="100" formControlName="orderPer" required="required" pInputText
+                                       NumericFormat numberType="3" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false"/>
+                                <span class="ng-validation-icon"></span>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Umr Reference</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <input type="text" class="form-control" formControlName="umrReference" required="required" pInputText />
+                                <span class="ng-validation-icon"></span>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Our Reference</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <input type="text" class="form-control" formControlName="ourReference" readonly="readonly" pInputText />
+                                <span class="ng-validation-icon"></span>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div class="row form-row" dragula="sortable">
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Insured Name</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-autoComplete formControlName="insuredName" [suggestions]="filteredInsureds" (completeMethod)="filterInsureds($event)" [forceSelection]="true"
+                                                [size]="30" [minLength]="1" field="label" dataKey="value" class="form-control-ng" [dropdown]="true" required="required">
+                                </p-autoComplete>
+
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Cedant</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-autoComplete formControlName="cedant" [suggestions]="filteredCedants" (completeMethod)="filterCedants($event)" [forceSelection]="true"
+                                                [size]="30" [minLength]="1" field="label" dataKey="value" class="form-control-ng" [dropdown]="true" required="required">
+                                </p-autoComplete>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Retrocedant</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-autoComplete formControlName="retroCedant" [suggestions]="filteredRetroCedant" (completeMethod)="filterRetroCedant($event)" [forceSelection]="true"
+                                                [size]="30" [minLength]="1" field="label" dataKey="value" class="form-control-ng" [dropdown]="true">
+                                </p-autoComplete>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div class="row form-row" dragula="sortable">
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Source</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-dropdown class="form-control-ng" [options]="sourceList" required="required" formControlName="source"></p-dropdown>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Region</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-autoComplete formControlName="country" [suggestions]="filteredCountries" (completeMethod)="filterCountries($event)" [forceSelection]="true"
+                                                [size]="30" [minLength]="1" field="label" dataKey="value" class="form-control-ng" [dropdown]="true" required="required">
+                                </p-autoComplete>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Country</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-autoComplete formControlName="city" [suggestions]="filteredCities" (completeMethod)="filterCities($event)" [forceSelection]="true"
+                                                [size]="30" [minLength]="1" field="label" dataKey="value" class="form-control-ng" [dropdown]="true" required="required">
+                                </p-autoComplete>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                        <br />
+                        <div class="row form-row" dragula="sortable">
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Policy Type</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-dropdown class="form-control-ng" [options]="insuranceTypeList" required="required" formControlName="insuranceType"></p-dropdown>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Policy Nature</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-dropdown class="form-control-ng" [options]="policyNatureList" required="required" formControlName="policyNature"></p-dropdown>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Branch</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-dropdown class="form-control-ng" [options]="insuranceClassList" required="required" formControlName="insuranceClass"></p-dropdown>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div class="row form-row" dragula="sortable">
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Class</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-multiSelect class="form-control-ng" [options]="subLobList" formControlName="selectedSubLob" [filter]="true" required="required"></p-multiSelect>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Sub-Class</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-dropdown class="form-control-ng" [options]="coveredDetailsList" formControlName="coveredDetails"></p-dropdown>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Market Leader</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-autoComplete formControlName="marketLeader" [suggestions]="filteredMarketLeader" (completeMethod)="filterMarketLeader($event)" [forceSelection]="true"
+                                                [size]="30" [minLength]="1" field="label" dataKey="value" class="form-control-ng" [dropdown]="true">
+                                </p-autoComplete>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div class="row form-row" dragula="sortable">
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Signed Line %</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <input type="text" class="form-control" min="1" max="100" formControlName="signedLine" required="required" pInputText
+                                       NumericFormat numberType="3" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" />
+                                <span class="ng-validation-icon"></span>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Bound Date</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-calendar class="form-control-ng" showIcon="true" utc="true" required="required" formControlName="boundDate" dateFormat="{{ calenderDateFormat }}"></p-calendar>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Premium Frequency</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <p-dropdown class="form-control-ng" [options]="premiumFrequencyList" required="required" formControlName="premiumFrequency"></p-dropdown>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                        <br />
+                        <div class="row form-row">
+                          <div class="form-group col-md-12">
+                            <fieldset class="fieldset-box">
+                              <legend class="subject-legend">
+                                Original Currency Amounts
+                              </legend>
+                              <div class="box-body">
+                                <div class="row form-row" dragula="sortable">
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Original Currency</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <ribms-currency [CurrencyState]="false" (outputToParent)="fillOriginalCurrency($event)" [currencyObj]="originalCurrency" #OriginalCurrency></ribms-currency>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                  <div class="form-group col-md-4">
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <a class="btn btn-box-tool" href="" data-toggle="modal" (click)="viewInstallments()" data-target=".search-modal-lg">
+                                          {{showSaveUpdate === false ? '' : 'View Installments'}}
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                                <div class="row form-row" dragula="sortable">
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Sum Insured</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="originalSumInsured" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Limit PML</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="originalLimitPML" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true"/>
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Gross Premium</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="originalGrossPremium" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true"/>
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                                <div class="row form-row" dragula="sortable">
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Sum Insured For Share</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="originalSumInsuredForShare" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true"/>
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Limit PML For Share</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="originalLimitPMLForShare" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true"/>
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Gross Premium For Share</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="originalGrossPremiumForShare" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                                <div class="row form-row" dragula="sortable">
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Deductible Amount</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="originalDeductibleAmount" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true"/>
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Excess Amount</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="originalExcessAmount" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Original Net Premium</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="origNetPremium" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true"/>
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>                                
+                              </div>
+                            </fieldset>
+                          </div>
+                        </div>
+                        <div class="row form-row">
+                          <div class="form-group col-md-12">
+                            <fieldset class="fieldset-box">
+                              <legend class="subject-legend">
+                                Base Currency Amounts
+                              </legend>
+                              <div class="box-body">
+                                <div class="row form-row" dragula="sortable">
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Base Currency</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <ribms-currency [CurrencyState]="false" (outputToParent)="fillBaseCurrency($event)" [currencyObj]="baseCurrency" #BaseCurrency></ribms-currency>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                                <div class="row form-row" dragula="sortable">
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Sum Insured</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="baseSumInsured" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Limit PML</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="baseLimitPML" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Gross Premium</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="baseGrossPremium" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                                <div class="row form-row" dragula="sortable">
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Sum Insured For Share</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="baseSumInsuredForShare" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Limit PML For Share</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="baseLimitPMLForShare" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Gross Premium For Share</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="baseGrossPremiumForShare" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                                <div class="row form-row" dragula="sortable">
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Deductible Amount</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="baseDeductibleAmount" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Excess Amount</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="baseExcessAmount" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                  <div class="form-group col-md-4">
+                                    <label class="control-label col-sm-5 col-xs-12">Base Net Premium</label>
+                                    <ul class="input-group col-sm-7 col-xs-12">
+                                      <li>
+                                        <input type="text" class="form-control" formControlName="baseNetPremium" pInputText
+                                               NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                                        <span class="ng-validation-icon"></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+                            </fieldset>
+                          </div>
+                        </div>
+                        <div class="row form-row" dragula="sortable">
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Discount GP Per</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <input type="text" class="form-control" formControlName="discountGpPer" pInputText
+                                       NumericFormat numberType="3" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false"  />
+                                <span class="ng-validation-icon"></span>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label class="control-label col-sm-5 col-xs-12">Discount NP Per</label>
+                            <ul class="input-group col-sm-7 col-xs-12">
+                              <li>
+                                <input type="text" class="form-control" formControlName="discountNpPer" pInputText
+                                       NumericFormat numberType="3" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false"/>
+                                <span class="ng-validation-icon"></span>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div class="row form-row">
+                          <div class="form-group col-md-12">
+                            <label class="control-label col-sm-2 col-xs-12">Attachment</label>
+                            <ul class="input-group col-sm-10 col-xs-12">
+                              <li>
+                                <ribms-file-upload #fileUploader name="files" multiple="multiple" customUpload="true" (uploadHandler)="uploadHandler($event)" mode="advanced" [colsAttachments]="colsAttachments"
+                                                   [rowsAttachments]="rowsAttachments" (OnCheckboxSelectedAttachments)="OnCheckboxSelectedAttachments($event)" (OnDeleteAttachments)="deleteFacInwardAttachments()"></ribms-file-upload>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                          <div class="row form-row" dragula="sortable">
+                            <div class="form-group col-md-12">
+                              <label class="control-label col-sm-2 col-xs-12">Risk Notes</label>
+                              <ul class="input-group col-sm-10 col-xs-12">
+                                <li>
+                                  <textarea class="form-control" rows="1" formControlName="risknotes"></textarea>
+                                  <span class="ng-validation-icon"></span>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    <div class="box-footer">
+                      <div class="form-group text-center">
+                        <button class="btn btn-primary btn-xs" style="float: right;" [disabled]="!FacInwardForm.valid" (click)="saveFacInward()">
+                          {{showSaveUpdate === false ? 'Save' : 'Update'}}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+                <!--<p> FormValues: {{ FacInwardForm.value | json }}</p>-->
+              </div>
+            </div>
+          </div>
+          <div id="FacOutwardProcessing" class="tab-pane">
+            <div class="row">
+              <div class="box-body">
+                <ribms-fac-outward [krnFacInwardId]="facInwardId"></ribms-fac-outward>
+              </div>
+            </div>
+          </div>
+          <div id="FacClaimProcessing" class="tab-pane">
+            <div class="row">
+              <div class="box-body">
+                <ribms-facultative-claim [krnFacInwardId]="facInwardId"></ribms-facultative-claim>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="showInstallmentpopup" class="modal search-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" (click)="HideInstallmentpopup()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title">Table of Installments</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12 form-group">
+              <div class="block-wrapper">
+                <ribms-datatable [title]="gridHeaderInstallments" [cols]="colsInstallments" [rows]="rowsInstallments"></ribms-datatable>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="form-group text-center">
+            <button class="btn btn-primary btn-xs pull-right" (click)="saveUpdateFacOutwardInstallments()">{{ showSaveUpdateInstallments ? "Update" : "Save" }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+

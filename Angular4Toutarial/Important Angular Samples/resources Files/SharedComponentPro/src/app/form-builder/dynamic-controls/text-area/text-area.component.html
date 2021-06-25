@@ -1,0 +1,19 @@
+<div class="form-group editor-control" [ngClass]="{'col-md-3': control.width ==1 ,'col-md-6': control.width==2, 'col-md-9':control.width==3,'col-md-12':control.width==4 }">
+  <div [formGroup]="form" class="prime-form-control">
+    <span class="ui-float-label">
+      <textarea class="component-textarea textarea-noresize ui-inputtext ui-corner-all"
+                [id]="control.key"
+                [name]="control.key"
+                [rows]="control.rows"
+                [cols]="control.cols"
+                [placeholder]="control.placeholder"
+                [maxlength]="control.maxlength"
+                [formControlName]="control.key"
+                [minlength]="control.minlength"
+                [required]="control.required"
+                [appDisable]="control.disabled"></textarea>
+
+      <label [attr.for]="control.key" class="component-label">{{control.name}}</label>
+    </span>
+  </div>
+</div>

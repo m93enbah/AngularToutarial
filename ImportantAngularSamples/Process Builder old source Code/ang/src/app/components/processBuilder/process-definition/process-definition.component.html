@@ -1,0 +1,76 @@
+<div class="col-md-10">
+  <div class="col-md-2 rcorners2">
+  
+    <img src="./assets/shapes/ChromIMG.jpg" />
+    <br />
+
+    <button type="button" class="btn btn-info btn-lg" (click)="ADDProcess()">ADD</button>
+  </div>
+
+  <div *ngFor="let item of process" class="col-md-2 rcorners2">
+
+
+    <div class="box-tools pull-right">
+      <button type="button" class="btn btn-box-tool" (click)="DeleteProcess(item.Id);"><i class="fa fa-trash"></i></button>
+    </div>
+
+
+    <img src="./assets/shapes/ChromIMG.jpg" />
+    <br />
+    <p> {{item.Name}} </p>
+    <br />
+    <input type="button" class="btn btn-primary" (click)="EditProcess(item.Id)" value="Edit" />
+    <br />
+    <input type="button" class="btn btn-primary" (click)="ShowDetails(item.Id)" value="Show Details" />
+  </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog"  [ngStyle]="{'display':display}">
+  <!-- modal-dialog -->
+  <div class="modal-dialog" role="document">
+    <!-- modal-content -->
+    <div class="modal-content">
+      <!-- modal-header -->
+      <div class="modal-header">
+          <h4 class="modal-title" id="SMSProvider-search-ModalLabel">{{dialogTitle}}</h4>
+          <button type="button" class="close" aria-label="Close" (click)="closeModalDialog()"><span aria-hidden="true">&times;</span></button>
+        <!-- <h4 class="modal-title">Login</h4> -->
+      </div>
+      <!-- modal-body -->
+      <div class="modal-body">
+        <form id="modalForm" [formGroup]="form">
+          <div class="row form-row">
+            <div class="form-group col-md-12">
+              <label class="control-label col-sm-2 col-xs-12">process Name</label>
+              <ul class="input-group col-sm-10 col-xs-12">
+                <li>
+                  <input type="text" class="form-control" formControlName="Name" required="required" />
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="row form-row">
+            <div class="form-group col-md-12">
+              <label class="control-label col-sm-2 col-xs-12">process Description</label>
+              <ul class="input-group col-sm-10 col-xs-12">
+                <li>
+                  <input type="text" class="form-control" formControlName="Desc" required="required" />
+                </li>
+              </ul>
+            </div>
+          </div>
+        </form>
+      </div>
+      <!-- modal-footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="onSubmit()">              
+           {{showProcessSaveOrUpdate === false   ? 'Save' : 'Update'}}
+           </button>
+        <button type="button" class="btn btn-primary" (click)="closeModalDialog()" >Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+

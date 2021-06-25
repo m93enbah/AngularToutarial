@@ -1,0 +1,3828 @@
+
+Part01
+no html for     base-component.html
+    
+    
+base-component.ts     
+             
+import { Component, OnInit, AfterContentInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { User, Application } from '../models/data-models';
+import { DynamicControlService } from '../shared/services/dynamic-control.service';
+import { SharedSetupService } from '../shared/services/shared-setup.service';
+import { AuthenticationService } from '../shared/services/authentication.service';
+
+
+@Component({
+  selector: 'eska-base-component',
+  templateUrl: './base-component.component.html',
+  styleUrls: ['./base-component.component.scss']
+})
+export class BaseComponentComponent implements OnInit, AfterContentInit {
+
+  user: User = new User();
+  public controls: any[] = [];
+  resourceObject: string;
+
+  constructor(public dynamicControlService: DynamicControlService, public router: Router, public authenticationService: AuthenticationService,
+    public sharedSetupService: SharedSetupService) {
+    if (this.router.url.startsWith('/'))
+      this.resourceObject = this.router.url.substring(1, this.router.url.length);
+    else
+      this.resourceObject = this.router.url;
+
+    this.user = this.authenticationService.getLoggedInUser();   
+
+    this.sharedSetupService.getResources(this.resourceObject, "1" , Application.BMS, 1 ).subscribe(
+      data => { this.sharedSetupService.Resources = data; },
+      err => { console.log(err); });
+  }    
+
+  ngOnInit() {
+  }
+
+  ngAfterContentInit() {  
+    
+  }
+
+  async generateControls(moduleCode: string): Promise<any[]> {
+    
+
+    let getControlsByKey$ = this.dynamicControlService.generateControls(this.resourceObject, Application.BMS, moduleCode, 1);
+    await getControlsByKey$.then(
+      data => {
+        console.log('base generate Controls end:' + new Date().toLocaleTimeString());
+        this.controls = data;
+      }
+    );
+    return this.controls;
+  }
+}
+
+======================================================================  
+Part02 Share > Controls
+
+1-auto-complete.component.html
+ 
+ 
+<div (contextmenu)="onContextMenu($event)" #wrapperDiv [formGroup]="formGroup">
+  <label *ngIf="!showEditLabel">{{ control.labelKey | translate }}</label>
+  <input *ngIf="showEditLabel" #editLabelInput id="txtEditLabel" placeholder="Edit label.." type="text" class="form-control label-edit"
+         value="{{ control.labelKey | translate }}" (focusout)="onFocusout($event)" />
+
+  <p-autoComplete [formControlName]="control.key" [suggestions]="suggestions" (completeMethod)=" !control.disabled ? CompleteMethod($event) : suggestions=[];"
+                  [dropdown]="true" [forceSelection]="true" field="label" dataKey="value" [required]="control.required" [readonly]="control.disabled? 'disabled' : null"
+                  (onSelect)="OnSelect(control)" class="prime-form-control">
+  </p-autoComplete>
+  <p-contextMenu [global]="false" [target]="wrapperDiv" [model]="items"></p-contextMenu>
+</div>
+
+           
+auto-complete.component.ts       
+       
+       
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, DoCheck, KeyValueDiffers, KeyValueDiffer } from '@angular/core';
+import { BaseControlComponent } from '../base-control/base-control.component';
+import { FormGroup } from '@angular/forms';
+import { SharedSetupService } from '../../services/shared-setup.service';
+import { Router } from '@angular/router';
+import { AuthenticationService } from '../../services/authentication.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { FilterPipe } from '../../pipes/filter.pipe';
+import { ControlType } from '../../../models/data-models';
+import { DynamicControlService } from '../../services/dynamic-control.service';
+
+@Component({
+  selector: 'eska-autoComplete',
+  templateUrl: './auto-complete.component.html',
+  styleUrls: ['./auto-complete.component.scss']
+})
+export class AutoCompleteComponent extends BaseControlComponent implements OnInit {
+
+  @Input() suggestions: any[];
+  @Output() completeMethod: EventEmitter<any> = new EventEmitter<any>();
+
+  formGroup: FormGroup;
+
+  constructor(public cdRef: ChangeDetectorRef, public sharedSetupService: SharedSetupService, public router: Router, public authenticationService: AuthenticationService,
+    public dynamicControlService: DynamicControlService, public translatePipe: TranslatePipe, public filterPipe: FilterPipe) {
+    super(cdRef, sharedSetupService, router, authenticationService, dynamicControlService, translatePipe, filterPipe);
+  }
+
+  ngOnInit() {
+    this.formGroup = this.form;
+  }
+
+  CompleteMethod(event) {
+    if (this.control.isDynamic)
+      this.dynamicControlService.fillControlOptions(this.control, this.form, event.query).then(
+        data => {
+          if (data.options.length > 0)
+            this.suggestions = data.options;
+          else
+            this.suggestions = [];
+        });
+    else
+      this.completeMethod.emit(event);
+  }
+
+  OnSelect(control) {
+    if (control.isDynamic)
+      control.childControls.forEach(
+        child => {
+          switch (child.controlType) {
+            case ControlType.Dropdown:
+              this.dynamicControlService.fillControlOptions(child, this.form).then(
+                data => {
+                  if (data != undefined || data != null) {
+                    this.bindControl.emit(data);
+                  }
+                });
+              break;
+          }
+        });
+  }
+}
+      
+ ======================================================================        
+  2-base-control.ts 
+  
+  
+  import { Component, OnInit, Input, ViewChild, ElementRef, ChangeDetectorRef, HostListener, AfterViewChecked, AfterViewInit, AfterContentInit, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { User, SstResources, Application } from '../../../models/data-models';
+import { Router } from '@angular/router';
+import { AuthenticationService } from '../../services/authentication.service';
+import { SharedSetupService } from '../../services/shared-setup.service';
+import { MenuItem } from 'primeng/api';
+import { FormGroup } from '@angular/forms';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { FilterPipe } from '../../pipes/filter.pipe';
+import { ControlBase } from '../dynamic-search/control-classes/control-base';
+import { DynamicControlService } from '../../services/dynamic-control.service';
+
+
+@Component({
+  selector: 'eska-base-control',
+  templateUrl: './base-control.component.html',
+  styleUrls: ['./base-control.component.scss'],
+  encapsulation: ViewEncapsulation.None
+})
+export class BaseControlComponent implements OnInit, AfterViewChecked {
+  items: MenuItem[] = [
+    {
+      label: 'Dynamic UI/UX Features',
+      disabled: true,
+      styleClass: 'menu-item-title'
+    },
+    {
+      label: 'Edit label',
+      command: () => { this.editLabel() }
+    },
+    {
+      label: 'Convert to Mandatory',
+      command: () => { this.convertToMandatory() }
+    },
+    {
+      label: 'Convert to Optional',
+      command: () => { this.convertToOptional() }
+    },
+    {
+      label: 'Disable Control',
+      command: () => { this.disbaleControl() }
+    },
+    {
+      label: 'Enable Control',
+      command: () => { this.enableControl() }
+    },
+    {
+      label: 'Hide Control',
+      command: () => { this.hideControl() }
+    },
+    {
+      label: 'Show Hidden Controls',
+      disabled: false,
+      items: []
+    }
+  ];
+
+  label: string;
+  user: User = new User();
+  showEditLabel: boolean = false;
+  @Input() control: any;
+  @ViewChild('wrapperDiv') wrapperDiv: ElementRef;
+  @ViewChild('editLabelInput') editLabelInput: ElementRef;
+
+  @Input() form: FormGroup;
+  @Output() bindControl: EventEmitter<any> = new EventEmitter<any>();
+
+  constructor(public cdRef: ChangeDetectorRef, public sharedSetupService: SharedSetupService, public router: Router,
+    public authenticationService: AuthenticationService, public dynamicControlService: DynamicControlService,
+    public translatePipe: TranslatePipe, public filterPipe: FilterPipe) {
+
+    this.user = this.authenticationService.getLoggedInUser();
+  }
+
+  ngOnInit() {
+    this.label = this.control.labelKey;
+  }
+
+  ngAfterViewChecked() {
+    if (this.showEditLabel) {
+      document.getElementById('txtEditLabel').focus();
+    }
+  }
+
+  editLabel() {
+    this.showEditLabel = true;
+  }
+
+  updateLabel() {
+    let resourceObject: string;
+    if (this.router.url.startsWith('/'))
+      resourceObject = this.router.url.substring(1, this.router.url.length);
+    else
+      resourceObject = this.router.url;
+
+    if (this.editLabelInput != undefined) {
+      let sstResource = new SstResources();
+      sstResource.Object = resourceObject;
+      sstResource.Name = this.control.labelKey;
+      sstResource.Value = this.editLabelInput.nativeElement.value;
+      sstResource.Language = this.user.language.toString();
+      sstResource.SystemId = Application.BMS;
+      sstResource.CompanyId = this.user.companyId;
+
+      this.sharedSetupService.getResource(sstResource.Object, sstResource.Name, sstResource.Language, sstResource.SystemId, sstResource.CompanyId).subscribe(
+        data => {
+          if (data == null) {
+            sstResource.CreationUser = this.user.userName;
+            this.sharedSetupService.postResource(sstResource).subscribe(
+              data => { this.sharedSetupService.Resources[data.Name] = data.Value },
+              err => { console.log(err); }
+            )
+          }
+          else {
+            data.Value = sstResource.Value;
+            data.ModificationUser = this.user.userName;
+            this.sharedSetupService.updateResource(data).subscribe(
+              data => { this.sharedSetupService.Resources[data.Name] = data.Value },
+              err => { console.log(err); }
+            )
+          }
+        },
+        err => {
+          console.log(err);
+        });
+
+      this.showEditLabel = false;
+    }
+  }
+
+  onFocusout(event) {
+    this.showEditLabel = false;
+  }
+
+  hideControl() {
+    this.sharedSetupService.getPageControlById(this.control.id, 1/).subscribe(
+      ctrl => {
+        ctrl.isHidden = 1;
+        ctrl.modificationUser = "Admin"; // this.user.userName;
+        this.sharedSetupService.updatePageControl(ctrl).subscribe(
+          ctrl => {
+            this.control.hidden = true;
+          },
+          err => { console.log(err); }
+        )
+      },
+      err => { console.log(err); }
+    )
+  }
+
+  showHiddenControl(control: ControlBase<any>) {
+    this.sharedSetupService.getPageControlById(control.id, 1.subscribe(
+      ctrl => {
+        ctrl.isHidden = 0;
+        ctrl.modificationUser = "Admin"; // this.user.userName;
+        this.sharedSetupService.updatePageControl(ctrl).subscribe(
+          ctrl => {
+            this.dynamicControlService.controls.filter(c => c.key == control.key && c.form === control.form)[0].hidden = false;
+          },
+          err => { console.log(err); }
+        )
+      },
+      err => { console.log(err); }
+    )
+  }
+
+  convertToMandatory() {  
+    this.sharedSetupService.getPageControlById(this.control.id, 1).subscribe(
+      ctrl => {
+        ctrl.isRequired = 1;
+        ctrl.modificationUser = "Admin"; // this.user.userName;
+        this.sharedSetupService.updatePageControl(ctrl).subscribe(
+          ctrl => {
+            this.control.required = true;
+            this.form.updateValueAndValidity();
+            this.cdRef.detectChanges();
+          },
+          err => { console.log(err); }
+        )
+      },
+      err => { console.log(err); }
+    )
+  }
+
+  convertToOptional() {
+    debugger;
+    this.sharedSetupService.getPageControlById(this.control.id, 1).subscribe(
+      ctrl => {
+        ctrl.isRequired = 0;
+        ctrl.modificationUser = "Admin"; // this.user.userName;
+        this.sharedSetupService.updatePageControl(ctrl).subscribe(
+          ctrl => {
+            debugger;
+            this.control.required = false;
+            this.form.updateValueAndValidity();
+            this.cdRef.detectChanges();
+          },
+          err => { console.log(err); }
+        )
+      },
+      err => { console.log(err); }
+    )
+  }
+
+  enableControl() {
+    this.sharedSetupService.getPageControlById(this.control.id, 1).subscribe(
+      ctrl => {
+        ctrl.isDisabled = 0;
+        ctrl.modificationUser = "Admin"; // this.user.userName;
+        this.sharedSetupService.updatePageControl(ctrl).subscribe(
+          ctrl => {
+            this.control.disabled = false;
+          },
+          err => { console.log(err); }
+        )
+      },
+      err => { console.log(err); }
+    )
+  }
+
+  disbaleControl() {
+    this.sharedSetupService.getPageControlById(this.control.id, 1).subscribe(
+      ctrl => {
+        ctrl.isDisabled = 1;
+        ctrl.modificationUser = "Admin"; 
+        this.sharedSetupService.updatePageControl(ctrl).subscribe(
+          ctrl => {
+            this.control.disabled = true;
+          },
+          err => { console.log(err); }
+        )
+      },
+      err => { console.log(err); }
+    )
+  }
+
+  onContextMenu(e) {
+    var contextMenus = document.getElementsByTagName('p-contextmenu') as HTMLCollectionOf<HTMLElement>;
+    for (var i = 0; i < contextMenus.length; i++) {
+      if (!this.wrapperDiv.nativeElement.parentElement.contains(contextMenus[i]))
+        contextMenus[i].style.display = "none";
+      else
+        contextMenus[i].style.display = "block";
+    }
+
+    this.rebuildContextMenuItems();
+  }
+
+  rebuildContextMenuItems() {
+    if (!this.control.allowEditLabel) {
+      this.items.find(item => item.label === 'Edit label').disabled = true;
+    }
+
+    if (!this.control.allowRequired) {
+      this.items.find(item => item.label === 'Convert to Mandatory').disabled = true;
+      this.items.find(item => item.label === 'Convert to Optional').disabled = true;
+    }
+
+    if (!this.control.allowHidden) {
+      this.items.find(item => item.label === 'Hide Control').disabled = true;
+    }
+
+    if (!this.control.allowDisabled) {
+      this.items.find(item => item.label === 'Disable Control').disabled = true;
+      this.items.find(item => item.label === 'Enable Control').disabled = true;
+    }
+
+
+    if (this.control.required) {
+      this.items.find(item => item.label === 'Convert to Mandatory').visible = false;
+      this.items.find(item => item.label === 'Convert to Optional').visible = true;
+    }
+    else {
+      this.items.find(item => item.label === 'Convert to Mandatory').visible = true;
+      this.items.find(item => item.label === 'Convert to Optional').visible = false;
+    }
+
+    if (this.control.disabled) {
+      this.items.find(item => item.label === 'Disable Control').visible = false;
+      this.items.find(item => item.label === 'Enable Control').visible = true;
+    }
+    else {
+      this.items.find(item => item.label === 'Disable Control').visible = true;
+      this.items.find(item => item.label === 'Enable Control').visible = false;
+    }
+
+    let hiddenControls: MenuItem[] = [];
+    this.dynamicControlService.controls.forEach(ctrl => {
+      if (ctrl.hidden === true && ctrl.form === this.control.form) {
+        if (ctrl.allowHidden == true)
+          hiddenControls.push({ label: this.translatePipe.transform(ctrl.labelKey), command: cmd => this.showHiddenControl(ctrl) });
+        else
+          hiddenControls.push({ label: this.translatePipe.transform(ctrl.labelKey), disabled: true, command: cmd => this.showHiddenControl(ctrl) });
+      }
+    });
+
+    if (hiddenControls.length === 0) {
+      this.items.find(item => item.label === 'Show Hidden Controls').items = undefined;
+      this.items.find(item => item.label === 'Show Hidden Controls').disabled = true;
+    }
+    else {
+      this.items.find(item => item.label === 'Show Hidden Controls').items = hiddenControls;
+      this.items.find(item => item.label === 'Show Hidden Controls').disabled = false;
+    }
+  }
+
+  @HostListener("keypress", ["$event"]) onEnterKeypress(e: KeyboardEvent) {
+    if (e.keyCode === 13) // enter key
+      this.updateLabel();
+  }
+}
+     
+======================================================================    
+  
+  3-Calender.html
+  
+  
+  
+   <div (contextmenu)="onContextMenu($event)" #wrapperDiv [formGroup]="formGroup">
+  <label *ngIf="!showEditLabel" for="float-input">{{ control.labelKey | translate }}</label>
+  <input *ngIf="showEditLabel" #editLabelInput id="txtEditLabel" placeholder="Edit label.." type="text" class="form-control label-edit"
+         value="{{ control.labelKey | translate }}" (focusout)="onFocusout($event)" />
+
+  <p-calendar [dateFormat]="calenderDateFormat" [formControlName]="control.key" [required]="control.required"
+              [disabled]="control.disabled || disabled ? 'disabled' : null" showIcon="true"
+              [minDate]="minDate" [maxDate]="maxDate" class="prime-form-control"></p-calendar>
+  <p-contextMenu [global]="false" [target]="wrapperDiv" [model]="items"></p-contextMenu>
+</div>
+    
+
+Calender.ts
+       
+       
+import { Component, OnInit, ChangeDetectorRef, Input } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { SharedSetupService } from '../../services/shared-setup.service';
+import { environment } from 'src/environments/environment';
+import { Router } from '@angular/router';
+import { AuthenticationService } from '../../services/authentication.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { FilterPipe } from '../../pipes/filter.pipe';
+import { BaseControlComponent } from '../base-control/base-control.component';
+import { DynamicControlService } from '../../services/dynamic-control.service';
+
+@Component({
+  selector: 'eska-calendar',
+  templateUrl: './calendar.component.html',
+  styleUrls: ['./calendar.component.scss']
+})
+export class CalendarComponent extends BaseControlComponent implements OnInit {
+  @Input() minDate: Date;
+  @Input() maxDate: Date;
+  @Input() disabled: boolean= false;
+  formGroup: FormGroup;
+  calenderDateFormat: string = environment.DATE_FMT;
+
+  constructor(public cdRef: ChangeDetectorRef, public sharedSetupService: SharedSetupService, public router: Router, public authenticationService: AuthenticationService,
+    public dynamicControlService: DynamicControlService, public translatePipe: TranslatePipe, public filterPipe: FilterPipe) {
+    super(cdRef, sharedSetupService, router, authenticationService, dynamicControlService, translatePipe, filterPipe);
+  }
+
+  ngOnInit() {
+    this.formGroup = this.form;
+  }
+}
+======================================================================  
+4-checkbox.component.html
+
+<div (contextmenu)="onContextMenu($event)" #wrapperDiv [formGroup]="formGroup">
+  <div class="checkbox checkbox-css">
+    <input type="checkbox" [id]="control.key" [formControlName]="control.key" [required]="control.required"
+           [attr.disabled]="control.disabled? 'disabled' : null" (change)="OnChange($event)">
+
+    <label *ngIf="!showEditLabel" [attr.for]="control.key">{{ control.labelKey | translate }}</label>
+    <input *ngIf="showEditLabel" #editLabelInput id="txtEditLabel" placeholder="Edit label.." type="text" class="form-control label-edit"
+           value="{{ control.labelKey | translate }}" (focusout)="onFocusout($event)" />
+  </div>
+  <p-contextMenu [global]="false" [target]="wrapperDiv" [model]="items"></p-contextMenu>
+</div>
+       
+       
+       
+ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { SharedSetupService } from '../../services/shared-setup.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { FilterPipe } from '../../pipes/filter.pipe';
+import { Router } from '@angular/router';
+import { AuthenticationService } from '../../services/authentication.service';
+import { FormGroup } from '@angular/forms';
+import { BaseControlComponent } from '../base-control/base-control.component';
+import { ControlType } from '../../../models/data-models';
+import { DynamicControlService } from '../../services/dynamic-control.service';
+
+@Component({
+  selector: 'eska-checkbox',
+  templateUrl: './checkbox.component.html',
+  styleUrls: ['./checkbox.component.scss']
+})
+export class CheckboxComponent extends BaseControlComponent implements OnInit {
+
+  formGroup: FormGroup;
+
+  constructor(public cdRef: ChangeDetectorRef, public sharedSetupService: SharedSetupService, public router: Router, public authenticationService: AuthenticationService,
+    public dynamicControlService: DynamicControlService, public translatePipe: TranslatePipe, public filterPipe: FilterPipe) {
+    super(cdRef, sharedSetupService, router, authenticationService, dynamicControlService, translatePipe, filterPipe);
+  }
+
+  ngOnInit() {
+    this.formGroup = this.form;
+  }
+
+  OnChange(event) {
+    if (this.control.isDynamic)
+      this.control.childControls.forEach(
+        child => {
+          switch (child.controlType) {
+            case ControlType.Dropdown:
+              this.dynamicControlService.fillControlOptions(child, this.form).then(
+                data => {
+                  if (data != undefined || data != null) {
+                    this.bindControl.emit(data);
+                  }
+                });
+              break;
+          }
+        });
+  }
+}
+ ======================================================================       
+       
+ 5-Currency.html
+ 
+ 
+<form [formGroup]="currencyForm">
+    <div class="form-group col-md-12 col-lg-12">
+        <ul class="input-group">
+         <li class="col-sm-8">
+             <p-dropdown [options]="currencies" formControlName="CurrencyCode"  (onChange)="changeCurrency($event)" [required]="requiredVal" filter="true" class="prime-form-control">
+               </p-dropdown></li>
+               <li class="col-sm-4">   
+                   <input type="text" formControlName="ExrateValue" readonly  class="form-control"/>
+               </li>
+       </ul>
+     </div>
+</form>
+
+
+import { Component, OnInit, Input, EventEmitter, Output, SimpleChange, SimpleChanges } from '@angular/core';
+import { FormGroup, Validators, FormControl } from '@angular/forms';
+import { CommonService } from '../../../shared/services/common.service';
+
+import { Observable } from 'rxjs';
+import { debug } from 'util';
+import { SelectItem } from 'primeng/api';
+import { Currency } from 'src/app/models/data-models';
+
+@Component({
+  selector: 'bms-currency',
+  templateUrl: './currency.component.html',
+  styleUrls: ['./currency.component.scss']
+})
+export class CurrencyComponent implements OnInit {
+
+  requiredVal: Boolean;
+  currencyForm: FormGroup; 
+  currencies: SelectItem[];
+
+  @Input() CurrencyState: Boolean;
+  @Input() currencyObj: Currency = new Currency();
+
+  constructor(private cs: CommonService) {}
+
+  ngOnInit() {
+    this.createCurrencyForm();
+    //this.fillCurrencyDropDown();
+    this.setValidation();
+  }
+
+  fillCurrencyDropDown() {
+    this.cs.getCurrencies().subscribe(data =>
+      this.currencies = data,
+      err => console.log(err)
+    );
+  }
+
+  setValidation() {
+    const currencyCode = this.currencyForm.get('CurrencyCode');
+    const exchangeRate = this.currencyForm.get('ExrateValue');
+
+    if (this.CurrencyState) {
+      currencyCode.setValidators(Validators.required);
+      exchangeRate.setValidators(Validators.required);
+      this.requiredVal = true;
+    }
+    else {
+      currencyCode.clearValidators();
+      exchangeRate.clearValidators();
+      this.requiredVal = false;
+    }
+    currencyCode.updateValueAndValidity();
+    exchangeRate.updateValueAndValidity();
+  }
+
+  editMode(CRG_CUR_CODE:string)
+  {
+    if (CRG_CUR_CODE != "")
+    {
+      this.cs.getExchangeRate(CRG_CUR_CODE).subscribe(
+        data => {
+          this.currencyForm.patchValue(
+            {
+              CurrencyCode: CRG_CUR_CODE,
+              ExrateValue: data.toString()
+            });
+
+          this.currencyObj.CurrencyCode = CRG_CUR_CODE;
+          this.currencyObj.ExrateValue = data as number;
+        }
+      );
+    }
+  }
+
+  createCurrencyForm()
+  {
+    this.currencyForm = this.cs.fb.group({
+      CurrencyCode: [''],
+      ExrateValue: ['']
+    });
+  }
+
+  beginAddMode()
+  {
+    this.cs.resetForm(this.currencyForm);
+    this.createCurrencyForm();
+  } 
+}
+
+  ======================================================================   
+
+  6-datatable.html
+
+
+<p-table #dt [columns]="cols" [value]="rows" [lazy]="true"
+         selectionMode="multiple" [paginator]="true"
+         (onRowSelect)="onRowSelected($event)"
+         (onRowUnselect)="onRowUnSelected($event)"
+         (onHeaderCheckboxToggle)="onHeaderCheckboxToggle($event)"
+         [rows]="5" [(selection)]="selectedRows" [dataKey]="dataKey" [rowHover]="mouseHover" [style]="style">
+
+  <ng-template pTemplate="caption" *ngIf="showFilter">
+    <div style="text-align: right">
+      <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+      <input type="text" pInputText size="50" placeholder="Global Filter" (input)="dt.filterGlobal($event.target.value, 'contains')" style="width:auto">
+    </div>
+  </ng-template>
+  <ng-template pTemplate="header" let-columns>
+    <tr rowSelectMode="checkbox">
+      <th *ngIf="showCheckBox" style="width: 3em">
+        <p-tableHeaderCheckbox class="form-control-ng"></p-tableHeaderCheckbox>
+      </th>
+      <th *ngFor="let col of cols" [pSortableColumn]="col.field">
+        {{col.header}}
+        <p-sortIcon *ngIf="enableSorting" [field]="col.field" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order"></p-sortIcon>
+      </th>
+    </tr>
+
+  </ng-template>
+  <ng-template let-rowData let-columns="cols" pTemplate="body">
+    <tr>
+      <td *ngIf="showCheckBox" style="width: 3.5em">
+        <p-tableCheckbox [value]="rowData" class="form-control-ng" [index]="rowIndex" (click)="onCheckboxChange($event)"></p-tableCheckbox>
+      </td>
+
+      <td *ngFor="let col of cols" [pSelectableRow]="rowData">
+        <span *ngIf="col.editable" pEditableColumn style="width:100%">
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+              <input type="text" [(ngModel)]="rowData[col.field]" style="width:100%">
+            </ng-template>
+            <ng-template pTemplate="output">
+              {{rowData[col.field]}}
+            </ng-template>
+          </p-cellEditor>
+        </span>
+        <span *ngIf="!col.editable" style="width:100%">
+          {{rowData[col.field]}}
+        </span>
+        <span *ngIf="col.showStatusIcon">
+          <ng-template let-col let-item="rowData" pTemplate="expander">
+            <span *ngIf="item[col.field]" class="fa fa-check"></span>
+            <span *ngIf="!item[col.field]" class="fa fa-close"></span>
+          </ng-template>
+        </span>
+        <span *ngIf="col.dateColumn">
+          <ng-template let-item="rowData" pTemplate="expander">
+            {{rowData[col.field] | date:dateFormat }}
+          </ng-template>
+        </span>
+        <span *ngIf="col.percentColumn">
+          <ng-template let-item="rowData" pTemplate="body">
+            {{rowData[col.field] | numeric:percentNumberType:percentFormat }}
+          </ng-template>
+        </span>
+        <span *ngIf="col.commandCol">
+          <ng-template let-item="rowData" pTemplate="expander">
+            <a style="color: #3c8dbc" (click)="onLinkSelected(rowData, col, colIndex)">
+              {{ rowData[col.commandName] }}
+            </a>
+          </ng-template>
+        </span>
+        <span *ngIf="col.editablePercentCol">
+          <p-cellEditor>
+            <ng-template let-item="rowData" pTemplate="input">
+              <input type="text" class="form-control" [required]="col.requiredCol" name="model" #model="ngModel" [(ngModel)]="item[col.field]"
+                     eskaNumeric numberType="3" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" />
+              <span *ngIf="col.requiredCol" class="ng-validation-icon"></span>
+            </ng-template>
+            <ng-template let-item="rowData" pTemplate="output">
+              {{rowData[col.field] | numeric:percentNumberType:percentFormat }}
+            </ng-template>
+          </p-cellEditor>
+        </span>
+        <span *ngIf="col.editableDateCol">
+          <p-cellEditor>
+            <ng-template let-item="rowData" pTemplate="input">
+              <p-calendar showIcon="true" DateFormat [dateFormat]="calenderDateFormat" class="form-control-ng" [required]="col.requiredCol"
+                          [(ngModel)]="item[col.field]"></p-calendar>
+            </ng-template>
+            <ng-template let-item="rowData" pTemplate="output">
+              {{rowData[col.field] | date:dateFormat }}
+            </ng-template>
+          </p-cellEditor>
+        </span>
+        <span *ngIf='col.type=="checkbox"'>
+          <p-cellEditor>
+            <ng-template let-item="rowData" pTemplate="input">
+              <input type="checkbox" class="prime-checkbox" name="group1" [checked]="item[col.field]"
+                     (change)="RowCheckboxSelected(item['Id'],col.field,$event.target.checked)" inputId="ny" [disabled]="col.disable">
+            </ng-template>
+          </p-cellEditor>
+        </span>
+        <span *ngIf='col.type=="input-dropdown"'>
+          <p-cellEditor>
+            <ng-template let-item="rowData" pTemplate="input">
+              <p-dropdown [options]="item[col.option]" [required]="col.required"
+                          [(ngModel)]="item[col.field]" name="CycleUnit" [style]="{'width':'100%'}"></p-dropdown>
+            </ng-template>
+            <ng-template let-item="rowData" pTemplate="output">
+              {{rowData[col.field]}}
+            </ng-template>
+          </p-cellEditor>
+        </span>
+      </td>
+
+      <td *ngIf="showSelectionColumn">
+        <button class="btn btn-primary btn-xs ui-button-info" type="button" pbutton (click)="rowSelect(rowData)" data-dismiss="modal">
+          <span class="glyphicon glyphicon-edit"></span>
+        </button>
+      </td>
+
+      <td *ngIf="showActionColumn" header="Action">
+        <ng-template let-item="rowData" pTemplate="expander">
+          <i class="fa fa-eye fa-2x" pTooltip="Preview" tooltipPosition="bottom" (click)="Preview()">    </i>
+          &nbsp;
+          <i class="fa fa-plus-square-o fa-2x" pTooltip="Configure" tooltipPosition="bottom" (click)="Configure()"> </i>
+          &nbsp; &nbsp;
+          <i class="fa fa-files-o fa-2x" pTooltip="Copy" tooltipPosition="bottom" (click)="Copy($event)"> </i>
+        </ng-template>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+
+  datatable.ts
+     
+     
+     import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { Message } from "primeng/primeng";
+import { environment } from 'src/environments/environment';
+import { NumberTypes } from 'src/app/models/data-models';
+import { debounce } from 'rxjs/operators';
+
+
+@Component({
+  selector: 'eska-datatable',
+  templateUrl: './datatable.component.html',
+  styleUrls: ['./datatable.component.scss']
+})
+export class DatatableComponent implements OnInit {
+
+  form: FormGroup;
+  tableData: Array<any>;
+
+  @Input() rows: any[];
+
+  @Input() cols: any[];
+
+  @Input() dataKey: string = "id";
+
+  @Input() title: string = "list";
+
+  @Input() style: string;
+
+  @Input() selectedRows: any[];
+
+  @Input() mouseHover: boolean;
+
+  @Input() showCheckBox: boolean;
+
+  @Input() showSelectionColumn: boolean;
+
+  @Input() showActionColumn: boolean = false;
+
+  @Input() showPreviewButton: boolean = false;
+
+  @Input() showConfigureButton: boolean = false;
+
+  @Input() showCopyButton: boolean = false;
+
+  @Input() showFilter: boolean = false;
+  @Input() enableSorting: boolean = false;
+
+
+  @Output() OnRowSelected = new EventEmitter<any>();
+
+  @Output() OnRowUnSelected = new EventEmitter<any>();
+
+  @Output() OnCheckboxSelected: EventEmitter<any> = new EventEmitter<any>();
+
+  @Output() OnCheckboxUnSelected: EventEmitter<any> = new EventEmitter<any>();
+
+  @Output() OnLinkSelected = new EventEmitter<any>();
+
+  @Output() OnRowcheckboxSelected = new EventEmitter<any>();
+
+  @Output() OnPreview = new EventEmitter<any>();
+
+  @Output() OnCopy = new EventEmitter<any>();
+
+  @Output() OnConfigure = new EventEmitter<any>();
+
+  rowsClonned = [];
+
+  dateFormat = environment.DATE_FMT;
+
+  percentFormat = "1.2-2";
+  percentNumberType = NumberTypes.Percentage;
+
+  msgs: Message[] = [];
+
+
+  onRowUnSelected(event: any) {
+
+    if (event.type == "row")
+      this.OnRowUnSelected.emit(event.data);
+
+    else if (event.type == "checkbox") {
+      this.OnCheckboxUnSelected.emit(event.data);
+    }
+  }
+
+  onRowSelected(event: any) {
+    if (event.type == "row")
+      this.OnRowSelected.emit(event.data);
+    else if (event.type == "checkbox") {
+      this.OnCheckboxSelected.emit(event.data);
+    }
+  }
+
+  onCheckboxChange(event: any[]) {
+    //this.OnCheckboxSelected.emit(this.selectedRows);
+  }
+
+  rowSelect(event: any) {
+    this.OnRowSelected.emit(event);
+  }
+
+  onHeaderCheckboxToggle(event: any[]) {
+    //this.OnCheckboxSelected.emit(this.selectedRows);
+  }
+
+
+
+  onLinkSelected(item: any, col: string, colIndex: number) {
+    let commandEventArg = new CommandEventArg(item, col, colIndex);
+    this.OnLinkSelected.emit(commandEventArg);
+  }
+
+  RowCheckboxSelected(name: any, val: any) {
+    let checkboxreturn = { field: name, value: val.checked }
+    this.OnRowcheckboxSelected.emit(checkboxreturn);
+  }
+
+  Copy(event: any[]) {
+    this.OnCopy.emit(this.selectedRows);
+
+  }
+
+
+  Configure() {
+    this.OnConfigure.emit();
+  }
+
+
+  Preview() {
+    this.OnPreview.emit();
+  }
+
+  formatDate(date: Date) {
+    return 'reema';
+  }
+  constructor() {
+
+  }
+  ngOnInit() {
+
+
+  }
+}
+
+export class CommandEventArg {
+  commandRow: any;
+  commandCol: string;
+  commandIndex: number;
+  constructor(Row: any, Col: string, Index: number) {
+    this.commandRow = Row;
+    this.commandCol = Col;
+    this.commandIndex = Index;
+  }
+}
+
+ ======================================================================  
+
+7-dropdown.html
+
+<div (contextmenu)="onContextMenu($event)" #wrapperDiv [formGroup]="formGroup">
+  <label *ngIf="!showEditLabel" for="float-input">{{ control.labelKey | translate }}</label>
+  <input *ngIf="showEditLabel" #editLabelInput id="txtEditLabel" placeholder="Edit label.." type="text" class="form-control label-edit"
+         value="{{ control.labelKey | translate }}" (focusout)="onFocusout($event)" />
+
+  <p-dropdown [options]="control.isDynamic? control.options : options" [required]="control.required" [disabled]="control.disabled? 'disabled' : null"
+              [formControlName]="control.key" (onChange)="BindControl(control)" class="prime-form-control" [filter]="filter">
+  </p-dropdown>
+  <p-contextMenu [global]="false" [target]="wrapperDiv" [model]="items"></p-contextMenu>
+</div>
+
+
+dropdown.ts
+
+
+import { Component, OnInit, Input, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { SharedSetupService } from '../../services/shared-setup.service';
+import { Router } from '@angular/router';
+import { AuthenticationService } from '../../services/authentication.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { FilterPipe } from '../../pipes/filter.pipe';
+import { BaseControlComponent } from '../base-control/base-control.component';
+import { SelectItem } from 'primeng/api';
+import { ControlType } from '../../../models/data-models';
+import { DynamicControlService } from '../../services/dynamic-control.service';
+
+@Component({
+  selector: 'eska-dropdown',
+  templateUrl: './dropdown.component.html',
+  styleUrls: ['./dropdown.component.scss'],
+  encapsulation: ViewEncapsulation.None
+})
+export class DropdownComponent extends BaseControlComponent implements OnInit {
+
+  formGroup: FormGroup;
+  @Input() options: SelectItem[] = [];
+  @Input() filter: boolean = true;
+
+  constructor(public cdRef: ChangeDetectorRef, public sharedSetupService: SharedSetupService, public router: Router, public authenticationService: AuthenticationService,
+    public dynamicControlService: DynamicControlService, public translatePipe: TranslatePipe, public filterPipe: FilterPipe) {
+    super(cdRef, sharedSetupService, router, authenticationService, dynamicControlService, translatePipe, filterPipe);
+
+  }
+
+  ngOnInit() {
+    this.formGroup = this.form;
+    if (this.control.isDynamic)
+  
+      this.dynamicControlService.fillControlOptions(this.control, this.form).then(
+        data => {
+          this.control.options = data.options
+        });
+  }
+
+  BindControl(control) {
+    if (control.isDynamic)
+      control.childControls.forEach(
+        child => {
+          switch (child.controlType) {
+            case ControlType.Dropdown:
+              this.dynamicControlService.fillControlOptions(child, this.form).then(
+                data => {
+                  if (data != undefined || data != null) {
+                    this.bindControl.emit(data);
+                  }
+                });
+              break;
+          }
+        });
+  }
+}
+
+
+======================================================================  
+
+8-DynamicSearch.html
+
+
+
+<div [ngSwitch]="control.controlType">
+
+  <eska-textbox *ngSwitchCase="'textbox'" [control]="control" [form]="form"></eska-textbox>
+  <span *ngSwitchCase="'textbox'" class="ng-validation-icon"></span>
+
+  <eska-dropdown *ngSwitchCase="'dropdown'" [control]="control" [form]="form" (bindControl)="BindControl(control)"></eska-dropdown>
+
+  <eska-autoComplete *ngSwitchCase="'autoComplete'" [control]="control" [form]="form" (bindControl)="BindControl(control)"></eska-autoComplete>
+
+  <eska-calendar *ngSwitchCase="'calendar'" [control]="control" [form]="form"></eska-calendar>
+
+  <eska-radio-button *ngSwitchCase="'radiobutton'" [control]="control" [form]="form" (bindControl)="BindControl(control)"></eska-radio-button>
+
+  <eska-checkbox *ngSwitchCase="'checkbox'" [control]="control" [form]="form" (bindControl)="BindControl(control)"></eska-checkbox>
+
+</div>
+
+
+
+
+
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { CommonService } from '../../services/common.service';
+import { DynamicControlService } from '../../services/dynamic-control.service';
+import { FormGroup } from '@angular/forms';
+import { ControlType, ViewMode } from '../../../models/data-models';
+
+@Component({
+  selector: 'eska-dynamic-search',
+  templateUrl: './dynamic-search.component.html'
+})
+export class DynamicSearchComponent implements OnInit {
+
+  constructor(private cs: CommonService, private dcs: DynamicControlService, private cdRef: ChangeDetectorRef) {
+  }
+
+  @Input() dialogTitle: string = "";
+  @Input() searchTitle: string = "";
+  @Input() resultTitle: string = "";
+  @Input() controls: any[] = [];
+  @Input() form: FormGroup;
+  @Output() emitSuggest = new EventEmitter<any>();
+
+  @Input() rows: any[];
+  @Input() cols: any[];
+  @Input() show: boolean = true;
+  @Input() showCheckBox: boolean = false;
+  @Input() mouseHover: boolean = false;
+  @Input() selectedRows: any[];
+  @Input() showSelectionColumn: boolean = true;
+  @Output() onSearch = new EventEmitter<any[]>();
+  @Output() onSelectedRow = new EventEmitter<any>();
+  @Output() onCheckBoxSelect = new EventEmitter<any>();
+  @Output() onCheckboxUnSelect = new EventEmitter<any>();
+  @Output() onRowUnSelected = new EventEmitter<any>();
+  @Input() ViewMode: number;
+
+  @Output() ResetEntryClick = new EventEmitter<any>();
+
+  @Output() RemoveRecordsClick = new EventEmitter<any>();
+
+  get Mode() { return ViewMode; }
+
+  @Input() ShowDatatable: boolean = true;
+
+  onSubmit() {
+    this.onSearch.emit(this.form.value);
+  }
+
+  ngOnInit() {
+  }
+
+  OnSelectedRow(selectedRow: any) {
+    this.onSelectedRow.emit(selectedRow);
+  }
+
+  OnUnSelectedRow(selectedRow: any) {
+    this.onRowUnSelected.emit(selectedRow);
+  }
+
+  OnCheckBoxSelect(selectedRow: any) {
+    this.onCheckBoxSelect.emit(selectedRow);
+  }
+
+  OnCheckboxUnSelect(selectedRow: any) {
+    this.onCheckboxUnSelect.emit(selectedRow);
+  }
+
+  showModel() {
+    this.show = true;
+  }
+
+  HideSearchPanel() {
+    this.resetForm();
+  }
+
+  resetForm() {
+    this.cs.resetForm(this.form);
+    this.form = this.dcs.toFormGroup(this.controls);
+    this.rows = null;
+  }
+
+  GetSuggestVal(selectedRow: any) {
+    this.emitSuggest.emit(selectedRow);
+  }
+
+  BindControl(control) {
+    control.childControls.forEach(child => {
+      switch (child.controlType) {
+        case ControlType.Dropdown:
+          this.controls.filter(ctrl => ctrl.key == child.key)[0].options = child.options;
+      }
+    });
+    this.cdRef.detectChanges();
+  }
+
+
+  ResetEntryForm(event: any) {
+    this.ResetEntryClick.emit(event.data);
+  }
+
+  RemoveRecords(event: any) {
+    this.RemoveRecordsClick.emit(event.data);
+  } 
+}
+
+
+======================================================================      
+
+Note : the Dynamic Search contain folder called Control Clasesss wthich contain the following  
+
+
+import { ControlBase } from "./control-base";
+import { SstPagesControlsParams, ParamsType } from "../../../../models/data-models";
+
+export class ControlAutocomplete extends ControlBase<string> {
+  controlType = 'autoComplete';
+  options: { label: string, value: string }[] = [];
+  serviceUrl: string;
+  controlParams: SstPagesControlsParams[] = [];
+  paramsType: number;
+
+  constructor(options: {} = {}) {
+    super(options);
+    this.options = options['options'] || [];
+    this.serviceUrl = options['serviceUrl'] || '';
+    this.controlParams = options['controlParams'] || [];
+    this.paramsType = options['paramsType'] || ParamsType.PathParameter;
+  }
+}
+
+
+
+
+
+
+export class ControlBase<T> {
+  id: number;
+  value: T;
+  key: string;
+  form: string;
+  labelKey: string;
+  allowEditLabel?: boolean;
+  required: boolean;
+  allowRequired: boolean;
+  hidden?: boolean;
+  allowHidden?: boolean;
+  disabled?: boolean;
+  allowDisabled?: boolean;
+  order: number;
+  controlType?: string;
+  className: string;
+  childControls?: ControlBase<T>[];
+  isDynamic?: boolean;
+  formType: number;
+  
+  constructor(options: {
+    id?:number,
+    value?: T,
+    key?: string,
+    form?: string,
+    labelKey?: string,
+    allowEditLabel?: boolean,
+    required?: boolean,
+    allowRequired?: boolean,
+    hidden?: boolean,
+    allowHidden?: boolean,
+    disabled?: boolean,
+    allowDisabled?: boolean,
+    order?: number,
+    controlType?: string,
+    className?: string,
+    childControls?: ControlBase<T>[],
+    isDynamic?: boolean,
+    formType?: number
+  } = {}) {
+    this.id = options.id;
+    this.value = options.value;
+    this.key = options.key || '';
+    this.form = options.form;
+    this.labelKey = options.labelKey || '';
+    this.allowEditLabel = !!options.allowEditLabel;
+    this.required = !!options.required;
+    this.allowRequired= !!options.allowRequired;
+    this.hidden = !!options.hidden;
+    this.allowHidden = !!options.allowHidden;
+    this.disabled = !!options.disabled;
+    this.allowDisabled = !!options.allowDisabled;
+    this.order = options.order === undefined ? 1 : options.order;
+    this.controlType = options.controlType || '';
+    this.className = options.className || '';
+    this.childControls = options.childControls || [];
+    this.isDynamic = !!options.isDynamic;
+    this.formType = options.formType;
+  }
+}
+
+
+import { ControlBase } from "./control-base";
+
+export class ControlCalendar extends ControlBase<string> {
+  controlType = 'calendar';
+
+  constructor(options: {} = {}) {
+    super(options);
+  }
+}
+
+
+
+import { ControlBase } from "./control-base";
+
+export class ControlCheckbox extends ControlBase<string> {
+  controlType = 'checkbox'; 
+
+  constructor(options: {} = {}) {
+    super(options);
+  }
+}
+
+
+
+import { ControlBase } from "./control-base";
+import { SstPagesControlsParams, ParamsType } from "../../../../models/data-models";
+
+export class ControlDropdown extends ControlBase<string> {
+  controlType = 'dropdown';
+  options: { label?: string, value: string }[] = [];
+  serviceUrl: string;
+  controlParams: SstPagesControlsParams[] = [];
+  paramsType: number;
+
+  constructor(options: {} = {}) {
+    super(options);
+    this.options = options['options'] || [];
+    this.serviceUrl = options['serviceUrl'] || '';
+    this.controlParams = options['controlParams'] || [];
+    this.paramsType = options['paramsType'] || ParamsType.PathParameter;
+  }
+}
+
+
+
+import { ControlBase } from "./control-base";
+import { SstPagesControlsParams, ParamsType } from "../../../../models/data-models";
+
+export class ControlRadioButton extends ControlBase<string> {
+  controlType = 'radiobutton';
+  options: { label?: string, value: string }[] = [];
+  serviceUrl: string;
+  controlParams: SstPagesControlsParams[] = [];
+  paramsType: number;
+
+  constructor(options: {} = {}) {
+    super(options);
+    this.options = options['options'] || [];
+    this.serviceUrl = options['serviceUrl'] || '';
+    this.controlParams = options['controlParams'] || [];
+    this.paramsType = options['paramsType'] || ParamsType.PathParameter;
+  }
+}
+
+
+
+import { ControlBase } from "./control-base";
+
+export class ControlTextbox extends ControlBase<string> {
+  controlType = 'textbox';
+  type: string;
+
+  constructor(options: {} = {}) {
+    super(options);
+    this.type = options['type'] || '';
+  }
+}
+======================================================================      
+       
+  9-editor-componennt
+  
+       
+ <div (contextmenu)="onContextMenu($event)" #wrapperDiv [formGroup]="formGroup">
+  <label *ngIf="!showEditLabel" for="float-input">{{ control.labelKey | translate }}</label>
+  <input *ngIf="showEditLabel" #editLabelInput id="txtEditLabel" placeholder="Edit label.." type="text" class="form-control label-edit"
+         value="{{ control.labelKey | translate }}" (focusout)="onFocusout($event)" />
+
+  <p-editor [formControlName]="control.key" [required]="control.required" [readonly]="control.disabled? 'disabled' : null"
+            [style]="{'height':'50px'}" class="prime-form-control"></p-editor>
+  <p-contextMenu [global]="false" [target]="wrapperDiv" [model]="items"></p-contextMenu>
+</div>
+      
+       
+       
+ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { BaseControlComponent } from '../base-control/base-control.component';
+import { FormGroup } from '@angular/forms';
+import { SharedSetupService } from '../../services/shared-setup.service';
+import { Router } from '@angular/router';
+import { AuthenticationService } from '../../services/authentication.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { FilterPipe } from '../../pipes/filter.pipe';
+import { DynamicControlService } from '../../services/dynamic-control.service';
+
+@Component({
+  selector: 'eska-editor',
+  templateUrl: './editor.component.html',
+  styleUrls: ['./editor.component.scss']
+})
+export class EditorComponent extends BaseControlComponent implements OnInit {
+  formGroup: FormGroup;
+
+  constructor(public cdRef: ChangeDetectorRef, public sharedSetupService: SharedSetupService, public router: Router, public authenticationService: AuthenticationService,
+    public dynamicControlService: DynamicControlService, public translatePipe: TranslatePipe, public filterPipe: FilterPipe) {
+    super(cdRef, sharedSetupService, router, authenticationService, dynamicControlService, translatePipe, filterPipe);
+  }
+
+  ngOnInit() {
+    this.formGroup = this.form;
+  }
+}
+
+ ======================================================================           
+       
+       
+      10-file upload
+      
+      
+      <div (contextmenu)="onContextMenu($event)" #wrapperDiv [formGroup]="formGroup">
+  <label *ngIf="!showEditLabel">{{ control.labelKey | translate }}</label>
+  <input *ngIf="showEditLabel" #editLabelInput id="txtEditLabel" placeholder="Edit label.." type="text" class="form-control label-edit"
+         value="{{ control.labelKey | translate }}" (focusout)="onFocusout($event)" />
+
+  <a id="viewFile" (click)="showAttachmentFiles()" data-toggle="modal" data-target=".attachment-modal-lg">View Files</a>
+
+  <p-fileUpload #fileUploader [name]="files" [multiple]="multiple" [customUpload]="customUpload" (uploadHandler)="UploadHandler($event)"
+                [mode]="mode"  [disabled]="control.disabled? 'disabled' : null"
+                class="prime-form-control" ></p-fileUpload>
+  <p-contextMenu [global]="false" [target]="wrapperDiv" [model]="items"></p-contextMenu>
+</div>
+
+
+<div *ngIf="show" class="modal fade attachment-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="card-header">
+        <h6 class="card-title"> Attachments </h6>
+        <div class="card-tools">
+          <div class="buttons-group pull-right">
+            <button pButton type="submit" icon="pi pi-trash" pTooltip="Remove" tooltipPosition="top" (click)="onDeleteAttachments()"></button>
+            <button pButton type="submit" icon="pi pi-times" pTooltip="Close" tooltipPosition="top" data-dismiss="modal"></button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row form-row">
+          <div class="col-md-12 form-group">
+            <eska-datatable [title]="gridHeaderAttachments" [cols]="colsAttachments" [rows]="rowsAttachments"
+                          showCheckBox="true" (OnLinkSelected)="OnLinkSelected($event)" (OnCheckboxSelected)="OnCheckboxSelected($event)">
+            </eska-datatable>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+import { Component, OnInit, Input, ChangeDetectorRef, Output, EventEmitter, ViewChild } from '@angular/core';
+import { BaseControlComponent } from '../base-control/base-control.component';
+import { FormGroup } from '@angular/forms';
+import { SharedSetupService } from '../../services/shared-setup.service';
+import { Router } from '@angular/router';
+import { AuthenticationService } from '../../services/authentication.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { FilterPipe } from '../../pipes/filter.pipe';
+import { CommonService } from '../../services/common.service';
+import { FileUpload } from 'primeng/primeng';
+import { DynamicControlService } from '../../services/dynamic-control.service';
+
+@Component({
+  selector: 'eska-file-upload',
+  templateUrl: './file-upload.component.html',
+  styleUrls: ['./file-upload.component.scss']
+})
+export class FileUploadComponent extends BaseControlComponent implements OnInit {
+  file: File;
+  formGroup: FormGroup;
+  show: boolean = false;
+  loading: boolean = false;
+  formData = new FormData();
+
+  @Input() mode: string;
+  @Input() files: File[];
+  @Input() multiple: string;
+  @Input() customUpload: boolean;
+  @Input() colsAttachments: any[];
+  @Input() rowsAttachments: any[];
+
+  @Output() uploadHandler = new EventEmitter();
+  @Output() OnCheckboxSelectedAttachments = new EventEmitter();
+  @Output() OnDeleteAttachments = new EventEmitter();
+
+  @ViewChild('fileUploader') fileUploader: FileUpload;
+
+  constructor(public cdRef: ChangeDetectorRef, public sharedSetupService: SharedSetupService, public router: Router, public authenticationService: AuthenticationService,
+    public dynamicControlService: DynamicControlService, public translatePipe: TranslatePipe, public filterPipe: FilterPipe, private cs: CommonService) {
+    super(cdRef, sharedSetupService, router, authenticationService, dynamicControlService, translatePipe, filterPipe);
+  }
+
+  ngOnInit() {
+    this.formGroup = this.form;
+  }
+  onDeleteAttachments() {
+    this.OnDeleteAttachments.emit();
+  }
+  OnLinkSelected(event: any) {
+    this.loading = true;
+    this.cs.showOrHideSpinner(this.loading);
+    this.cs.downloadFile(event.commandRow.AttachmentPath).subscribe(
+      data => {
+        this.downloadFile(data);
+        this.cs.pushMessage("success", "Success", "File Downloaded Successfully");
+        this.loading = false;
+        this.cs.showOrHideSpinner(this.loading);
+      },
+      err => {
+        console.log(err);
+        this.loading = false;
+        this.cs.showOrHideSpinner(this.loading);
+        this.cs.pushError(err);
+      });
+  }
+  OnCheckboxSelected(selectedRows: any[]) {
+    this.OnCheckboxSelectedAttachments.emit(selectedRows);
+  }
+
+  clearFileUploader() {
+    this.fileUploader.clear();
+  }
+  showAttachmentFiles() {
+    this.show = true;
+  }
+  downloadFile(data: any) {
+    const blob = new Blob([data], { type: data.type });
+    const url = window.URL.createObjectURL(blob);
+
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = url.substr(url.lastIndexOf('/') + 1);
+    a.click();
+  }
+  UploadHandler(event: any) {
+    this.loading = true;
+    this.cs.showOrHideSpinner(this.loading);
+    this.files = event.files;
+    if (this.files.length > 0) {
+
+      this.formData.set("files", "", "");
+
+      Array.from(this.files).forEach(file => {
+        this.formData.append("files", file, file.name);
+      });
+
+      this.cs.uploadFiles(this.formData).subscribe(
+        data => {
+          this.cs.pushMessage("success", "Success", "File(s) Uploaded Successfully");
+          this.loading = false;
+          this.cs.showOrHideSpinner(this.loading);
+          this.uploadHandler.emit(data);
+        },
+        err => {
+          console.log(err);
+          this.cs.pushError(err);
+          this.loading = false;
+          this.cs.showOrHideSpinner(this.loading);
+        }
+      );
+    }
+  }
+}
+   ======================================================================   
+  11-multiSelect
+  
+  
+  
+  <div (contextmenu)="onContextMenu($event)" #wrapperDiv [formGroup]="formGroup">
+  <label *ngIf="!showEditLabel">{{ control.labelKey | translate }}</label>
+  <input *ngIf="showEditLabel" #editLabelInput id="txtEditLabel" placeholder="Edit label.." type="text" class="form-control label-edit"
+         value="{{ control.labelKey | translate }}" (focusout)="onFocusout($event)" />
+
+  <p-multiSelect [options]="options" optionLabel="label" [panelStyle]="{minWidth:'12em'}" class="prime-form-control" 
+                 [formControlName]="control.key" [required]="control.required" [readonly]="control.disabled? 'disabled' : null">
+  </p-multiSelect>
+
+  <p-contextMenu [global]="false" [target]="wrapperDiv" [model]="items"></p-contextMenu>
+</div>
+
+
+
+import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { BaseControlComponent } from '../base-control/base-control.component';
+import { SharedSetupService } from '../../services/shared-setup.service';
+import { Router } from '@angular/router';
+import { AuthenticationService } from '../../services/authentication.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { FilterPipe } from '../../pipes/filter.pipe';
+import { DynamicControlService } from '../../services/dynamic-control.service';
+
+@Component({
+  selector: 'eska-multiselect',
+  templateUrl: './multiselect.component.html',
+  styleUrls: ['./multiselect.component.scss']
+})
+export class MultiselectComponent extends BaseControlComponent implements OnInit {
+  formGroup: FormGroup;
+  @Input() options: any[];
+
+  constructor(public cdRef: ChangeDetectorRef, public sharedSetupService: SharedSetupService, public router: Router, public authenticationService: AuthenticationService,
+    public dynamicControlService: DynamicControlService, public translatePipe: TranslatePipe, public filterPipe: FilterPipe) {
+    super(cdRef, sharedSetupService, router, authenticationService, dynamicControlService, translatePipe, filterPipe);
+  }
+
+  ngOnInit() {
+    this.formGroup = this.form;
+  }
+}
+
+   ======================================================================   
+  12-radio button
+  
+  
+  <div (contextmenu)="onContextMenu($event)" #wrapperDiv [formGroup]="formGroup">
+  <div class="radio radio-css">
+    <label *ngIf="!showEditLabel" [attr.for]="control.key">{{ control.labelKey | translate }}</label>
+    <input *ngIf="showEditLabel" #editLabelInput id="txtEditLabel" placeholder="Edit label.." type="text" class="form-control label-edit"
+           value="{{ control.labelKey | translate }}" (focusout)="onFocusout($event)" />
+
+    <div class="ui-g-4" *ngFor="let option of control.options;">
+      <p-radioButton [name]="control.key" [value]="option.value" [label]="option.label"
+                     [formControlName]="control.key" [disabled]="control.disabled? 'disabled' : null" [required]="control.required"
+                     (onClick)="BindControl(control)">
+      </p-radioButton>
+    </div>
+  </div>
+  <p-contextMenu [global]="false" [target]="wrapperDiv" [model]="items"></p-contextMenu>
+</div>
+
+
+
+import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { SelectItem } from 'primeng/api';
+import { SharedSetupService } from '../../services/shared-setup.service';
+import { Router } from '@angular/router';
+import { AuthenticationService } from '../../services/authentication.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { FilterPipe } from '../../pipes/filter.pipe';
+import { BaseControlComponent } from '../base-control/base-control.component';
+import { ControlType } from '../../../models/data-models';
+import { DynamicControlService } from '../../services/dynamic-control.service';
+
+@Component({
+  selector: 'eska-radio-button',
+  templateUrl: './radio-button.component.html',
+  styleUrls: ['./radio-button.component.scss']
+})
+export class RadioButtonComponent extends BaseControlComponent implements OnInit {
+  formGroup: FormGroup;
+  @Input() options: SelectItem[] = [];
+
+  constructor(public cdRef: ChangeDetectorRef, public sharedSetupService: SharedSetupService, public router: Router, public authenticationService: AuthenticationService,
+    public dynamicControlService: DynamicControlService, public translatePipe: TranslatePipe, public filterPipe: FilterPipe) {
+    super(cdRef, sharedSetupService, router, authenticationService, dynamicControlService, translatePipe, filterPipe);
+  }
+
+  ngOnInit() {
+    this.formGroup = this.form;
+    if (this.control.isDynamic)
+      this.dynamicControlService.fillControlOptions(this.control, this.form).then(
+        data => {
+          this.control.options = data.options
+        });
+    else
+      this.control.options = this.options;
+  }
+
+
+  BindControl(control) {
+    if (control.isDynamic)
+      control.childControls.forEach(
+        child => {
+          switch (child.controlType) {
+            case ControlType.Dropdown:
+              this.dynamicControlService.fillControlOptions(child, this.form).then(
+                data => {
+                  if (data != undefined || data != null) {
+                    this.bindControl.emit(data);
+                  }
+                });
+              break;
+          }
+        });
+  }
+}
+
+   ======================================================================   
+  12-textArea
+  
+  
+  <div (contextmenu)="onContextMenu($event)" #wrapperDiv [formGroup]="formGroup">
+  <label *ngIf="!showEditLabel">{{ control.labelKey | translate }}</label>
+  <input *ngIf="showEditLabel" #editLabelInput id="txtEditLabel" placeholder="Edit label.." type="text" class="form-control label-edit"
+         value="{{ control.labelKey | translate }}" (focusout)="onFocusout($event)" />
+
+  <div class="ui-inputgroup">
+    <textarea pInputTextarea [formControlName]="control.key" [required]="control.required" [attr.disabled]="control.disabled? 'disabled' : null" class="form-control" [rows]="rows"></textarea>
+
+    <span *ngIf="!control.required && !control.disabled" class="ui-inputgroup-addon ui-inputgroup-addon-optional"><i class="pi pi-pencil"></i></span>
+    <span *ngIf="control.required && !control.disabled" class="ui-inputgroup-addon ui-inputgroup-addon-required"><i class="pi pi-pencil"></i></span>
+    <span *ngIf="!control.required && control.disabled" class="ui-inputgroup-addon ui-inputgroup-addon-disabled"><i class="pi pi-pencil"></i></span>
+  </div>
+  <p-contextMenu [global]="false" [target]="wrapperDiv" [model]="items"></p-contextMenu>
+</div>
+
+
+
+  import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { SharedSetupService } from '../../services/shared-setup.service';
+import { BaseControlComponent } from '../base-control/base-control.component';
+import { Router } from '@angular/router';
+import { AuthenticationService } from '../../services/authentication.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { FilterPipe } from '../../pipes/filter.pipe';
+import { DynamicControlService } from '../../services/dynamic-control.service';
+
+@Component({
+  selector: 'eska-textarea',
+  templateUrl: './textarea.component.html',
+  styleUrls: ['./textarea.component.scss']
+})
+export class TextareaComponent extends BaseControlComponent implements OnInit {
+  formGroup: FormGroup;
+  @Input() rows: number;
+
+  constructor(public cdRef: ChangeDetectorRef, public sharedSetupService: SharedSetupService, public router: Router, public authenticationService: AuthenticationService,
+    public dynamicControlService: DynamicControlService, public translatePipe: TranslatePipe, public filterPipe: FilterPipe) {
+    super(cdRef, sharedSetupService, router, authenticationService, dynamicControlService, translatePipe, filterPipe);
+  }
+
+  ngOnInit() {
+    this.formGroup = this.form;
+  }
+}
+
+   ======================================================================   
+   
+   
+   13-TextBox
+   
+   
+   <div (contextmenu)="onContextMenu($event)" #wrapperDiv [formGroup]="formGroup">
+  <label *ngIf="!showEditLabel">{{ control.labelKey | translate }}</label>
+  <input *ngIf="showEditLabel" #editLabelInput id="txtEditLabel" placeholder="Edit label.." type="text" class="form-control label-edit"
+         value="{{ control.labelKey | translate }}" (focusout)="onFocusout($event)" />
+
+  <div class="ui-inputgroup">
+
+    <input [id]="control.key" [type]="type" [formControlName]="control.key" [required]="control.required"
+           [attr.disabled]="control.disabled? 'disabled' : null" pInputText class="form-control"
+           eskaNumeric [numberType]="numberType" [min]="min" [max]="max" [minDecimalPoint]="minDecimalPoint" [maxDecimalPoint]="maxDecimalPoint"
+           [currencyFormat]="currencyFormat" [allowNegative]="allowNegative" />
+
+    <span *ngIf="!control.required && !control.disabled" class="ui-inputgroup-addon ui-inputgroup-addon-optional"><i class="pi pi-pencil"></i></span>
+    <span *ngIf="control.required && !control.disabled" class="ui-inputgroup-addon ui-inputgroup-addon-required"><i class="pi pi-pencil"></i></span>
+    <span *ngIf="!control.required && control.disabled" class="ui-inputgroup-addon ui-inputgroup-addon-disabled"><i class="pi pi-pencil"></i></span>
+  </div>
+  <p-contextMenu [global]="false" [target]="wrapperDiv" [model]="items"></p-contextMenu>
+
+</div>
+
+
+
+import { Component, OnInit, Input, ChangeDetectorRef, AfterViewChecked, AfterViewInit, KeyValueDiffers, KeyValueDiffer, Output, EventEmitter, DoCheck } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { SharedSetupService } from '../../services/shared-setup.service';
+import { BaseControlComponent } from '../base-control/base-control.component';
+import { Router } from '@angular/router';
+import { AuthenticationService } from '../../services/authentication.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { FilterPipe } from '../../pipes/filter.pipe';
+import { DynamicControlService } from '../../services/dynamic-control.service';
+import { NumberTypes } from '../../../models/data-models';
+
+@Component({
+  selector: 'eska-textbox',
+  templateUrl: './textbox.component.html',
+  styleUrls: ['./textbox.component.scss']
+})
+export class TextboxComponent extends BaseControlComponent implements OnInit {
+
+  formGroup: FormGroup;
+
+  @Input() type: string = 'text';
+  @Input() numberType;
+  @Input() minDecimalPoint;
+  @Input() maxDecimalPoint;
+  @Input() allowNegative;
+  @Input() min;
+  @Input() max;
+  @Input() currencyFormat;
+
+  constructor(public cdRef: ChangeDetectorRef, public sharedSetupService: SharedSetupService, public router: Router, public authenticationService: AuthenticationService,
+    public dynamicControlService: DynamicControlService, public translatePipe: TranslatePipe, public filterPipe: FilterPipe) {
+    super(cdRef, sharedSetupService, router, authenticationService, dynamicControlService, translatePipe, filterPipe);
+  }
+
+  ngOnInit() {
+    this.formGroup = this.form;
+    if (this.control.isDynamic)
+      switch (this.control.type) {
+        case 'text':
+          this.type = 'text';
+          break;
+        case 'percentage':
+          this.type = 'text';
+          this.numberType = NumberTypes.Percentage;
+          this.min = 0;
+          this.max = 100;
+          this.minDecimalPoint = 2;
+          this.maxDecimalPoint = 2;
+          this.allowNegative = false;
+          break;
+        case 'decimal':
+          this.type = 'text';
+          this.numberType = NumberTypes.Decimal;
+          this.minDecimalPoint = 2;
+          this.maxDecimalPoint = 2;
+          this.currencyFormat = true;
+          this.allowNegative = true;
+          break;
+        case 'integer':
+          this.type = 'number';
+          this.numberType = NumberTypes.Integer;
+          this.allowNegative = true;
+          break;
+      }
+  }
+}
+
+   ======================================================================   
+   
+   Folder Pipe 
+   
+   
+   1-filte.pipe.ts
+   
+   import { Pipe, PipeTransform } from '@angular/core';
+import { ControlBase } from '../controls/dynamic-search/control-classes/control-base';
+
+@Pipe({
+  name: 'filter'
+})
+export class FilterPipe implements PipeTransform {
+
+  transform(controls: ControlBase<any>[], formKey: string, controlKey: string = ''): any {
+    if (controlKey != '') {
+      if (!controls || !formKey) {
+        return null;
+      }
+
+      let control: ControlBase<any>;
+      control = controls.filter(ctrl => ctrl.key === controlKey && ctrl.form === formKey)[0];
+      if (control == undefined)
+        control = new ControlBase<any>();
+      return control;
+    }
+    else {
+      if (!controls || !formKey) {
+        return null;
+      }
+
+      let lstControl: ControlBase<any>[] = [];
+      lstControl = controls.filter(ctrl => ctrl.form === formKey);
+      return lstControl;
+    }
+  }
+}
+
+
+
+
+2-numeric.pipe.ts
+
+
+import { Pipe, Input, PipeTransform } from '@angular/core';
+import { DecimalPipe, PercentPipe } from '@angular/common';
+import { NumberTypes } from 'src/app/models/data-models';
+
+
+@Pipe({
+  name: 'numeric'
+})
+export class NumericPipe implements PipeTransform {
+  @Input('numeric') digitInfo: string = "1.3-3";
+
+  constructor(private decimalPipe: DecimalPipe, private percent: PercentPipe) { }
+
+  transform(value, numberType, digitInfo: string) {
+    if (value == undefined) {
+      value = "0"
+    }
+
+    let numericValue = "0";
+    if (numberType == NumberTypes.Decimal) {
+
+      if (value.toString().includes(',')) {
+        if (value.indexOf(',') > -1) {
+          let arrValue = value.split(',');
+          let v = '';
+          arrValue.forEach(element => {
+            v += element;
+          });
+          value = parseFloat(v);
+        }
+      }
+      return numericValue = this.decimalPipe.transform(value, digitInfo);
+    }
+    else if (numberType == NumberTypes.Percentage) {
+      return numericValue = this.percent.transform((parseFloat(value) / 100), digitInfo);
+    }
+    else if (numberType == NumberTypes.Integer) {
+      digitInfo += '0-0';
+      return numericValue = this.decimalPipe.transform(value, digitInfo).replace(",", "");
+    }
+    else
+      return numericValue = value;
+  }
+
+  parse(value) {
+    if (value != null && value != "" && value != undefined) {
+      if (value.toString().includes(','))
+        value = value.replace(",", "");
+
+      if (value.toString().includes('%'))
+        value = parseInt(value.substring(0, value.length - 1));
+
+      return parseFloat(value);
+    }
+    else
+    {
+      return parseFloat("0");
+    }
+  }
+}
+
+
+3-translate.pipe.ts
+
+
+import { Pipe, PipeTransform } from '@angular/core';
+import { SharedSetupService } from '../services/shared-setup.service';
+
+@Pipe({
+  name: 'translate',
+  pure: false
+})
+export class TranslatePipe implements PipeTransform {
+
+  constructor(private sharedSetupService: SharedSetupService) {}
+
+  transform(key: any): any {
+      return this.sharedSetupService.Resources[key] || key;
+  }  
+}
+
+
+ =====================================================================
+
+ Services
+ 
+ 
+ 1- DynamicControlService
+ 
+ import { Injectable } from '@angular/core';
+import { ControlBase } from '../controls/dynamic-search/control-classes/control-base';
+import { FormControl, Validators, FormGroup } from '@angular/forms';
+import { SelectItem } from 'primeng/api';
+import { CommonService } from './common.service';
+import { ParameterType, ParamsType, SstPagesControls, User, ControlType } from '../../models/data-models';
+import { ControlTextbox } from '../controls/dynamic-search/control-classes/control-textbox';
+import { ControlAutocomplete } from '../controls/dynamic-search/control-classes/control-autocomplete';
+import { ControlDropdown } from '../controls/dynamic-search/control-classes/control-dropdown';
+import { ControlCalendar } from '../controls/dynamic-search/control-classes/control-calendar';
+import { ControlRadioButton } from '../controls/dynamic-search/control-classes/control-radiobutton';
+import { ControlCheckbox } from '../controls/dynamic-search/control-classes/control-checkbox';
+import { SharedSetupService } from './shared-setup.service';
+import { AuthenticationService } from './authentication.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class DynamicControlService {
+
+  private user: User = new User();
+  sstPagesControls: SstPagesControls[] = [];
+  controls: any = [];
+
+  constructor(private cs: CommonService, private sharedSetupService: SharedSetupService, private authenticationService: AuthenticationService) {
+    this.user = this.authenticationService.getLoggedInUser();
+  }
+
+  toFormGroup(controls: ControlBase<any>[]) {
+    let group: any = {};
+    controls.forEach(control => {
+      group[control.key] = control.required ? new FormControl(control.value || '', Validators.required)
+        : new FormControl(control.value || '');
+    });
+    return new FormGroup(group);
+  }
+
+  convertToBoolean(value: any) {
+    if (value == 'false' || value == false) {
+      return false;
+    } else if (value == 'true' || value == true) {
+      return true;
+    } else if (!isNaN(value)) {
+      return Number(value) == 1 ? true : false;
+    } else {
+      return value;
+    }
+  }
+
+  async generateControls(key: string, systemId: number, moduleCode: string, companyId: number): Promise<any[]> {
+    //console.log('dynamic generate Controls start:' + new Date().toLocaleTimeString());
+    let getControlsByKey$ = this.sharedSetupService.getByPageKey(key, systemId, moduleCode, companyId);
+    await getControlsByKey$.toPromise().then(
+      data => {
+        this.sstPagesControls = data;
+        this.controls = [];
+        let control: ControlBase<any> = new ControlBase();
+        //console.log('dynamic generate Controls start forEach:' + new Date().toLocaleTimeString());
+        this.sstPagesControls.forEach(ctrl => {
+          control = this.mapControls(ctrl);
+          this.controls.push(control)
+        });
+        //console.log('dynamic generate Controls end forEach:' + new Date().toLocaleTimeString());
+      }
+    );
+    return this.controls;
+  }
+
+  mapControls(control: SstPagesControls): ControlBase<any> {
+    switch (control.controlType) {
+      case ControlType.Textbox:
+        {
+          return new ControlTextbox({
+            id: control.id,
+            controlType: control.controlType,
+            key: control.key,
+            form: control.form,
+            labelKey: control.labelKey,
+            allowEditLabel: control.allowEditLabel ? true : false,
+            required: control.isRequired ? true : false,
+            allowRequired: control.allowRequired ? true : false,
+            hidden: control.isHidden ? true : false,
+            allowHidden: control.allowHidden ? true : false,
+            disabled: control.isDisabled ? true : false,
+            allowDisabled: control.allowDisabled ? true : false,
+            order: control.order,
+            className: control.className,
+            isDynamic: control.isDynamic ? true : false,
+            formType: control.formType,
+
+            type: control.textType
+          });
+        }
+      case ControlType.AutoComplete:
+        {
+          let childControls: ControlBase<any>[] = [];
+          let child: ControlBase<any> = new ControlBase();
+
+          control.inverseControl.forEach(ctrl => {
+            child = this.mapControls(ctrl);
+            childControls.push(child);
+          });
+
+          return new ControlAutocomplete({
+            id: control.id,
+            controlType: control.controlType,
+            key: control.key,
+            form: control.form,
+            labelKey: control.labelKey,
+            allowEditLabel: control.allowEditLabel ? true : false,
+            required: control.isRequired ? true : false,
+            allowRequired: control.allowRequired ? true : false,
+            hidden: control.isHidden ? true : false,
+            allowHidden: control.allowHidden ? true : false,
+            disabled: control.isDisabled ? true : false,
+            allowDisabled: control.allowDisabled ? true : false,
+            order: control.order,
+            className: control.className,
+            isDynamic: control.isDynamic ? true : false,
+            formType: control.formType,
+
+            paramsType: control.paramsType,
+            serviceUrl: control.serviceUrl,
+            controlParams: control.sstPagesControlsParams,
+            childControls: childControls
+          });
+        }
+      case ControlType.Dropdown:
+        {
+          let childControls: ControlBase<any>[] = [];
+          let child: ControlBase<any> = new ControlBase();
+
+          control.inverseControl.forEach(ctrl => {
+            child = this.mapControls(ctrl);
+            childControls.push(child);
+          });
+
+          return new ControlDropdown({
+            id: control.id,
+            controlType: control.controlType,
+            key: control.key,
+            form: control.form,
+            labelKey: control.labelKey,
+            allowEditLabel: control.allowEditLabel ? true : false,
+            required: control.isRequired ? true : false,
+            allowRequired: control.allowRequired ? true : false,
+            hidden: control.isHidden ? true : false,
+            allowHidden: control.allowHidden ? true : false,
+            disabled: control.isDisabled ? true : false,
+            allowDisabled: control.allowDisabled ? true : false,
+            order: control.order,
+            className: control.className,
+            isDynamic: control.isDynamic ? true : false,
+            formType: control.formType,
+
+            paramsType: control.paramsType,
+            serviceUrl: control.serviceUrl,
+            controlParams: control.sstPagesControlsParams,
+            childControls: childControls
+          });
+        }
+      case ControlType.Calendar:
+        {
+          return new ControlCalendar({
+            id: control.id,
+            controlType: control.controlType,
+            key: control.key,
+            form: control.form,
+            labelKey: control.labelKey,
+            allowEditLabel: control.allowEditLabel ? true : false,
+            required: control.isRequired ? true : false,
+            allowRequired: control.allowRequired ? true : false,
+            hidden: control.isHidden ? true : false,
+            allowHidden: control.allowHidden ? true : false,
+            disabled: control.isDisabled ? true : false,
+            allowDisabled: control.allowDisabled ? true : false,
+            order: control.order,
+            className: control.className,
+            isDynamic: control.isDynamic ? true : false,
+            formType: control.formType
+          });
+        }
+      case ControlType.RadioButton:
+        {
+          let childControls: ControlBase<any>[] = [];
+          let child: ControlBase<any> = new ControlBase();
+
+          control.inverseControl.forEach(ctrl => {
+            child = this.mapControls(ctrl);
+            childControls.push(child);
+          });
+
+          return new ControlRadioButton({
+            id: control.id,
+            controlType: control.controlType,
+            key: control.key,
+            form: control.form,
+            labelKey: control.labelKey,
+            allowEditLabel: control.allowEditLabel ? true : false,
+            required: control.isRequired ? true : false,
+            allowRequired: control.allowRequired ? true : false,
+            hidden: control.isHidden ? true : false,
+            allowHidden: control.allowHidden ? true : false,
+            disabled: control.isDisabled ? true : false,
+            allowDisabled: control.allowDisabled ? true : false,
+            order: control.order,
+            className: control.className,
+            isDynamic: control.isDynamic ? true : false,
+
+            paramsType: control.paramsType,
+            serviceUrl: control.serviceUrl,
+            controlParams: control.sstPagesControlsParams,
+            childControls: childControls
+          });
+        }
+      case ControlType.Checkbox:
+        {
+          let childControls: ControlBase<any>[] = [];
+          let child: ControlBase<any> = new ControlBase();
+
+          control.inverseControl.forEach(ctrl => {
+            child = this.mapControls(ctrl);
+            childControls.push(child);
+          });
+
+          return new ControlCheckbox({
+            id: control.id,
+            controlType: control.controlType,
+            key: control.key,
+            form: control.form,
+            labelKey: control.labelKey,
+            allowEditLabel: control.allowEditLabel ? true : false,
+            required: control.isRequired ? true : false,
+            allowRequired: control.allowRequired ? true : false,
+            hidden: control.isHidden ? true : false,
+            allowHidden: control.allowHidden ? true : false,
+            disabled: control.isDisabled ? true : false,
+            allowDisabled: control.allowDisabled ? true : false,
+            order: control.order,
+            className: control.className,
+            isDynamic: control.isDynamic ? true : false,
+            childControls: childControls
+          });
+        }
+      default:
+        {
+          let childControls: ControlBase<any>[] = [];
+          let child: ControlBase<any> = new ControlBase();
+
+          control.inverseControl.forEach(ctrl => {
+            child = this.mapControls(ctrl);
+            childControls.push(child);
+          });
+
+          return new ControlBase({
+            id: control.id,
+            controlType: control.controlType,
+            key: control.key,
+            form: control.form,
+            labelKey: control.labelKey,
+            allowEditLabel: control.allowEditLabel ? true : false,
+            required: control.isRequired ? true : false,
+            allowRequired: control.allowRequired ? true : false,
+            hidden: control.isHidden ? true : false,
+            allowHidden: control.allowHidden ? true : false,
+            disabled: control.isDisabled ? true : false,
+            allowDisabled: control.allowDisabled ? true : false,
+            order: control.order,
+            className: control.className,
+            isDynamic: control.isDynamic ? true : false,
+            childControls: childControls
+          });
+        }
+    }
+  }
+  
+  async fillControlOptions(Control: any, form, query: string = "") {
+    let serviceUrl = Control.serviceUrl;
+
+    let values: SelectItem[] = [{ label: "Select", value: null }];
+    if (Control.controlType == ControlType.RadioButton)
+    {
+      values = []
+    }
+    //let validDependentValues: boolean = true;
+
+    // for (var param of Control.controlParams) {
+    //   if (param.type == ParameterType.Control) {
+    //     let value = form.controls[param.dependOnKey].value;
+
+    //     if (value == null || value == undefined || value == '') {
+    //       validDependentValues = false;
+    //       break;
+    //     }
+
+    //     if (typeof value == 'object')
+    //       value = form.controls[param.dependOnKey].value.value;
+    //   }
+    // }
+
+    // if (validDependentValues) {
+    let serviceParams: SelectItem[] = [];
+
+    if (Control.paramsType === ParamsType.PathParameter) {
+      Control.controlParams.forEach(param => {
+        switch (param.type) {
+          case ParameterType.Control:
+            {
+              let value = form.controls[param.dependOnKey].value;
+              if (value != null && typeof value == 'object')
+                value = form.controls[param.dependOnKey].value.value;
+
+              serviceUrl = serviceUrl.replace("{{" + param.name + "}}", value);
+              break;
+            }
+          case ParameterType.Query:
+            serviceUrl = serviceUrl.replace("{{" + param.name + "}}", query);
+            break;
+          case ParameterType.CompanyId:
+            serviceUrl = serviceUrl.replace("{{" + param.name + "}}", '1'/*this.user.companyId.toString());
+            break;
+          case ParameterType.BranchId:
+            serviceUrl = serviceUrl.replace("{{" + param.name + "}}", this.user.branchId.toString());
+            break;
+          case ParameterType.Username:
+            serviceUrl = serviceUrl.replace("{{" + param.name + "}}", this.user.userName);
+            break;
+          case ParameterType.LanguageId:
+            serviceUrl = serviceUrl.replace("{{" + param.name + "}}", this.user.language.toString());
+            break;
+        }
+      });
+    }
+    else if (Control.paramsType === ParamsType.HeaderParameter) {
+      Control.controlParams.forEach(param => {
+        switch (param.type) {
+          case ParameterType.Control:
+            {
+              let value = form.controls[param.dependOnKey].value;
+              if (value != null && typeof value == 'object')
+                value = form.controls[param.dependOnKey].value.value;
+              serviceParams.push({ label: param.name, value: value })
+              break;
+            }
+          case ParameterType.Query:
+            serviceParams.push({ label: param.name, value: query });
+            break;
+          case ParameterType.CompanyId:
+            serviceParams.push({ label: param.name, value: '1'/*this.user.companyId });
+            break;
+          case ParameterType.BranchId:
+            serviceParams.push({ label: param.name, value: this.user.branchId });
+            break;
+          case ParameterType.Username:
+            serviceParams.push({ label: param.name, value: this.user.userName });
+            break;
+          case ParameterType.LanguageId:
+            serviceParams.push({ label: param.name, value: this.user.language });
+            break;
+        }
+      });
+    }
+
+    let dynamicCall$ = this.cs.DynamicCallWithParams(serviceUrl, serviceParams);
+    await dynamicCall$.toPromise().then(data => {
+      if (data != null && data.data.length > 0) {
+        Array.from(data.data).forEach(item => {
+          values.push(item);
+        });
+        Control.options = values;
+      }
+      else { Control.options = [] }
+    });
+    // }
+    // else {
+    //   Control.options = [];
+    // }
+    return Control;
+  }
+}
+
+
+
+
+2-SharedSetupService
+
+
+
+import { Injectable } from '@angular/core';
+import { HttpHeaders, HttpParams, HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+import { Observable, throwError } from 'rxjs';
+import { SelectItem } from 'primeng/api';
+import { SstDomains, SstDomainValues, SstCodes, SstResources, SstPagesControls, SstPaymentCycles } from '../../models/data-models';
+import { catchError, map, retry } from 'rxjs/operators';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class SharedSetupService {
+
+  Resources: any = {};
+  private httpHeaders = new HttpHeaders().set('Accept', 'application/json');
+  private apiUrl = environment.apiUrl + 'api/TPIntegration/';
+
+  constructor(private http: HttpClient) { }
+
+  getResources(resourceObject: string, language: string, systemId: number, companyId: number): Observable<any> {
+    let httpParams = new HttpParams()
+      .set('resourceObject', resourceObject)
+      .set('language', language)
+      .set('systemId', systemId.toString())
+      .set('companyId', companyId.toString());
+
+    return this.http.get<any>(this.apiUrl + "GetResources", { headers: this.httpHeaders, params: httpParams, responseType: 'json' });
+  }
+
+  getResource(resourceObject: string, resourceName: string, language: string, systemId: number, companyId: number): Observable<SstResources> {
+    let httpParams = new HttpParams()
+      .set('resourceObject', resourceObject)
+      .set('resourceName', resourceName)
+      .set('language', language)
+      .set('systemId', systemId.toString())
+      .set('companyId', companyId.toString());
+
+    return this.http.get<SstResources>(this.apiUrl + "GetResource", { headers: this.httpHeaders, params: httpParams, responseType: 'json' });
+  }
+
+  updateResource(sstResource: SstResources): Observable<SstResources> {
+    return this.http.put<SstResources>(this.apiUrl + "UpdateResource", sstResource, { headers: this.httpHeaders, responseType: 'json' });
+  }
+
+  postResource(sstResource: SstResources): Observable<SstResources> {
+    return this.http.post<SstResources>(this.apiUrl + "PostResource", sstResource, { headers: this.httpHeaders, responseType: 'json' });
+  }
+
+  getByPageKey(key: string, systemId: number, moduleCode: string, companyId: number): Observable<SstPagesControls[]>{
+    //console.log('shared setup start:' + new Date().toLocaleTimeString());
+    let response = this.http.get<SstPagesControls[]>(this.apiUrl + "GetByPageKey/" + key + "/" + systemId + "/" + moduleCode + "/" + companyId, { headers: this.httpHeaders, responseType: 'json' });
+    //console.log('shared setup end:' + new Date().toLocaleTimeString());
+    return response
+  }
+
+  getPageControlById(id: number, companyId: number): Observable<SstPagesControls> {
+    return this.http.get<SstPagesControls>(this.apiUrl + "GetPageControlById/" + id + "/" + companyId, { headers: this.httpHeaders, responseType: 'json' });
+  }
+  
+  updatePageControl(sstPagesControls: SstPagesControls): Observable<SstPagesControls> {
+    return this.http.put<SstPagesControls>(this.apiUrl + "UpdatePageControl", sstPagesControls, { headers: this.httpHeaders, responseType: 'json' });
+  }
+
+  getDomainValues(domainCode: number, systemId: number, companyId: number): Observable<SelectItem[]> {
+    let values: SelectItem[] = [{ label: "Select", value: null }];
+
+    let getUrl = this.apiUrl + "GetDomainValues/" + domainCode + "/" + systemId + "/" + companyId;
+    var getValues = this.http.get<SelectItem[]>(getUrl, { headers: this.httpHeaders, responseType: 'json' }).pipe(
+      map(response => {
+        response.forEach((val) => {
+          let obj = { label: val.label, value: val.value };
+          values.push({ ...obj });
+        });
+        return values;
+      }));
+    return getValues;
+  }
+
+  downloadFile(fileName): Observable<any> {
+    let httpHeaders = new HttpHeaders().set('Accept', ').set('content-type', 'application/json');
+    return this.http.get<any>(this.apiUrl + "DownloadFile/" + fileName, { headers: httpHeaders, responseType: 'blob' as 'json' })
+      .pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        })
+      );
+  }
+
+  uploadFiles(formData: FormData): Observable<any[]> {
+    return this.http.post<any[]>(this.apiUrl + "UploadFiles", formData, { headers: this.httpHeaders, responseType: 'json' })
+      .pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        })
+    );
+  }
+
+  getAllInsuranceClasses(companyId: number): SelectItem[] {
+    let policyTypes: SelectItem[] = [{ label: "Select Class..", value: null }];
+    let getUrl = this.apiUrl + 'GetInsuranceClasses/' + companyId;
+
+    this.http.get<any[]>(getUrl, { headers: this.httpHeaders, responseType: 'json' })
+      .subscribe(
+        data => {
+          Array.from(data).forEach(item => {
+            policyTypes.push(item);
+          });
+        });
+    return policyTypes;
+  }
+  getInsuranceClassesBySysId(systemId: number, companyId: number): SelectItem[] {
+    let classes: SelectItem[] = [{ label: "Select Class..", value: null }];
+    let getUrl = this.apiUrl + 'GetInsuranceClassesBySysId/' + systemId + '/' + companyId;
+    let httpParams = new HttpParams();
+    if (companyId != null && systemId != null) {
+      httpParams = httpParams.set('systemId', systemId.toString()).set('companyId', companyId.toString());
+    }
+    this.http.get<SelectItem[]>(getUrl, { headers: this.httpHeaders, responseType: 'json' })
+      .subscribe(
+        data => {
+          Array.from(data).forEach(item => {
+            classes.push(item);
+          });
+        });
+    return classes;
+  }
+
+  getSubLOBByClassId(classId: number, companyId: number): Observable<SelectItem[]> {
+    let getUrl = this.apiUrl + 'GetSubLOBByClassId/' + classId + '/' + companyId;
+    return this.http.get<SelectItem[]>(getUrl, { headers: this.httpHeaders, responseType: 'json' });
+  }
+}
+
+
+  ========================================================
+  How to use It
+  
+  
+<div *ngIf="isLoaded">
+  <eska-dynamic-search [ViewMode]="ViewMode.Block"
+                       [show]="show"
+                       (onSearch)="searchParties($event)"
+                       (onSelectedRow)="OnSelectedRow($event)"
+                       (RemoveRecordsClick)="RemoveRecords($event)"
+                       (onCheckBoxSelect)="OnCheckboxSelected($event)"
+                       (onRowUnSelected)="OnUnSelectedRow($event)"
+                       (onCheckboxUnSelect)="OnCheckboxUnSelected($event)"
+                       [cols]="insurancePartiescols"
+                       [rows]="insuranceclassesrows"
+                       [dialogTitle]="dialogTitle"
+                       [searchTitle]="searchTitle"
+                       [resultTitle]="resultTitle"
+                       [showCheckBox]="true"
+                       [form]="InsurancePartiesSearchform"
+                       [controls]="searchControls"
+                       (ResetEntryClick)="onResetEntryClick($event)">
+
+  </eska-dynamic-search>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="panel panel-inverse">
+        <div class="panel-heading">
+          <div class="panel-heading-btn">
+            <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-warning" data-click="panel-collapse"
+               title="Expand/Collapse"><i class="fa fa-minus"></i></a>
+          </div>
+          <h4 class="panel-title">Insurance Parties Entry</h4>
+        </div>
+        <div class="panel-body">
+          <form [formGroup]="InsurancePartiesEntryform">
+            <div class="row">
+
+
+              <div class="col-md-4 form-group">
+                <eska-dropdown [control]="controls | filter:'InsurancePartiesEntryform':'TypeEntry'" [form]="InsurancePartiesEntryform"
+                               [options]="TypeParties"></eska-dropdown>
+              </div>
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'Name1'" [form]="InsurancePartiesEntryform"
+                              [type]="'text'"></eska-textbox>
+              </div>
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'Name2'" [form]="InsurancePartiesEntryform"
+                              [type]="'text'"></eska-textbox>
+              </div>
+
+
+              <div class="col-md-4 form-group">
+                <eska-dropdown [control]="controls | filter:'InsurancePartiesEntryform':'Language'" [form]="InsurancePartiesEntryform"
+                               [options]="Language"></eska-dropdown>
+              </div>
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'NationalID'" [form]="InsurancePartiesEntryform"
+                              [type]="'text'"></eska-textbox>
+              </div>
+
+
+              <div class="col-md-4 form-group">
+                <eska-dropdown [control]="controls | filter:'InsurancePartiesEntryform':'BusinessSector'" [form]="InsurancePartiesEntryform"
+                               [options]="BusinessSector"></eska-dropdown>
+              </div>
+
+
+              <div class="col-md-2 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'Abbreviation'" [form]="InsurancePartiesEntryform"
+                              [type]="'text'"></eska-textbox>
+              </div>
+              <div class="col-md-2 form-group">
+                <eska-dropdown [control]="controls | filter:'InsurancePartiesEntryform':'Rating'" [form]="InsurancePartiesEntryform"
+                               [options]="Rating"></eska-dropdown>
+              </div>
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-calendar [control]="controls | filter:'InsurancePartiesEntryform':'ExpiryDate'" [form]="InsurancePartiesEntryform" dateFormat="dd/mm/yy"></eska-calendar>
+
+              </div>
+
+
+
+              <div class="col-md-4 form-group">
+                <eska-dropdown [control]="controls | filter:'InsurancePartiesEntryform':'FieldofActivity'" [form]="InsurancePartiesEntryform"
+                               [options]="FieldofActivity"></eska-dropdown>
+              </div>
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'URL'" [form]="InsurancePartiesEntryform"
+                              [type]="'text'"></eska-textbox>
+              </div>
+
+
+              <div class="col-md-4 form-group">
+                <eska-radio-button [control]="controls | filter:'InsurancePartiesEntryform':'OriginEntry'" [form]="InsurancePartiesEntryform"
+                                   [options]="OriginEntry">
+                </eska-radio-button>
+              </div>
+
+
+              <div class="col-md-4 form-group">
+                <label>Communication By</label>
+                <div class="col-md-1 form-group">
+                  <eska-checkbox [control]="controls | filter:'InsurancePartiesEntryform':'ComEmail'" [form]="InsurancePartiesEntryform"></eska-checkbox>
+                </div>
+
+                <div class="col-md-1 form-group">
+                  <eska-checkbox [control]="controls | filter:'InsurancePartiesEntryform':'ComPhone'" [form]="InsurancePartiesEntryform"></eska-checkbox>
+                </div>
+
+                <div class="col-md-1 form-group">
+                  <eska-checkbox [control]="controls | filter:'InsurancePartiesEntryform':'ComSMS'" [form]="InsurancePartiesEntryform"></eska-checkbox>
+                </div>
+
+                <div class="col-md-1 form-group">
+                  <eska-checkbox [control]="controls | filter:'InsurancePartiesEntryform':'ComMail'" [form]="InsurancePartiesEntryform"></eska-checkbox>
+
+                </div>
+              </div>
+
+
+              <div class="col-md-4 form-group">
+                <eska-dropdown [control]="controls | filter:'InsurancePartiesEntryform':'Country'" [form]="InsurancePartiesEntryform"
+                               [options]="CountryList"></eska-dropdown>
+              </div>
+
+
+
+              <div class="col-md-4 form-group">
+                <eska-dropdown [control]="controls | filter:'InsurancePartiesEntryform':'City'" [form]="InsurancePartiesEntryform"
+                               [options]="CityList"></eska-dropdown>
+              </div>
+
+
+
+              <div class="col-md-4 form-group">
+                <eska-dropdown [control]="controls | filter:'InsurancePartiesEntryform':'Area'" [form]="InsurancePartiesEntryform"
+                               [options]="AreaList"></eska-dropdown>
+              </div>
+
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'Street'" [form]="InsurancePartiesEntryform"
+                              [type]="'text'"></eska-textbox>
+              </div>
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'BuildingNo'" [form]="InsurancePartiesEntryform"
+                              [type]="'text'"></eska-textbox>
+              </div>
+
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'District'" [form]="InsurancePartiesEntryform"
+                              [type]="'text'"></eska-textbox>
+              </div>
+
+
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'Phone'" [form]="InsurancePartiesEntryform"
+                              [type]="'number'"></eska-textbox>
+              </div>
+
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'Mobile'" [form]="InsurancePartiesEntryform"
+                              [type]="'number'"></eska-textbox>
+              </div>
+
+
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'Mail'" [form]="InsurancePartiesEntryform"
+                              [type]="'text'"></eska-textbox>
+              </div>
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'Fax'" [form]="InsurancePartiesEntryform"
+                              [type]="'number'"></eska-textbox>
+              </div>
+
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'POBOX'" [form]="InsurancePartiesEntryform"
+                              [type]="'number'"></eska-textbox>
+              </div>
+
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'ZIPCode'" [form]="InsurancePartiesEntryform"
+                              [type]="'number'"></eska-textbox>
+              </div>
+
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'ContactPerson'" [form]="InsurancePartiesEntryform"
+                              [type]="'text'"></eska-textbox>
+              </div>
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'ContactPosition'" [form]="InsurancePartiesEntryform"
+                              [type]="'text'"></eska-textbox>
+              </div>
+
+
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'ContactPhone'" [form]="InsurancePartiesEntryform"
+                              [type]="'text'"></eska-textbox>
+              </div>
+
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'ContactEmail'" [form]="InsurancePartiesEntryform"
+                              [type]="'text'"></eska-textbox>
+              </div>
+
+
+              <div class="col-md-4 form-group">
+                <eska-dropdown [control]="controls | filter:'InsurancePartiesEntryform':'PreferenceDegree'" [form]="InsurancePartiesEntryform"
+                               [options]="PreferenceDegree"></eska-dropdown>
+              </div>
+
+
+
+              <div class="col-md-4 form-group">
+
+                <eska-calendar [control]="controls | filter:'InsurancePartiesEntryform':'BirthDate'" [form]="InsurancePartiesEntryform" dateFormat="dd/mm/yy"></eska-calendar>
+
+              </div>
+
+
+              <div class="col-md-12 form-group">
+
+                <eska-textbox [control]="controls | filter:'InsurancePartiesEntryform':'Notes'" [form]="InsurancePartiesEntryform"
+                              [type]="'text'"></eska-textbox>
+              </div>
+
+
+              <div class="col-md-12 form-group">
+                <eska-file-upload #fileUploader [control]="controls | filter:'InsurancePartiesEntryform':'CompanyLogo'" [form]="InsurancePartiesEntryform"
+                                  [files]="files" customUpload="true" multiple="false" mode="advanced" (uploadHandler)="uploadHandler($event)">
+                </eska-file-upload>
+              </div>
+
+
+            </div>
+          </form>
+        </div>
+
+        <div class="panel-footer text-right">
+          <button type="submit" [disabled]="!InsurancePartiesEntryform.valid" (click)="onSaveUpdate()" class="btn btn-primary btn-xs">
+            {{showSaveUpdate === false ? 'Save' : 'Update'}}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <bms-agreement [partiesId]="paritesId" ></bms-agreement>
+  <!--The End of the Agents Structures Entry-->
+
+</div>
+
+
+
+
+
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { FormGroup, Validators, FormBuilder } from '@angular/forms';
+import { CommonService } from '../shared/services/common.service';
+import { User, ViewMode, BstPartiesSearchCriteria, Domains, BstParties, BstAgreements, selectItem } from '../models/data-models';
+import { environment } from 'src/environments/environment';
+import { ConfirmationService } from 'primeng/api';
+import { CoreService } from '../shared/services/core.service';
+import { DynamicControlService } from '../shared/services/dynamic-control.service';
+import { AuthenticationService } from '../shared/services/authentication.service';
+import { Router } from '@angular/router';
+import { FilterPipe } from '../shared/pipes/filter.pipe';
+import { SharedSetupService } from '../shared/services/shared-setup.service';
+import { BaseComponentComponent } from '../base-component/base-component.component';
+import { CurrencyComponent } from '../shared/controls/currency/currency.component';
+import { ControlBase } from '../shared/controls/dynamic-search/control-classes/control-base';
+import { PartiesService } from '../shared/services/parties-service.service';
+import { AgreementsService } from '../shared/services/agreements.service';
+import { DomainService } from '../shared/services/DomainService';
+import { parse } from 'url';
+import { FileUploadComponent } from '../shared/controls/file-upload/file-upload.component';
+
+
+@Component({
+  selector: 'app-insurance-parties',
+  templateUrl: './insurance-parties.component.html',
+  styleUrls: ['./insurance-parties.component.css']
+})
+export class InsurancePartiesComponent extends BaseComponentComponent implements OnInit {
+
+
+  //model
+  partiesModel = new BstParties();
+  showSaveUpdate: boolean = false;
+  
+  isLoaded: boolean = false;
+  files: File[];
+  formData = new FormData();
+
+  dialogTitle: string = "Insurance Parties Search";
+  resultTitle: string = "Insurance Parties List";
+  selectedRows: any[] = [];
+  searchForm: any;
+
+  paritesId: number;
+  //originalCurrency: Currency = new Currency();
+  @ViewChild(CurrencyComponent) private OriginalCurrency: CurrencyComponent;
+  @ViewChild('fileUploader') fileUploader: FileUploadComponent;
+  get ViewMode() { return ViewMode }
+
+  searchControls: ControlBase<any>[] = [];
+  entryControls: ControlBase<any>[] = [];
+
+  //Define FormGroup for Search block
+  InsurancePartiesSearchform: FormGroup;
+  InsurancePartiesEntryform: FormGroup;
+
+  filteredType: any[]
+  user: User;
+
+  //handle show or hide the loading spinner
+  loading: boolean;
+
+  //calenderDateFormat for date controls
+  calenderDateFormat = environment.DATE_FMT;
+
+  constructor(private cs: CommonService, private coreService: CoreService, private partiesService: PartiesService, private agreementsService: AgreementsService, public sharedSetupService: SharedSetupService,
+    private confirmationService: ConfirmationService, public dcs: DynamicControlService, public router: Router, private filterPipe: FilterPipe,
+    public authenticationService: AuthenticationService, public domainService: DomainService, private cdRef: ChangeDetectorRef) {
+
+    super(dcs, router, authenticationService, sharedSetupService);
+
+    this.initControls();
+
+  }
+
+  async initControls() {
+    let getControlsByKey$ = this.generateControls("SBM");
+    await getControlsByKey$.then(
+      data => {
+
+        this.searchControls = this.filterPipe.transform(this.controls, 'InsurancePartiesSearchform');
+        //this.entryControls = this.filterPipe.transform(this.controls, 'treatyEntryForm');
+        this.generateSearchControls();
+        this.isLoaded = true;
+        this.cdRef.detectChanges();
+
+      }
+    ); 
+  }
+
+  generateSearchControls() {
+
+    this.InsurancePartiesSearchform = this.dcs.toFormGroup(this.searchControls);
+  }
+
+  ngOnInit() {
+    this.user = this.cs.getLoggedInUser();
+    this.fillLists();
+    this.CreateForm();
+    this.bindEvents();
+  }// End OnIns
+
+  CreateForm() {
+    this.InsurancePartiesEntryform = this.cs.fb.group({
+      TypeEntry: [0],
+      Name1: [''],
+      Name2: [''],
+      Language: [''],
+      PreferenceDegree: [''],
+      NationalID: [0],
+      BusinessSector: [''],
+      Abbreviation: [''],
+      ExpiryDate: [''],
+      FieldofActivity: [''],
+      URL: [''],
+      OriginEntry: [''],
+      CommunicationBy: [''],
+      Country: [''],
+      City: [''],
+      Area: [''],
+      Street: [''],
+      BuildingNo: [''],
+      District: [''],
+      Phone: [''],
+      Mobile: [''],
+      Mail: [''],
+      Fax: [''],
+      POBOX: [''],
+      ZIPCode: [''],
+      CompanyLogo: [''],
+      ContactPerson: [''],
+      ContactPosition: [''],
+      ContactPhone: [''],
+      ContactEmail: [''],
+      BirthDate: [''],
+      Notes: [''],
+      ComEmail: [''],
+      ComPhone: [''],
+      ComSMS: [''],
+      ComMail: [''],
+      Rating: [0]
+    });
+  }
+  setModelValues() {
+    const form = this.InsurancePartiesEntryform.controls
+    this.partiesModel.type = form.TypeEntry.value;
+    this.partiesModel.name = form.Name1.value;
+    this.partiesModel.name2 = form.Name2.value;
+    this.partiesModel.language = form.Language.value;
+    this.partiesModel.preferenceDegree = form.PreferenceDegree.value;
+    this.partiesModel.uniqueNo = form.NationalID.value;
+    this.partiesModel.businessSector = form.BusinessSector.value;
+    this.partiesModel.abbreviation = form.Abbreviation.value;
+    this.partiesModel.expiryDate = form.ExpiryDate.value;
+    this.partiesModel.activityField = form.FieldofActivity.value;
+    this.partiesModel.webSite = form.URL.value;
+    this.partiesModel.origin = form.OriginEntry.value;
+    this.partiesModel.country = form.Country.value;
+    this.partiesModel.city = form.City.value;
+    this.partiesModel.area = form.Area.value;
+    this.partiesModel.street = form.Street.value;
+    this.partiesModel.buildingNo = form.BuildingNo.value;
+    this.partiesModel.district = form.District.value;
+    this.partiesModel.phoneNo = form.Phone.value;
+    this.partiesModel.mobileNo = form.Mobile.value;
+    this.partiesModel.email = form.Mail.value;
+    this.partiesModel.faxNo = form.Fax.value;
+    this.partiesModel.poBox = form.POBOX.value;
+    this.partiesModel.zipCode = form.ZIPCode.value;
+    this.partiesModel.logo = form.CompanyLogo.value;
+    this.partiesModel.contactPerson = form.ContactPerson.value;
+    this.partiesModel.contactPosition = form.ContactPosition.value;
+    this.partiesModel.contactPhoneNo = form.ContactPhone.value;
+    this.partiesModel.contactEmail = form.ContactEmail.value;
+    this.partiesModel.preferenceDegree = form.PreferenceDegree.value;
+    this.partiesModel.dateOfBirth = form.BirthDate.value;
+    this.partiesModel.notes = form.Notes.value;
+    this.partiesModel.commEmail = form.ComEmail.value ? 1 : 0;
+    this.partiesModel.commPhone = form.ComPhone.value ? 1 : 0;
+    this.partiesModel.commSms = form.ComSMS.value ? 1 : 0;
+    this.partiesModel.commMail = form.ComMail.value ? 1 : 0;
+    this.partiesModel.rating = form.Rating.value;
+  }
+
+
+  setFormValues() {
+   
+    this.InsurancePartiesEntryform.patchValue({
+      TypeEntry: this.partiesModel.type.toString(),
+      Name1: this.partiesModel.name,
+      Name2: this.partiesModel.name2,
+      Language: this.partiesModel.language.toString(),
+      PreferenceDegree: this.partiesModel.preferenceDegree.toString(),
+      NationalID: this.partiesModel.uniqueNo,
+      BusinessSector: this.partiesModel.businessSector > 0 ? this.partiesModel.businessSector.toString():"",
+      Abbreviation: this.partiesModel.abbreviation,
+      ExpiryDate: this.partiesModel.expiryDate == null ? null : new Date(this.partiesModel.expiryDate),
+      FieldofActivity: this.partiesModel.activityField.toString(),
+      URL: this.partiesModel.webSite,
+      OriginEntry: this.partiesModel.origin,
+      Country: this.partiesModel.country,
+      City: this.partiesModel.city,
+      Area: this.partiesModel.area,
+      Street: this.partiesModel.street,
+      BuildingNo: this.partiesModel.buildingNo,
+      District: this.partiesModel.district,
+      Phone: this.partiesModel.phoneNo,
+      Mobile: this.partiesModel.mobileNo,
+      Mail: this.partiesModel.email,
+      Fax: this.partiesModel.faxNo,
+      POBOX: this.partiesModel.poBox,
+      ZIPCode: this.partiesModel.zipCode,
+      CompanyLogo: this.partiesModel.logo,
+      ContactPerson: this.partiesModel.contactPerson,
+      ContactPosition: this.partiesModel.contactPosition,
+      ContactPhone: this.partiesModel.contactPhoneNo,
+      ContactEmail: this.partiesModel.contactEmail,
+      BirthDate: this.partiesModel.dateOfBirth == null ? null : new Date(this.partiesModel.dateOfBirth),
+      Notes: this.partiesModel.notes,
+      ComEmail: this.partiesModel.commEmail,
+      ComPhone: this.partiesModel.commPhone,
+      ComSMS: this.partiesModel.commSms,
+      ComMail: this.partiesModel.commMail,
+      Rating: this.partiesModel.rating,
+    });
+  }
+
+
+  //Lists
+  TypeParties: any[] = [];
+  Language: any[] = [];
+  BusinessSector: any[] = [];
+  Rating: any[] = [];
+  FieldofActivity: any[] = [];
+  Origin: any[] = [];
+  OriginEntry: any[] =[];
+  CommunicationBy: any[] = [];
+  CountryList: any[] = [];
+  CityList: any[] = [];
+  AreaList: any[] = [];
+  PreferenceDegree: any[] = [];
+  temp: selectItem[] = [{ label: 'sad', value:1 }];
+
+  fillLists() {
+    //Fill entry list option
+    this.domainService.getDomainValues(Domains.InsurersPartiesType, 1).subscribe(data => { this.TypeParties = data; });
+    this.domainService.getDomainValues(Domains.Language, 1).subscribe(data => { this.Language = data; });
+    this.domainService.getDomainValues(Domains.BusinessSector, 1).subscribe(data => { this.BusinessSector = data; });
+    this.domainService.getDomainValues(Domains.FieldOfActivity, 1).subscribe(data => { this.FieldofActivity = data; });
+    this.domainService.getDomainValues(Domains.Origin, 1).subscribe(data => {data.splice(0, 1); this.Origin = data; this.OriginEntry = data;});
+    this.coreService.getCountries().subscribe(data => { this.CountryList = data; });
+    this.domainService.getDomainValues(Domains.PreferenceDegree, 1).subscribe(data => { this.PreferenceDegree = data; });
+    this.domainService.getDomainValues(Domains.Rating, 1).subscribe(data => { this.Rating = data; });
+  }
+
+  insurancePartiescols: any[] = [
+    { field: "id", header: "Id", hidden: true },
+    { field: "type", header: "Type", hidden: false },
+    { field: "abbreviation", header: "Abbreviation", hidden: false },
+    { field: "name", header: "Name", hidden: false },
+    { field: "fieldofActivity", header: "Field of Activity", hidden: false },
+    { field: "country", header: "Country", hidden: false },
+    { field: "city", header: "City", hidden: false },
+    { field: "contactPerson", header: "Contact Person", hidden: false },
+    { field: "logo", header: "Logo", hidden: false }];
+
+
+  insuranceclassesrows: any[] = [];
+
+  searchParties(formValue: any) {
+    this.cs.showOrHideSpinner(true);
+    this.searchForm = formValue;
+    let searchCriteria = new BstPartiesSearchCriteria(formValue.type, formValue.name, formValue.FieldofActivityype, formValue.PreferenceDegree, formValue.Origin, formValue.Abbreviation);
+    this.partiesService.GetByCriteria(searchCriteria).subscribe(
+      response => {
+          this.insuranceclassesrows = response;
+          this.cs.showOrHideSpinner(false);
+        },
+          err => {
+            console.log(err);
+            this.cs.pushError(err);
+            this.cs.showOrHideSpinner(false);
+          }
+    );
+    
+  }
+
+
+  resetPartiesForm() {
+    this.cs.showOrHideSpinner(true);
+    this.cs.resetForm(this.InsurancePartiesEntryform);
+    this.showSaveUpdate = false;
+    this.cs.showOrHideSpinner(false);
+  }
+
+  bindEvents(): any {
+    let Country;
+    const ControlsEntry = (<any>this.InsurancePartiesEntryform).controls;
+    const countryChanges$ = ControlsEntry.Country.valueChanges;
+    const cityyChanges$ = ControlsEntry.City.valueChanges;
+
+   
+    countryChanges$.subscribe(countryCode => {
+      if (countryCode != null  ) {
+        Country = countryCode;
+        this.coreService.getCities(countryCode + "").subscribe(data => {
+          this.CityList = data;
+          if (this.partiesModel.id > 0 && this.partiesModel.city > 0)
+            this.InsurancePartiesEntryform.patchValue({ City: this.partiesModel.city.toString() });
+        });
+      }
+    });
+    cityyChanges$.subscribe(cityId => {
+      if (cityId != null) {
+        this.coreService.getAreas(cityId, Country).subscribe(data => {
+          this.AreaList = data;
+          if (this.partiesModel.id > 0 && this.partiesModel.area > 0)
+            this.InsurancePartiesEntryform.patchValue({ Area: this.partiesModel.area.toString() });
+        });
+      }
+    });
+
+  }
+
+  uploadHandler(event: any) {
+    this.cs.showOrHideSpinner(true);
+    this.files = event.files;
+    if (this.files.length > 0) {
+      this.formData.set("files", "", "");
+      Array.from(this.files).forEach(file => {
+        this.formData.append("files", file, file.name);
+      });
+      console.log("Form Data");
+      console.log(this.formData.get("files"));
+      this.partiesService.uploadFiles(this.formData).subscribe(
+        data => {
+          this.cs.pushMessage("success", "Upload Files", "File(s) Uploaded Successfully");
+          this.InsurancePartiesEntryform.patchValue({ CompanyLogo: data[0] });
+          this.cs.showOrHideSpinner(false);
+        },
+        err => {
+          console.log(err);
+          this.cs.pushError(err);
+          this.cs.showOrHideSpinner(false);
+        }
+      );
+    }
+  }
+
+  OnSelectedRow(selectedRow: BstParties) {
+    this.cs.showOrHideSpinner(true);
+    this.partiesService.GetById(selectedRow.id).subscribe(data => {
+      this.partiesModel = data.data;
+      if (this.partiesModel.id > 0) {
+        this.paritesId = this.partiesModel.id;
+        this.showSaveUpdate = true;
+        this.setFormValues();
+        this.cs.showOrHideSpinner(false);
+      }
+    },
+      err => {
+      console.log(err);
+      this.cs.pushError(err);
+      this.cs.showOrHideSpinner(false);
+    });
+  }
+
+  RemoveRecords(event) {
+    if (this.selectedRows === undefined || this.selectedRows.length == 0) {
+      this.cs.pushMessage("warn", "Warn Message", "No rows selected.");
+    }
+    else {
+      this.cs.confirmationService.confirm({
+        message: 'Are you sure you want to delete these records?',
+        header: 'Delete Confirmation',
+        icon: 'fa fa-trash',
+        accept: () => {
+          this.cs.showOrHideSpinner(true);
+          this.partiesService.RemoveRange(this.selectedRows)
+            .subscribe(
+              data => {
+                this.selectedRows = [];
+                this.cs.showOrHideSpinner(false);
+                this.resetPartiesForm();
+                let searchCriteria = new BstPartiesSearchCriteria(null, null, null, null, null, null);
+
+                this.searchParties(searchCriteria);
+                this.cs.pushMessage("success", "Success", "Record Deleted Successfully");
+              }
+              ,
+              err => {
+                console.log(err);
+                this.cs.showOrHideSpinner(false);
+                this.cs.pushError(err);
+              });
+        },
+        reject: () => {
+          this.selectedRows = [];
+          this.cs.showOrHideSpinner(false);
+        }
+      });
+    }
+  }
+
+
+
+  OnCheckboxSelected(selectedRow: any) {
+    this.selectedRows.push(selectedRow);
+  }
+
+  OnCheckboxUnSelected(selectedRow: any) {
+    if (this.selectedRows.includes(selectedRow))
+      this.selectedRows = this.selectedRows.filter(row => row.id !== selectedRow.id);
+  }
+  OnUnSelectedRow(event) {
+
+  }
+
+  onResetEntryClick(event) {
+
+  }
+  onSaveUpdate() {
+    
+    
+
+    const any = '';
+    if (this.InsurancePartiesEntryform.valid) {
+      this.setModelValues();
+      
+      this.cs.showOrHideSpinner(true);
+      if (this.partiesModel.id < 0 || this.partiesModel.id == undefined) {
+        this.partiesModel.creationUser = this.user.userName;
+        this.partiesModel.creationDate = new Date();
+        this.partiesService.Post(this.partiesModel).subscribe(
+          data => {
+            this.cs.showOrHideSpinner(false);
+            console.log("save");
+            console.log(data.data);
+            this.partiesModel = data.data;
+            let searchCriteria = new BstPartiesSearchCriteria(data.data.type, data.data.name, data.data.activityField, data.data.preferenceDegree, data.data.origin, data.data.abbreviation);
+            this.searchParties(searchCriteria);
+            this.cs.pushMessage("success", "Success", "Record Inserted Successfully");
+            this.resetPartiesForm();
+          },
+          err => {
+            this.cs.showOrHideSpinner(false);
+            this.cs.addMessage('error', 'Error', 'Error in saving "Model"');
+          },
+          () => {
+            this.cs.showOrHideSpinner(false);
+          }
+        )
+        this.showSaveUpdate = true;
+      }
+      else {
+
+        this.partiesModel.modificationUser = this.user.userName;
+        this.partiesModel.modificationDate = new Date();
+        this.partiesService.Put(this.partiesModel).subscribe(
+          data => {
+            this.cs.showOrHideSpinner(false);
+            console.log("Update");
+            console.log(data.data);
+            this.partiesModel = data.data;
+            this.cs.showOrHideSpinner(false);
+            let searchCriteria = new BstPartiesSearchCriteria(data.data.type, data.data.name, data.data.activityField, data.data.preferenceDegree, data.data.origin, data.data.abbreviation);
+            this.cs.pushMessage("success", "Success", "Record Updated Successfully");
+            this.searchParties(searchCriteria);
+
+          },
+          err => {
+            this.cs.showOrHideSpinner(false);
+            this.cs.addMessage('error', 'Error', 'Error in Updating "Model"');
+          },
+          () => {
+           this.cs.showOrHideSpinner(false);
+          }
+        )
+        this.showSaveUpdate = true;
+      }
+    }
+  }
+
+}
+===============================================================================================
+
+
+
+DTO Part
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Domain.DTO.SharedSetup
+{
+    public class SstPagesControlsDTO
+    {
+        public long Id { get; set; }
+        public string Key { get; set; }
+        public string Form { get; set; }
+        public string LabelKey { get; set; }
+        public byte? AllowEditLabel { get; set; }
+        public byte? AllowRequired { get; set; }
+        public byte? IsRequired { get; set; }
+        public byte? AllowHidden { get; set; }
+        public byte? IsHidden { get; set; }
+        public byte? AllowDisabled { get; set; }
+        public byte? IsDisabled { get; set; }
+        public long? Order { get; set; }
+        public string ControlType { get; set; }
+        public string TextType { get; set; }
+        public long? ParamsType { get; set; }
+        public string ClassName { get; set; }
+        public string ServiceUrl { get; set; }
+        public byte? IsDynamic { get; set; }
+        public long? FormType { get; set; }
+        public long PageId { get; set; }
+        public long? ControlId { get; set; }
+        public string CreationUser { get; set; }
+        public DateTime CreationDate { get; set; }
+        public string ModificationUser { get; set; }
+        public DateTime? ModificationDate { get; set; }
+
+
+        public virtual SstPagesControlsDTO Control { get; set; }
+        public virtual ICollection<SstPagesControlsDTO> InverseControl { get; set; }
+        public virtual ICollection<SstPagesControlsParamsDTO> SstPagesControlsParams { get; set; }
+    }
+}
+
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Domain.DTO.SharedSetup
+{
+    public class SstPagesControlsParamsDTO
+    {
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public long Type { get; set; }
+        public string DependOnKey { get; set; }
+        public long ControlId { get; set; }
+        public string CreationUser { get; set; }
+        public DateTime CreationDate { get; set; }
+        public string ModificationUser { get; set; }
+        public DateTime? ModificationDate { get; set; }
+    }
+}
+
+
+
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Domain.DTO.SharedSetup
+{
+    public class SstResoucesDTO
+    {
+        public string Object { get; set; }
+        public string Name { get; set; }
+        public string Value { get; set; }
+        public string Language { get; set; }
+        public long SystemId { get; set; }
+        public long CompanyId { get; set; }
+        public string CreationUser { get; set; }
+        public DateTime CreationDate { get; set; }
+        public string ModificationUser { get; set; }
+        public DateTime? ModificationDate { get; set; }
+    }
+}
+
+
+=============================================================
+
+Controller Part
+
+
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
+using AngInsCoreSharedSetup.Common.Models;
+using AngInsCoreSharedSetup.Common.Interfaces;
+using AngInsCoreSharedSetup.Service.UnitOfWork;
+using System;
+using System.Linq;
+using System.Linq.Expressions;
+
+namespace AngInsCoreSharedSetup.Api.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class PagesControlsController : ControllerBase
+    {
+        private readonly IServiceUnitOfWork _serviceUnitOfWork;
+
+        public PagesControlsController(IServiceUnitOfWork serviceUnitOfWork)
+        {
+            _serviceUnitOfWork = serviceUnitOfWork;
+        }
+
+        // GET: api/<controller>
+        [HttpGet]
+        [Route("Get/{id}/{companyId}")]
+        public ActionResult Get(int id, int companyId)
+        {
+            try
+            {
+                var model = _serviceUnitOfWork.SstPagesControlsService.Get(id, companyId);
+
+                if (model == null)
+                    return NotFound();
+
+                return Ok(model);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // GET: api/<controller>
+        [HttpGet]
+        [Route("Get/{key}/{systemId}/{moduleCode}/{companyId}")]
+        public ActionResult GetByPageKey(string key, int systemId, string moduleCode, int companyId)
+        {
+            try
+            {
+                var sstPage = _serviceUnitOfWork.SstPagesService.Find(companyId, e => e.Key.ToUpper().Contains(key.ToUpper()) && 
+                e.SystemId == systemId && e.ModuleCode.ToUpper() == moduleCode.ToUpper()).FirstOrDefault();
+                if (sstPage == null)
+                    return NotFound();
+
+                Expression<Func<SstPagesControls, object>> expression = i => i.SstPagesControlsParams;
+                var model = _serviceUnitOfWork.SstPagesControlsService.Find(companyId, e => e.PageId == sstPage.Id, expression).ToList();
+                if (model == null)
+                    return NotFound();
+
+                return Ok(model);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetAll")]
+        public ActionResult GetAll(int companyId)
+        {
+            try
+            {
+                var model = _serviceUnitOfWork.SstPagesControlsService.GetAll(companyId);
+
+                if (model == null)
+                    return NotFound();
+
+                return Ok(model);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete]
+        [Route("RemoveRange/{id}")]
+        public ActionResult RemoveRange(int id)
+        {
+            try
+            {
+                var entity = _serviceUnitOfWork.SstPagesControlsService.Get(id, 1);
+                _serviceUnitOfWork.SstPagesControlsService.Remove(entity);
+                _serviceUnitOfWork.SstPagesControlsService.SaveChanges();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut]
+        [Route("Update")]
+        public ActionResult Update(SstPagesControls model)
+        {
+
+
+            if (string.IsNullOrEmpty(model.ModificationUser))
+                ModelState.AddModelError("ModifiedBy", "Modified by cannot be empty.");
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                model.ModificationDate = DateTime.Now;
+                _serviceUnitOfWork.SstPagesControlsService.Update(model);
+                _serviceUnitOfWork.SstPagesControlsService.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return Ok(model);
+        }
+
+        [HttpPost]
+        [Route("Save")]
+        public ActionResult Save(SstPagesControls model)
+        {
+
+
+            if (string.IsNullOrEmpty(model.CreationUser))
+                ModelState.AddModelError("CreatedBy", "Created by cannot be empty.");
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                model.CreationDate = DateTime.Now;
+                _serviceUnitOfWork.SstPagesControlsService.Add(model);
+                _serviceUnitOfWork.SstPagesControlsService.SaveChanges();
+                model = _serviceUnitOfWork.SstPagesControlsService.Get(model.Id, 1);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
+
+        }
+
+    }
+}
+
+
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AngInsCoreSharedSetup.Common.Models;
+using AngInsCoreSharedSetup.Service.UnitOfWork;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AngInsCoreSharedSetup.Api.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class SstResourcesController : ControllerBase
+    {
+        private readonly IServiceUnitOfWork unitOfWork;
+        public SstResourcesController(IServiceUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
+
+        [HttpGet]
+        [Route("GetResources")]
+        public ActionResult GetResources(string resourceObject, string language, int systemId, int companyId)
+        {
+            try
+            {
+                var result = unitOfWork.SstResourcesService.Find(companyId,
+                    res => res.Object == resourceObject && res.Language == language && res.SystemId == systemId);
+
+                var list = result.Select(res => new { Resource = res.Name, Value = res.Value }).ToDictionary(x => x.Resource, x => x.Value);
+
+                if (list.Count == 0)
+                    return NotFound();
+
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetResource")]
+        public ActionResult GetResource(string resourceObject, string resourceName, string language, int systemId, int companyId)
+        {
+            try
+            {
+                var result = unitOfWork.SstResourcesService.Find(companyId,
+                    res => res.Object == resourceObject && res.Name == resourceName && res.Language == language && res.SystemId == systemId).SingleOrDefault();
+
+                if (result == null)
+                    return Ok();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut]
+        [Route("UpdateResource")]
+        public ActionResult UpdateResource(SstResources sstResource)
+        {
+            if (string.IsNullOrEmpty(sstResource.ModificationUser))
+                ModelState.AddModelError("ModificationUser", "Modification User cannot be empty.");
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                sstResource.ModificationDate = DateTime.Now;
+                unitOfWork.SstResourcesService.Update(sstResource);
+                unitOfWork.SstResourcesService.SaveChanges();
+
+                return Ok(sstResource);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("PostResource")]
+        public ActionResult PostResource(SstResources sstResource)
+        {
+            if (string.IsNullOrEmpty(sstResource.CreationUser))
+                ModelState.AddModelError("CreationUser", "Creation User cannot be empty.");
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                sstResource.CreationDate = DateTime.Now;
+                unitOfWork.SstResourcesService.Add(sstResource);
+                unitOfWork.SstResourcesService.SaveChanges();
+
+                return Ok(sstResource);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+    }
+}
+
+===============================================================================
+DataBase Part
+
+   
+
+CREATE TABLE `sst_modules` (
+  `code` varchar(15) NOT NULL,
+  `name` varchar(80) NOT NULL,
+  `name2` varchar(80) DEFAULT NULL,
+  `notes` varchar(1024) DEFAULT NULL,
+  `system_id` bigint(20) NOT NULL,
+  `creation_user` varchar(80) NOT NULL,
+  `creation_date` datetime NOT NULL,
+  `modification_user` varchar(80) DEFAULT NULL,
+  `modification_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`code`),
+  KEY `sst_modules_idx01` (`system_id`,`code`),
+  CONSTRAINT `sst_modules_fk01` FOREIGN KEY (`system_id`) REFERENCES `sst_systems` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+CREATE TABLE `sst_systems` (
+  `id` bigint(20) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `name2` varchar(255) DEFAULT NULL,
+  `abbreviation` varchar(10) DEFAULT NULL,
+  `notes` varchar(1024) DEFAULT NULL,
+  `application_id` int(11) DEFAULT NULL,
+  `creation_user` varchar(80) NOT NULL,
+  `creation_date` datetime NOT NULL,
+  `modification_user` varchar(80) DEFAULT NULL,
+  `modification_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `sst_systems_idx01` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+
+CREATE TABLE `sst_pages` (
+  `ID` bigint(20) NOT NULL,
+  `KEY` varchar(255) DEFAULT NULL,
+  `NAME` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `NAME2` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `ORDER` int(11) NOT NULL DEFAULT '1',
+  `PAGE_URL` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `NOTES` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `PAGE_ID` bigint(20) DEFAULT NULL,
+  `SYSTEM_ID` bigint(20) NOT NULL,
+  `MODULE_CODE` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `COMPANY_ID` bigint(20) NOT NULL,
+  `CREATION_USER` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `CREATION_DATE` datetime DEFAULT NULL,
+  `MODIFICATION_USER` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `MODIFICATION_DATE` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `sst_pages_idx01` (`SYSTEM_ID`,`MODULE_CODE`),
+  KEY `sst_pages_fk01` (`MODULE_CODE`),
+  CONSTRAINT `sst_pages_fk01` FOREIGN KEY (`MODULE_CODE`) REFERENCES `sst_modules` (`code`),
+  CONSTRAINT `sst_pages_fk02` FOREIGN KEY (`SYSTEM_ID`) REFERENCES `sst_systems` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+
+CREATE TABLE `sst_pages_controls` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `KEY` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `FORM` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `LABEL_KEY` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `ALLOW_EDIT_LABEL` tinyint(4) DEFAULT NULL,
+  `ALLOW_REQUIRED` tinyint(4) DEFAULT NULL,
+  `IS_REQUIRED` tinyint(4) DEFAULT NULL,
+  `ALLOW_HIDDEN` tinyint(4) DEFAULT NULL,
+  `IS_HIDDEN` tinyint(4) DEFAULT NULL,
+  `ALLOW_DISABLED` tinyint(4) DEFAULT NULL,
+  `IS_DISABLED` tinyint(4) DEFAULT NULL,
+  `ORDER` bigint(4) DEFAULT NULL,
+  `CONTROL_TYPE` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `TEXT_TYPE` varchar(255) DEFAULT NULL,
+  `PARAMS_TYPE` bigint(2) DEFAULT NULL,
+  `CLASS_NAME` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `SERVICE_URL` varchar(1024) DEFAULT NULL,
+  `IS_DYNAMIC` tinyint(4) DEFAULT NULL,
+  `FORM_TYPE` bigint(4) DEFAULT NULL,
+  `PAGE_ID` bigint(20) NOT NULL,
+  `CONTROL_ID` bigint(20) DEFAULT NULL,
+  `CREATION_USER` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `CREATION_DATE` datetime NOT NULL,
+  `MODIFICATION_USER` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `MODIFICATION_DATE` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `sst_pages_controls_fk01` (`PAGE_ID`),
+  KEY `sst_pages_controls_fk02` (`CONTROL_ID`),
+  CONSTRAINT `sst_pages_controls_fk01` FOREIGN KEY (`PAGE_ID`) REFERENCES `sst_pages` (`id`),
+  CONSTRAINT `sst_pages_controls_fk02` FOREIGN KEY (`CONTROL_ID`) REFERENCES `sst_pages_controls` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=200 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+CREATE TABLE `sst_pages_controls_params` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `NAME` varchar(255) NOT NULL,
+  `TYPE` bigint(4) NOT NULL,
+  `DEPEND_ON_KEY` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `CONTROL_ID` bigint(20) NOT NULL,
+  `CREATION_USER` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `CREATION_DATE` datetime NOT NULL,
+  `MODIFICATION_USER` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `MODIFICATION_DATE` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `sst_pages_controls_params_fk01` (`CONTROL_ID`),
+  CONSTRAINT `sst_pages_controls_params_fk01` FOREIGN KEY (`CONTROL_ID`) REFERENCES `sst_pages_controls` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+
+CREATE TABLE `sst_resources` (
+  `object` varchar(256) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `value` varchar(1024) NOT NULL,
+  `language` varchar(8) NOT NULL,
+  `system_id` bigint(20) NOT NULL,
+  `company_id` bigint(20) NOT NULL,
+  `creation_user` varchar(80) NOT NULL,
+  `creation_date` datetime DEFAULT NULL,
+  `modification_user` varchar(80) DEFAULT NULL,
+  `modification_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`object`,`name`,`language`,`system_id`,`company_id`),
+  KEY `sst_resources_idx01` (`system_id`),
+  CONSTRAINT `sst_resources_fk01` FOREIGN KEY (`system_id`) REFERENCES `sst_systems` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+
+
+
+
+
+  
+
+ 
+       
+     
+     */
+END;

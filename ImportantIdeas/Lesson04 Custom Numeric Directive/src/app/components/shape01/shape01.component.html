@@ -1,0 +1,26 @@
+<input type="text" class="form-control" id="FullName" required
+[(ngModel)]="emp.FullName" />
+<p>Hello {{ emp.FullName }}!</p>
+
+
+<!-- <div>
+    <p> {{num1 | number}} </p>
+<p> {{num1 | number:'3.2-5'}} </p>
+<p> {{num2 | number:'3.2-5'}} </p>
+<p> {{num1 * num2 | number:'1.3-6'}} </p>
+ </div> -->
+
+<h3>Percent Pipe</h3>
+<div>
+    <p> {{num1 | percent}} </p>
+    <p> {{num1 | percent:'2.2-5'}} </p>
+    <p> {{num2 | percent:'1.2-5'}} </p>
+    <p> {{num1 * num2 | percent:'1.2-3'}} </p>
+</div>
+
+<div>
+    <p> {{cur1 | currency:'INR':false}} </p>
+    <p> {{cur2 | currency:'INR':false:'1.2-4'}} </p>
+    <p> {{cur1 | currency}} </p>
+    <p> {{cur2 | currency:'USD':true:'2.2-4'}} </p>
+  </div>

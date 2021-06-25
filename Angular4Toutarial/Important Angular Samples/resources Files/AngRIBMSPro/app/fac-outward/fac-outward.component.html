@@ -1,0 +1,214 @@
+<div id="divContent">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="box box-blue box-solid">
+        <form [formGroup]="facOutwardForm">
+          <div class="box-header with-border">
+            <h3 class="box-title">
+              <span>Outward Entry</span>
+            </h3>
+            <div class="box-tools pull-right">
+              <a class="btn btn-box-tool" href="javascript:void(0);" (click)="resetForm()">
+                <i class="fa fa-plus-square" aria-hidden="true"></i>
+              </a>
+            </div>
+          </div>
+          <div class="box-body">
+            <div class="row form-row">
+              <div class="form-group col-md-4">
+
+                <p-dropdown class="form-control-ng drop-down-label" [options]="insuranceCompanyList" formControlName="insuranceCompany">
+                </p-dropdown>
+
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <p-autoComplete formControlName="insuranceCompanySugg" [suggestions]="insuranceCompanySuggestions" required="required"
+                                    (completeMethod)="fillInsuranceCompany($event)" [dropdown]="true" field="label" class="form-control-ng">
+                    </p-autoComplete>
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Sum Insured</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" formControlName="sumInsured" min="0" class="form-control"
+                           NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true"/>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Signing Down Share %</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" formControlName="signingDownShare" min="0" class="form-control" required="required"
+                           NumericFormat numberType="3" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" />
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="row form-row">
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Commission %</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" formControlName="commission" class="form-control" required="required"
+                           NumericFormat numberType="3" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" />
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Fac Premium</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" formControlName="facPremium" class="form-control" required="required"
+                           NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Fac Premium Share</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" formControlName="facPremiumShare" min="0" class="form-control" required="required"
+                            NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="row form-row">
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Deductible Amount</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" formControlName="deductibleAmount" min="0" class="form-control" required="required"
+                            NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true"/>
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Excess Amount</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" formControlName="excessAmount" min="0" class="form-control" required="required"
+                           NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Payment Frequency</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <p-dropdown class="form-control-ng" required="required" [options]="paymentFrequencyList" formControlName="paymentFrequency">
+                    </p-dropdown>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="row form-row">
+              <div class="form-group col-md-12">
+                <label class="control-label col-sm-2 col-xs-12">Attachment</label>
+                <ul class="input-group col-sm-10 col-xs-12">
+                  <li>
+                    <ribms-file-upload #fileUploader name="files" multiple="multiple" customUpload="true" (uploadHandler)="uploadHandler($event)" mode="advanced" [colsAttachments]="colsAttachments"
+                                       [rowsAttachments]="rowsAttachments" (OnCheckboxSelectedAttachments)="OnCheckboxSelectedAttachments($event)" (OnDeleteAttachments)="deleteFacOutwardAttachments()"></ribms-file-upload>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="row form-row">
+              <div class="form-group col-md-12">
+                <label class="control-label col-sm-2 col-xs-12">Notes</label>
+                <ul class="input-group col-sm-10 col-xs-12">
+                  <li>
+                    <textarea type="text" formControlName="notes" class="form-control" rows="1"></textarea>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="row form-row">
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Status</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <p-dropdown class="form-control-ng" required="required" [options]="statusList" formControlName="status">
+                    </p-dropdown>
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="box-footer">
+            <div class="form-group text-center">
+              <button class="btn btn-primary btn-xs pull-right" [disabled]="!facOutwardForm.valid || krnFacInwardId <= 0" (click)="saveUpdateFacOutward()"> {{ showSaveUpdate ? "Update" : "Save" }}</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="box box-blue box-solid">
+        <div class="box-header with-border">
+          <h3 class="box-title">
+            <span>Outward Distributions</span>
+          </h3>
+          <div class="box-tools pull-right">
+            <a class="btn btn-box-tool" href="javascript:void(0);" (click)="deleteFacOutwards()">
+              <i class="fa fa-trash" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+        <div class="box-body">
+          <div class="row form-row">
+            <div class="col-md-12 form-group">
+              <div class="block-wrapper">
+                <ribms-datatable (OnCheckboxSelected)="OnCheckboxSelected($event)" (OnLinkSelected)="OnLinkSelected($event)" (OnRowClicked)="OnRowClicked($event)"
+                                 showCheckBox="true" mousehover="true" [title]="gridHeader" [cols]="cols" [rows]="rows"></ribms-datatable>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div [ngClass]="{'show': show}" class="modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" (click)="closePopupInstallments()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title">Table of Installments</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12 form-group">
+              <div class="block-wrapper">
+                <ribms-datatable [title]="gridHeaderInstallments" [cols]="colsInstallments" [rows]="rowsInstallments"></ribms-datatable>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="form-group text-center">
+            <button class="btn btn-primary btn-xs pull-right" (click)="saveUpdateFacOutwardInstallments()">{{ showSaveUpdateInstallments ? "Update" : "Save" }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--<p> FormValues: {{ facOutwardForm.value | json }}</p>
+<p> FormValid : {{ facOutwardForm.valid | json }}</p>-->

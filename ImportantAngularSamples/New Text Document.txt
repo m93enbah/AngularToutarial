@@ -1,0 +1,103 @@
+/// <summary>
+        /// Gets the first or default entity based on a predicate, orderby delegate and include delegate. This method default no-tracking query.
+        /// </summary>
+        /// <param name="selector">The selector for projection.</param>
+        /// <param name="predicate">A function to test each element for a condition.</param>
+        /// <param name="orderBy">A function to order elements.</param>
+        /// <param name="include">A function to include navigation properties</param>
+        /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
+        /// <returns>An <see cref="IPagedList{IEntity}"/> that contains elements that satisfy the condition specified by <paramref name="predicate"/>.</returns>
+        /// <remarks>This method default no-tracking query.</remarks>
+        public IQueryable<TResult> FindMany<TResult>(Expression<Func<IEntity, TResult>> selector,
+                                                  Expression<Func<IEntity, bool>> predicate = null,
+                                                  Func<IQueryable<IEntity>, IOrderedQueryable<IEntity>> orderBy = null,
+                                                  Func<IQueryable<IEntity>, IIncludableQueryable<IEntity, object>> include = null,
+                                                  bool disableTracking = true)
+        {
+            IQueryable<IEntity> query = Context.Set<IEntity>();
+            if (disableTracking)
+            {
+                query = query.AsNoTracking();
+            }
+
+            if (include != null)
+            {
+                query = include(query);
+            }
+
+            if (predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+
+            if (orderBy != null)
+            {
+                return orderBy(query).Select(selector);
+            }
+            else
+            {
+                return query.Select(selector);
+            }
+        }
+
+Usages:
+
+var child = _repositoryUnitOfWork.Child.Value.FindMany(
+                selector: x => x,
+                predicate: b => (!search.id.HasValue || b.id == search.id),
+                include: source => source
+                    .Include(a => a.Parent)
+                    .ThenInclude(a => a.ParentOfParent)).ToList();
+
+
+  
+Ahmad Awad | Technical Team Leader -Insurance Dept..
+? +962 6 5510717 - Ext: 203
+? +962 796249541
+ 
+Software Innovations To The Global Market           
+
+Legal: This communication is intended for the above named person and is confidential and/or legally privileged. If it has come to you in error, do not take any action based on it, nor copy or show it to anyone: please delete it and inform the sender immediately. ESKADENIA Software is not responsible for any political, religious, racial or partisan opinion in any correspondence conducted by its domain users, therefore, any such opinion expressed, whether explicitly or implicitly, in any sent correspondence or context, is not to be interpreted as that of ESKADENIA Software.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://www.c-sharpcorner.com/article/using-elastic-search-with-asp-net-mvc/
+
+Links to Kickstart Learning Elastic Search
+•	How to Configure Elasticsearch On Windows
+https://www.c-sharpcorner.com/article/how-to-configure-elastic-search-on-windows/
+•	Reading and Writing Documents with Single Document APIs In Elastic Search
+https://www.c-sharpcorner.com/article/reading-and-writing-documents-with-single-document-apis-in-elastic-search/
+•	How to Configure Kibana
+https://www.c-sharpcorner.com/article/how-to-configure-kibana/

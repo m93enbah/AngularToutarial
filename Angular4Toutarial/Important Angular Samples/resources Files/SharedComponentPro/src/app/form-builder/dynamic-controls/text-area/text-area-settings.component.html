@@ -1,0 +1,73 @@
+<div class=" panel panel-default">
+  <form class="panel-body" name="addEditForm" [formGroup]="form">
+
+    <!-- Order -->
+    <div class="form-row">
+      <label class="settings-label">Order</label>
+      <input type="number" class="form-control input-sm" name="order" placeholder="Order" [value]="control.order" formControlName="order" readonly>
+    </div>
+
+    <!-- key -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Key</label>
+      <input type="text" class="form-control input-sm" name="key" placeholder="Key" [value]="control.key" formControlName="key"  >
+    </div>
+
+    <!-- Labels Text -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Label's Text</label>
+      <input type="text" class="form-control input-sm" name="label" placeholder="Text" [value]="control.name" formControlName="name">
+    </div>
+
+    <!-- PlaceHolder -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Placeholder</label>
+      <input type="text" class="form-control input-sm" name="placeholder" placeholder="Placeholder" [value]="control.placeholder" formControlName="placeholder">
+    </div>
+
+    <!-- Rows -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Rows</label>
+      <input type="number" class="form-control input-sm" name="rows" placeholder="Rows" formControlName="rows" [value]="control.rows">
+    </div>
+
+    <!-- Cols -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Columns</label>
+      <input type="number" class="form-control input-sm" name="cols" placeholder="Columns" formControlName="cols" [value]="control.cols">
+    </div>
+
+    <!-- MinLength -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Minimum Length</label>
+      <input type="number" class="form-control input-sm" name="minlength" placeholder="Minimum Length" [value]="control.minlength" formControlName="minlength">
+    </div>
+
+    <!-- MaxLength -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Maximum Length</label>
+      <input type="number" class="form-control input-sm" name="maxlength" placeholder="Maximum Length" formControlName="maxlength" [value]="control.maxlength">
+    </div>
+
+    <!-- Width -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Width</label>
+      <p-selectButton class="form-control-ng" [options]="widthOptions" formControlName="width"></p-selectButton>
+    </div>
+
+    <!-- Disabled -->
+    <div class="form-row settings-checkbox-row">
+      <p-triStateCheckbox label="Disabled" class="settings-label" formControlName="disabled"></p-triStateCheckbox>
+    </div>
+
+    <!-- Required -->
+    <div class="form-row settings-checkbox-row">
+      <p-triStateCheckbox label="Required" class="settings-label" formControlName="required"></p-triStateCheckbox>
+    </div>
+  </form>
+
+  <!-- Save/Clear Buttons -->
+  <div class="form-row box-footer settings-row">
+    <button class="btn btn-primary fb-button" (click)="save($event)">Save</button>
+  </div>
+</div>

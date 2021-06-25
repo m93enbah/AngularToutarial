@@ -1,0 +1,36 @@
+.modal-header{
+  background:transparent;
+}
+.modal-header{
+  color:black;
+  }
+.close {
+    background: transparent;
+    border: none;
+   
+  }
+.form-group{
+  margin:0 5px 10px 5px;
+}
+.form-control{
+  height:30px;
+  width:100%;
+}
+.modal-dialog {
+  width: 95%;
+  height: 85%;
+  margin: 2%;
+  padding: 0;
+}
+
+.modal-content {
+  height: auto;
+  min-height: 100%;
+  border-radius: 0;
+}
+.invalid {
+  color:red;
+}
+.background{
+  color:black;
+}

@@ -1,0 +1,200 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <form [formGroup]="PaymentCycleSearchfrm">
+        <div class="card-header">
+          <h6 class="card-title">Payment Cycle Search</h6>
+          <div class="card-tools">
+            <div class="buttons-group">
+              <button pButton type="button" icon="pi pi-refresh" pTooltip="Reset"
+                      tooltipPosition="top" (click)="ResetPaymentCycleSearchForm()"></button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <div class="row form-row" dragula="sortable">
+
+            
+            <div class="col-md-3 form-group" #PaymentCycle>
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblPaymentCycleResource">Payment Cycle</label>
+                <input id="float-input" type="text" #paymentCycleInput pInputText  formControlName="Name" class="ui-inputtext ui-corner-all">
+                <css-context-menu [global]="false" [target]="PaymentCycle"></css-context-menu>
+              </div>
+            </div>
+            
+            <div class="col-md-3 form-group" #InsuranceSystems>
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblInsuranceSystemsResource">Insurance Systems</label>
+                <p-multiSelect [options]="InsuranceSystem"  formControlName="SystemId"
+                               [panelStyle]="{minWidth:'12em'}">
+                </p-multiSelect>
+                <css-context-menu [global]="false" [target]="InsuranceSystems"></css-context-menu>
+              </div>
+            </div>
+            <div class="col-md-6 form-group">
+              <div class="buttons-group pull-right">
+                <button pButton type="button" label="Search" (click)=" SubmitPaymentCycleForm()"></button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="card-title">Payment Cycles List</h6>
+        <div class="card-tools">
+          <div class="buttons-group">
+            <button pButton type="submit" icon="pi pi-file" pTooltip="Add" tooltipPosition="top"
+                    (click)="ResetPaymentCycleEntryForm()"></button>
+            <button pButton type="submit" icon="pi pi-trash" pTooltip="Remove" tooltipPosition="top"
+                    (click)="RemovePaymentCycle()"></button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row form-row">
+          <div class="col-md-12 form-group">
+            <css-datatable (OnRowClicked)="OnPaymentCycleSelected($event)" [cols]="PaymentCycleCols"
+                           [showCheckBox]="true" [mouseHover]="true" [title]="gridHeader" [rows]="PaymentCycleGrid"
+                           (OnRowcheckboxSelected)="EditableCheckboxChange($event)">
+            </css-datatable>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="card-title">Payment Cycle Entry</h6>
+
+      </div>
+      <div class="card-body">
+        <form [formGroup]="PaymentCycleEntryfrm">
+          <div class="row form-row" dragula="sortable">
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblNameResource ">Name</label>
+                <input id="float-input" type="text" pInputText
+                formControlName="Name"
+                       class="ui-inputtext ui-corner-all" required>
+
+              </div>
+            </div>
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblName2Resource">Name2</label>
+                <input id="float-input" type="text" pInputText
+                formControlName="Name2"
+                       class="ui-inputtext ui-corner-all">
+
+              </div>
+            </div>
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblInsuranceSystemsResource2">Period Unit</label>
+                <p-dropdown [options]="PeriodUnit" required
+                formControlName="Unit"></p-dropdown>
+
+              </div>
+            </div>
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblInsuranceSystemsResource3">Insurance Systems</label>
+                <p-multiSelect [options]="InsuranceSystem" formControlName="SystemId" [panelStyle]="{minWidth:'12em'}" required="required">
+                </p-multiSelect>
+
+              </div>
+            </div>
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblFrequencyResource">Frequency</label>
+                <input id="float-input" type="number" pInputText
+                formControlName="Frequency"
+                       class="ui-inputtext ui-corner-all" required>
+
+              </div>
+            </div>
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblNoOfPaymentsResource">No. of Payments</label>
+                <input id="float-input" type="number" pInputText
+                formControlName="NoOfPayments"
+                       class="ui-inputtext ui-corner-all" required>
+
+              </div>
+            </div>
+            <div class="col-md-6 form-group">
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblNotesResource">Notes</label>
+                <textarea id="float-input" pInputTextarea formControlName="Notes"
+                          class="ui-inputtext ui-corner-all" rows="3"></textarea>
+
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="buttons-group">
+              <button pButton type="button" [label]="PCEntryAction" (click)="SavePaymentCycle()"></button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="card-title">Payment Cycle Details</h6>
+        <div class="card-tools">
+          <div class="buttons-group">
+            <button pButton type="button" icon="pi pi-trash" pTooltip="Remove" tooltipPosition="top"
+                    (click)="RemovePaymentDetails()"></button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <form novalidate #PaymentCycleDetailsfrm="ngForm"
+              (ngSubmit)="SubmitPaymentCycledetailsForm(PaymentCycleDetailsfrm)">
+          <div class="row form-row">
+            <div class="col-md-12 form-group">
+              <css-datatable [cols]="PaymentCycleDetailsCols" [showCheckBox]="true"
+                             (OnRowClicked)="OnPaymentDetailsSelected($event)" [mouseHover]="true" [title]="gridHeader"
+                             [rows]="PaymentDetailsGrid">
+              </css-datatable>
+
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="buttons-group">
+              <button pButton type="submit" label="Save"></button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

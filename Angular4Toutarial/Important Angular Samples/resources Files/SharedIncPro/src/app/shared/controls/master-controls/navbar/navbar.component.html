@@ -1,0 +1,213 @@
+<div class="top-navbar">
+  <ul class="nav navbar-nav">
+    <li class="branch">
+      <a pTooltip="Head Office" tooltipPosition="bottom">
+        <span class="visible-lg">ESKADENIA Software</span>
+        <span class="hidden-lg"><i class="fa fa-building"></i></span>
+      </a>
+    </li>
+    <li class="user">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+        <span class="hidden-lg"><i class="fa fa-user"></i></span>
+        <img src="../../assets/images/user.jpg" class="user-image" alt="user image" />
+      </a>
+        <ul class="dropdown-menu">
+            <li class="user-header">
+                <p><img class="main-logo img-responsive" src="../../assets/images/user.jpg"></p>
+            </li>
+            <li class="user-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul class="list-unstyled">
+                            <li><h3 class="user-name"><b>{{UserName}}</b></h3></li>
+                            <li><b>Main</b></li>
+                            <li>ESKADENIA Support</li>
+                            <li>ID</li>
+                            <li>Email</li>
+                        </ul>
+                    </div>
+                </div>
+            </li>
+            <!-- Menu Footer-->
+            <li class="user-footer text-center">
+                <button mat-raised-button color="primary" class="btn btn-flat" (click)="logoutUser()">Log out</button>
+            </li>
+        </ul>
+    </li>
+    <li>
+      <a href="#" pTooltip="Bootmark this page" tooltipPosition="bottom"><i class="fa fa-star-o"></i></a>
+    </li>
+    <li class="notifications">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+        <i class="fa fa-bell-o"></i>
+        <span class="label label-warning">10</span>
+      </a>
+      <ul class="dropdown-menu">
+        <li class="header">You have 10 notifications</li>
+        <li>
+          <!-- inner menu: contains the actual data -->
+          <ul class="menu">
+            <li>
+              <a href="#">
+                <i class="fa fa-users text-aqua"></i>5 new members joined today
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class="fa fa-warning text-yellow"></i>Very long description here that may not fit into the
+                page and may cause design problems
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class="fa fa-users text-red"></i>5 new members joined
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class="fa fa-shopping-cart text-green"></i>25 sales made
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class="fa fa-user text-red"></i>You changed your username
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="footer"><a href="#">View all</a></li>
+      </ul>
+    </li>
+    <!--<li class="messages">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+        <i class="fa fa-envelope-o"></i>
+        <span class="label label-success">4</span>
+      </a>
+      <ul class="dropdown-menu">
+        <li class="header">You have 4 messages</li>
+        <li>
+          <ul class="menu">
+            <li>
+              <a href="#">
+                <div class="pull-left">
+                  <img src="../../assets/images/user2-160x160.jpg" class="img-circle" alt="User Image" />
+                </div>
+                <h4>
+                  Support Team
+                  <small><i class="fa fa-clock-o"></i>5 mins</small>
+                </h4>
+                <p>Why not buy a new awesome theme?</p>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <div class="pull-left">
+                  <img src="../../assets/images/user3-128x128.jpg" class="img-circle" alt="User Image" />
+                </div>
+                <h4>
+                  EskaTheme Design Team
+                  <small><i class="fa fa-clock-o"></i>2 hours</small>
+                </h4>
+                <p>Why not buy a new awesome theme?</p>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <div class="pull-left">
+                  <img src="../../assets/images/user4-128x128.jpg" class="img-circle" alt="User Image" />
+                </div>
+                <h4>
+                  Developers
+                  <small><i class="fa fa-clock-o"></i>Today</small>
+                </h4>
+                <p>Why not buy a new awesome theme?</p>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <div class="pull-left">
+                  <img src="../../assets/images/user3-128x128.jpg" class="img-circle" alt="User Image" />
+                </div>
+                <h4>
+                  Sales Department
+                  <small><i class="fa fa-clock-o"></i>Yesterday</small>
+                </h4>
+                <p>Why not buy a new awesome theme?</p>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <div class="pull-left">
+                  <img src="../../assets/images/user4-128x128.jpg" class="img-circle" alt="User Image" />
+                </div>
+                <h4>
+                  Reviewers
+                  <small><i class="fa fa-clock-o"></i>2 days</small>
+                </h4>
+                <p>Why not buy a new awesome theme?</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="footer"><a href="#">See All Messages</a></li>
+      </ul>
+    </li>-->
+    <li>
+      <div class="logo-wrapper" [ngStyle]="{'background-color':(uploadLogoColor)?uploadLogoColor:'transparent'}">
+        <div class="logo" mwlResizable [validateResize]="validate" [enableGhostResize]="false"
+             (resizeEnd)="onResizeEnd($event)" [resizeEdges]="{bottom:false,right:true,top:false, left:true}"
+             [resizeSnapGrid]="{left:50,right:50}" [ngStyle]="logoStyle">
+          <img [src]="logoSrc || '../../assets/images/company-logo-dark.png'" class="img-responsive company-logo-dark" />
+        </div>
+        <div class="logo-upload">
+          <div class="upload-open fa fa-upload" matTooltip="Upload Your Logo" *ngIf="showUploadOpen" (click)="showSelectHandler()">
+          </div>
+          <input type="file" (change)="onLogoUpload($event)" id="UploadLogo" style="display: none;" accept="image/*"
+                 class="form-control">
+          <div class="logo-overlay" *ngIf="showOverlay" (click)="closeUploadMenu()"></div>
+          <div class="upload-select" *ngIf="showUploadSelect">
+            <div class="upload-header">
+              Upload Logo <i class="fa fa-times pull-right" (click)="hideSelectHandler()"></i>
+            </div>
+            <ul class="upload-list list-unstyled">
+              <li>
+                <div class="upload-background">
+                  <div class="upload-background-btn" (click)="showSubListHandler()" #uploadSubButton>
+                    With
+                    background <i class="fa fa-caret-left pull-left"></i>
+                  </div>
+                  <ul class="upload-sub-list list-unstyled" *ngIf="showSubList">
+                    <li>
+                      <span class="logo-background logo-white" (click)="uploadLogoColor='#fff'">White</span>
+                    </li>
+                    <li>
+                      <span class="logo-background logo-black" (click)="uploadLogoColor='#000'">Black</span>
+                    </li>
+                    <li>
+                      <span class="logo-background logo-other">
+                        <p-colorPicker appendTo="body" class="p-color-picker layout-head"
+                                       #colorPicker [(ngModel)]="uploadLogoColor" name="color" (onChange)="changeLayoutColor($event)"></p-colorPicker>Other
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <div class="upload-background-btn" (click)="uploadLogoColor='transparent'">
+                  <!-- <button class="upload-btn" type="button"> -->
+                  Transparent background
+                  <!-- </button> -->
+                </div>
+              </li>
+              <li>
+                <label for="UploadLogo" class="upload-logo-btn">
+                  <i class="fa fa-upload"></i> Upload Logo
+                </label>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>

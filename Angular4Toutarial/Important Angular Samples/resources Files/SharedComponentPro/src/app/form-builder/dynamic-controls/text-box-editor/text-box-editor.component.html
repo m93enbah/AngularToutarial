@@ -1,0 +1,10 @@
+<div class="form-group editor-control" [ngClass]="{'col-md-3': control.width ==1 ,'col-md-6': control.width==2, 'col-md-9':control.width==3,'col-md-12':control.width==4 }">
+
+
+  <form [formGroup]="form">
+
+      <p-editor [formControlName]="control.key" [readonly]="control.disabled" [appDisable]="control.disabled" [style]="{'height':'100px'}"
+        class="form-control-ng"></p-editor>
+
+  </form>
+</div>

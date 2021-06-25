@@ -1,0 +1,36 @@
+<mxEditor>
+	<ui>
+		<add as="graph" element="graph"/>
+		<add as="toolbar" element="toolbox"/>
+	</ui>
+	<Array as="templates">
+		<add as="myFirstTemplate">
+			<Rect label="Rectangle" href="">
+				<mxCell vertex="1">	
+					<mxGeometry as="geometry" width="80" height="40"/>
+				</mxCell>
+			</Rect>
+		</add>
+	</Array>
+	<Array as="actions">
+		<add as="myFirstAction"><![CDATA[
+			function (editor, cell)
+			{
+				var encoder = new mx.mxCodec();
+				var node = encoder.encode(editor.graph.getModel());
+				mx.mxUtils.popup(mxUtils.getPrettyXml(node), true);
+			}
+		]]></add>
+	</Array>
+    <mxDefaultToolbar as="toolbar">
+		<add as="MyFirstAction" action="myFirstAction" icon="../../../assets/images/gear.png"/>
+		<hr/><br/>
+		<add as="Gear" template="myFirstTemplate" style="rounded=1" icon="../../../assets/images/server.png"/>
+		<add as="Earth" template="myFirstTemplate" style="shape=ellipse" icon="../../../assets/images/earth.png"/>
+	</mxDefaultToolbar>
+	<mxDefaultPopupMenu as="popupHandler">	
+		<add as="Show XML (Custom)" action="myFirstAction" icon="../../../assets/images/gear.png"/>
+		<separator/>
+		<add as="Delete (Built-in)" action="delete" icon="../../../assets/images/keys.png" if="cell"/>
+	</mxDefaultPopupMenu> 
+</mxEditor>

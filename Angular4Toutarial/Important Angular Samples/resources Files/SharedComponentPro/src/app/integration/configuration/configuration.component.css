@@ -1,0 +1,86 @@
+.home-image {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  margin-top: -70px;
+  margin-left: -30px;
+}
+
+.home-content {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  margin-left: -30px;
+  color: #191818;
+}
+
+.home-button {
+  position: absolute;
+  top: 67%;
+  left: 63%;
+}
+
+:host ::ng-deep .ui-fieldset-legend {
+  padding-top: 0px;
+  padding-bottom: 0px;
+  width: inherit;
+
+}
+
+#database {
+  margin-left: 20px;
+  margin-right: 10px;
+}
+
+.dataSourceType {
+  margin-left: 13px;
+}
+
+input {
+  width: -webkit-fill-available;
+  padding: 5px;
+}
+
+:host >>> .ui-dropdown {
+  width: -webkit-fill-available !important;
+}
+
+.save-btn {
+  float: right;
+}
+
+.back-btn {
+  float: right;
+  margin-right: 10px;
+}
+
+.database-card-image {
+  width: 85px;
+  height: 55px;
+  margin-top: 5px;
+}
+
+#oracle-card-head {
+  position: absolute;
+  top: 50%;
+  
+}
+#mysql-card-head {
+  position: absolute;
+  top: 50%;
+}
+
+#mongodb-card-head {
+  position: absolute;
+  margin-top: 2%;
+}
+
+#postgresql-card-head {
+  position: absolute;
+  margin-top: 2%;
+}
+
+:host ::ng-deep .ui-card-body {
+  padding: 0rem !important;
+  height: 73px;
+}

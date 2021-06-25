@@ -1,0 +1,5788 @@
+PACKAGE BODY DBPKG_RESERSE IS
+      /*  
+      process builder part 
+                    
+1-app  folder     
+A-app.html
+      <div class="row">
+  <div class="col-md-2">
+    <h3>Approvals</h3>
+    <br />
+    <ul>
+      <li>Process Definition</li>
+      <li>Process Designer</li>
+    </ul>
+  </div>
+
+  <div class="col-md-10">
+    <div class="content">
+      <!--<router-outlet></router-outlet>-->
+      <shc-process-definition></shc-process-definition>
+    </div>
+  </div>
+</div>
+
+   
+B-app.ts
+
+import { Component, OnInit } from '@angular/core';
+
+@Component({
+  selector: 'shc-app',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class MainAppComponent implements OnInit {
+
+
+  constructor() { }
+
+  ngOnInit() {
+  }
+
+  
+}
+
+2-dynamic-shapes    
+
+1-process-shape
+
+A-process-shape.html
+
+<div>
+
+  <p-tieredMenu #menu [model]="items" appendTo="body" [popup]="true"></p-tieredMenu>
+
+  <form [formGroup]="DisplayForm">
+    <div class="square">
+      <div class="square-header">
+        <div class="buttons-group pull-right">
+          <button #btn type="button" pButton id="body" icon="glyphicon glyphicon-cog" (click)="menu.toggle($event)"></button>
+        </div>
+        <div class="buttons-group switch-btn">
+
+          <p-inputSwitch (onChange)="changeProcessState($event)" formControlName="Active"></p-inputSwitch>
+
+        </div>
+      </div>
+      <div class="icon">
+        <div class="square2 square-yellow"></div>
+        <div class="square2 square-blue"></div>
+        <div class="square2 square-red"></div>
+        <div class="square2 square-green"></div>
+      </div>
+
+
+
+      <h5>{{data.name}}</h5>
+      <h6>{{data.notes}}</h6>
+      <button pButton type="button" label="Update" class="ui-button-raised" (click)="UpdateProcess()"></button>
+    </div>
+  </form>
+</div>
+
+<div>
+  <div class="card-body">
+
+    <p-dialog header="Update your process"  Class="ui-dialog-preview" [responsive]="true" [(visible)]="display" showEffect="fade" [modal]="true">
+      <div class=" panel panel-default no-margin-bottom ">
+        <div CLASS="form-group">
+          <form [formGroup]="processUpdate">
+            <div class="row">
+              <input type="hidden" formControlName="Id" />
+              <div class="col-md-4 form-group">
+                <label for="float-input" Editable="">Process Name</label>
+                <input type="text" pInputText formControlName="Name" class="ui-inputtext ui-corner-all  form-control">
+              </div>
+              <div class="col-md-4 form-group">
+                <label for="float-input" Editable="">Process Name 2</label>
+
+                <input type="text" pInputText formControlName="Name2" class="ui-inputtext ui-corner-all form-control">
+
+              </div>
+              <div class="col-md-4 form-group">
+                <label for="float-input" Editable="">Systems</label>
+                <p-multiSelect [options]="InsuranceSystem"  [panelStyle]="{minWidth:'12em'}" formControlName="SstProcessSystems" (onChange)="OnChange($event)">
+
+                </p-multiSelect>
+              </div>
+            </div>
+            <div class="row">
+
+              <div class="col-md-12 form-group">
+                <label for="float-input" Editable="">Description:</label>
+                <textarea pInputTextarea formControlName="Notes"
+                          class="ui-inputtext ui-corner-all  form-control" rows="3"></textarea>
+              </div>
+
+            </div>
+            <div class="row">
+              <br />
+              <div class="col-md-4 form-group">
+                <button pButton type="button" label="Update" class="ui-button-raised" (click)="SaveUpdatedProcess()"></button>
+
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </p-dialog>
+  </div>
+</div>
+<p-toast [style]="{marginTop: '80px'}" styleClass="custom-ng" position="top-right" [showTransitionOptions]="'0ms'"
+         [hideTransitionOptions]="'0ms'" sticky="'true'"></p-toast>
+
+
+B-process-shape.scss
+
+
+.square {
+  display: table;
+  width: 100%;
+  height: 200px;
+  border: 1px solid;
+  border-color: gray;
+  text-align: center;
+  align-content: center;
+}
+
+.icon {
+  border: 2px solid;
+  border-color: lightgray;
+  margin: auto;
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  padding: 7px;
+}
+
+.square2 {
+  float: left;
+  margin: 2px !important;
+}
+
+.square-yellow {
+  height: 12px;
+  width: 12px;
+  background-color: yellow;
+  margin: auto
+}
+
+.square-blue {
+  background-color: cornflowerblue;
+  width: 12px;
+  height: 12px;
+  margin: auto
+}
+
+.square-red {
+  background-color: red;
+  width: 12px;
+  height: 12px;
+  margin: auto
+}
+
+.square-green {
+  background-color: seagreen;
+  width: 12px;
+  height: 12px;
+  margin: auto
+}
+
+:host ::ng-deep .ui-button-text-only .ui-button-text {
+  font-size: 13px;
+  padding: 6px 10px;
+}
+
+
+.buttons-group.pull-right {
+  position: absolute;
+  right: 15px;
+}
+
+
+.ui-corner-all {
+  border-radius: 0 !important;
+}
+
+.buttons-group.switch-btn {
+  padding: 2px;
+}
+
+.ui-dialog-preview {
+  width: 62.3% !important;
+}
+
+
+@media (max-width:768px)
+{
+  .ui-dialog-preview {
+    width: 100%!important;
+  }
+}
+
+
+
+C-process-shape.ts
+
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { SstProcesses, SstProcessSystems } from '../../models/models';
+import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
+import { MenuItem, SelectItem } from 'primeng/api';
+import { ActivatedRoute, Router } from '@angular/router';
+import { SstProcessService } from '../../services/SstProcess.service';
+import { Application } from 'src/app/shared/models/models';
+import { CommonService } from 'src/app/shared/services/common.service';
+
+@Component({
+  selector: 'shc-process-shape',
+  templateUrl: './process-shape.component.html',
+  styleUrls: ['./process-shape.component.scss']
+})
+export class ProcessShapeComponent implements OnInit {
+
+  DisplayForm: FormGroup;
+  processUpdate: FormGroup;
+
+  @Input() data: SstProcesses;
+
+  @Output() onChange: EventEmitter<any> = new EventEmitter();
+  @Output() shapesRefrechFromChild: EventEmitter<SstProcesses[]> = new EventEmitter();
+
+  selectedItems: SstProcessSystems[] = new Array<SstProcessSystems>();
+  item: SstProcessSystems;
+
+  returnUrl: string;
+  display: boolean = false;
+  blocked: boolean = false;
+  loading: boolean = false;
+
+  items: MenuItem[];
+  preSelectedItems: SstProcessSystems[] = [];
+  selected: any[] = [];
+
+
+  InsuranceSystem: SelectItem[] = [
+    { label: 'General Insurance', value: Application.GeneralInsurance },
+    { label: 'Medical Insurance', value: Application.MedicalInsurance },
+    { label: 'Life Insurance', value: Application.LifeInsurance }
+
+  ];
+
+  constructor(private route: ActivatedRoute, private router: Router, private processService: SstProcessService, private cs: CommonService, private fb: FormBuilder) { }
+
+
+  ngOnInit() {
+
+    this.CreateForms();
+    this.CreateUpdateForms();
+    this.setDisplayFormValues();
+
+
+    //items for tieredMenu that appended to process
+    this.items = [
+      {
+        //redirect to Design Process page
+        label: 'Design Process',
+        icon: 'pi pi-fw pi-pencil',
+        command: (event: any) => {
+          this.router.navigate(['/process-builder/processDesigner/' + this.data.id]);
+        }
+      },
+      {
+        //redirect to Design Process page
+        label: 'Copy Process',
+        icon: 'pi pi-copy',
+        command: (event: any) => {
+          var selectedId = 0;
+          selectedId = this.data.id;
+          this.processService.copyProcess(selectedId).subscribe(res => {
+            this.cs.addMessage("success", "Success", "Process Copied Successfully");
+            this.GetAllProcesses();
+          });
+        }
+      },
+      {
+        //delete a Process 
+        label: 'Delete Process',
+        icon: 'pi pi-fw pi-trash',
+        command: (event: any) => {
+
+          var selectedId = 0;
+          selectedId = this.data.id;
+          this.processService.Delete(selectedId).subscribe(res => {
+
+            this.cs.addMessage("success", "Success", "Process Deleteed Successfully");
+            this.GetAllProcesses();
+
+          },
+            err => {
+              this.cs.pushError(err);
+            });
+        }
+      }];
+  }
+
+  GetAllProcesses() {
+    this.processService.getAll().subscribe(res => {
+      this.shapesRefrechFromChild.emit(res.data);
+    });
+  }
+
+  //Create Forms
+
+  CreateForms() {
+
+    this.DisplayForm = new FormGroup({
+      Active: new FormControl({ value: false, display: true })
+    });
+  }
+
+
+  CreateUpdateForms() {
+
+    this.processUpdate = this.fb.group({
+      Id: [0],
+      Name: [''],
+      Name2: [''],
+      Notes: [''],
+      SstProcessSystems: ['']
+    });
+
+  }
+
+
+  // Set Forms Values
+  setDisplayFormValues() {
+    this.DisplayForm.patchValue(
+      {
+        Active: Boolean(this.data.active)
+      });
+  }
+
+  range: SstProcessSystems[] = [];
+
+  setprocessUpdateFormValues() {
+
+    var selectedId = 0;
+    selectedId = this.data.id;
+    this.processService.GetId(selectedId).subscribe(res => {
+      console.log(res);
+      this.range = res;
+      this.preSelectedItems = res.map(e => e.systemId);
+
+      this.processUpdate.patchValue(
+        {
+          Id: this.data.id,
+          Name: this.data.name,
+          Name2: this.data.name2,
+          Notes: this.data.notes,
+          SstProcessSystems: this.preSelectedItems
+
+        });
+
+
+
+
+    });
+  }
+
+
+  // Set Model Values
+  setprocessUpdateModelValues() {
+
+    this.getInsuranceSystems();
+    const formModel = this.processUpdate.value;
+    this.data.id = formModel.Id;
+    this.data.name = formModel.Name;
+    this.data.name2 = formModel.Name2;
+    this.data.notes = formModel.Notes;
+    this.data.sstProcessSystems = this.selectedItems;
+
+  }
+
+  getInsuranceSystems() {
+
+    //this for process systems multiselect after select an item, it create a object
+    this.selected.forEach(item => {
+      const date: Date = new Date();
+      this.item = new SstProcessSystems();
+      this.item.id = 0;
+      this.item.systemId = item;
+      this.item.processId = this.data.id;
+      this.item.creationUser = "Admin";
+      this.item.creationDate = date;
+      this.item.modificationUser = "Admin";
+      this.item.modificationDate = date;
+
+      this.selectedItems.push(this.item);
+
+    });
+
+
+  }
+
+
+  UpdateProcess() {
+    this.setprocessUpdateFormValues();
+    this.display = true;
+    this.blocked = true;
+    setTimeout(() => {
+      this.blocked = false;
+    }, 4000);
+  }
+
+  SaveUpdatedProcess() {
+
+    this.loading = true;
+    this.cs.showOrHideSpinner(this.loading);
+
+    this.processService.RemoveRange(this.range).subscribe(data => {
+      this.selected = this.preSelectedItems;
+      this.setprocessUpdateModelValues();
+      this.processService.Put(this.data).subscribe
+        (data => {
+          this.GetAllProcesses();
+          this.display = false;
+          this.blocked = false;
+          this.loading = false;
+          this.cs.showOrHideSpinner(this.loading);
+          this.cs.addMessage("success", "Success", "Process Updated Successfully");
+
+        },
+
+        err => {
+          this.display = false;
+          this.blocked = false;
+          this.loading = false;
+          this.cs.showOrHideSpinner(this.loading);
+          this.cs.pushError(err);
+
+
+        });
+    });
+
+    this.loading = false;
+    this.cs.showOrHideSpinner(this.loading);
+  }
+
+
+
+  OnChange(event) {
+    this.selected = event.value;
+    this.preSelectedItems = event.value;
+  }
+
+
+  changeProcessState(event) {
+    debugger;
+    let checked = event.checked;
+    this.data.active = checked ? 1 : 0;  
+
+
+    this.processService.Put(this.data).subscribe
+      (data => {
+        this.GetAllProcesses();
+        this.display = false;
+        this.blocked = false;
+        this.loading = false;
+        this.cs.showOrHideSpinner(this.loading);
+        if (checked) {
+          this.cs.addMessage("success", "Success", this.data.name+" Activated");
+        }
+        else {
+          this.cs.addMessage("success", "Success", this.data.name+" Disactivated");
+        }
+
+      },
+
+      err => {
+        this.display = false;
+        this.blocked = false;
+        this.loading = false;
+        this.cs.showOrHideSpinner(this.loading);
+        this.cs.pushError(err);
+
+
+      });
+  }
+
+}
+
+
+
+3-Editor
+
+1-step-setting-editor
+
+A-step-setting-editor.html
+<div class=" panel panel-default">
+  <div class="panel-heading fb-properties-div">
+    <span class="fb-settings-header">{{header}}</span>
+    <button class="btn btn-sm upper-btn-container fb-properties-close-btn" (click)="onExitSettings()"><span class="close-btn-icon glyphicon glyphicon-remove"></span></button>
+  </div>
+  <div class="panel-body" [formGroup]="stepPropertiesForm">
+    <div class="form-row">
+      <label class="settings-label">Name</label>
+      <input type="text" class="form-control input-sm" formControlName="name" />
+    </div>
+    <br />
+    <div class="form-row">
+      <div class="col-sm-8" style="float:left !important;text-align:left;">
+        <label class="settings-label" >Font Color</label>
+      </div>
+      <div class="col-sm-4">
+        <p-colorPicker [(ngModel)]="fontColor" formControlName="fontColor"></p-colorPicker>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="col-sm-8">
+        <label class="settings-label">Back Color</label>
+      </div>
+      <div class="col-sm-4">
+        <p-colorPicker [(ngModel)]="backColor" formControlName="backColor"></p-colorPicker>
+      </div>
+    </div>
+    <br />
+    <div class="form-row">
+      <label class="settings-label">Font Size</label>
+      <input type="number" class="form-control input-sm" formControlName="fontSize" />
+    </div>
+    <div class="form-row">
+      <label class="settings-label">X Position</label>
+      <input type="number" class="form-control input-sm" formControlName="xPosition" />
+    </div>
+    <div class="form-row">
+      <label class="settings-label">Y Position</label>
+      <input type="number" class="form-control input-sm" formControlName="yPosition" />
+    </div>
+    <div class="form-row">
+      <label class="settings-label">Width</label>
+      <input type="number" class="form-control input-sm" formControlName="width" />
+    </div>
+    <div class="form-row">
+      <label class="settings-label">Height</label>
+      <input type="number" class="form-control input-sm" formControlName="height" />
+    </div>
+
+    <div class="form-row">
+      <button pButton type="button" label="Save" class="btn btn-primary fb-button" (click)="onSubmit()"></button>
+    </div>
+  </div>
+</div>
+
+
+B-step-setting-editor.ts
+
+import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
+import { FormGroup, Validators } from '@angular/forms';
+import { CommonService } from 'src/app/shared/services/common.service';
+import { SstProcessSteps } from '../../models/models';
+import { SstProcesses } from 'src - Copy (2)/app/process-builder/models/models';
+
+@Component({
+  selector: 'shc-step-settings-editor',
+  templateUrl: './step-settings-editor.component.html',
+  styleUrls: ['./step-settings-editor.component.css']
+})
+export class StepSettingsEditorComponent implements OnInit, OnChanges, AfterViewInit {
+
+  //For Publish Reasons
+  fontColor: any;
+  backColor: any;
+  //End
+  stepPropertiesForm: FormGroup;
+
+  @Input() selectedStep: SstProcessSteps;
+  @Input() header: string = "Process Step Property";
+  @Output() saveSettings = new EventEmitter<SstProcessSteps>();
+  @Output() exitSettings = new EventEmitter<boolean>();
+
+  backColors: string;
+
+  constructor(public cs: CommonService,public RefDef:ChangeDetectorRef) { }
+
+  ngOnInit() {
+    this.createProcessForm();
+  
+  }
+  ngAfterViewInit() {
+    this.loadStepProperties(this.selectedStep);
+this.RefDef.detectChanges();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    this.createProcessForm();
+    this.loadStepProperties(this.selectedStep);
+  }
+
+  createProcessForm() {
+    this.stepPropertiesForm = this.cs.fb.group({
+      name: ['', [Validators.required]],
+      backColor: [''],
+      fontColor: [''],
+      fontSize: ['', [Validators.required]],
+      width: ['', [Validators.required]],
+      height: ['', [Validators.required]],
+      xPosition: ['', [Validators.required]],
+      yPosition: ['', [Validators.required]]
+    });
+  }
+  onSubmit()
+  {
+    debugger;
+    this.mapStepProperty();
+    console.log(this.stepPropertiesForm.value);
+    this.saveSettings.emit(this.selectedStep);
+  }
+
+  mapStepProperty()
+  {
+    this.selectedStep.name = this.stepPropertiesForm.value.name;
+    this.selectedStep.width = this.stepPropertiesForm.value.width;
+    this.selectedStep.height = this.stepPropertiesForm.value.height;
+    this.selectedStep.fontColor = this.stepPropertiesForm.value.fontColor;
+    this.selectedStep.backColor = this.stepPropertiesForm.value.backColor;
+    this.selectedStep.fontSize = this.stepPropertiesForm.value.fontSize;
+    this.selectedStep.xPosition = this.stepPropertiesForm.value.xPosition;
+    this.selectedStep.yPosition = this.stepPropertiesForm.value.yPosition;
+  }
+
+  loadStepProperties(selectedStep:SstProcessSteps)
+  {
+    this.selectedStep = selectedStep;
+    this.stepPropertiesForm.patchValue({
+      name: this.selectedStep.name,
+      backColor: this.selectedStep.backColor,
+      fontColor: this.selectedStep.fontColor,
+      fontSize: this.selectedStep.fontSize,
+      width: this.selectedStep.width,
+      height: this.selectedStep.height,
+      xPosition: this.selectedStep.xPosition,
+      yPosition:this.selectedStep.yPosition
+    });
+  }
+
+  onExitSettings() {
+    this.exitSettings.emit(false);
+
+  }
+}
+
+
+4-Models
+
+1-Models.ts
+
+import { SstProcessService } from '../services/SstProcess.service';
+export class Mapper<T> {
+  private items: { [key: string]: T };
+
+  constructor() {
+    this.items = {};
+  }
+
+  add(key: string, value: T): void {
+    this.items[key] = value;
+  }
+
+  has(key: string): boolean {
+    return key in this.items;
+  }
+
+  get(key: string): T {
+    return this.items[key];
+  }
+}
+
+
+export class SstProcesses {
+  constructor() {
+    this.sstProcessSystems = new Array<SstProcessSystems>();
+    this.sstProcessSteps = new Array<SstProcessSteps>();
+  }
+
+  id: number;
+  name: string;
+  name2: string;
+  active: number;
+  notes: string;
+  creationUser: string;
+  creationDate: Date;
+  modificationUser: string;
+  modificationDate: Date;
+  sstProcessSystems: Array<SstProcessSystems>;
+  sstProcessSteps: Array<SstProcessSteps>;
+}
+
+
+export class SstProcessSteps {
+  constructor() {
+    this.sstProcessParentSteps = new Array<SstProcessParentSteps>();
+
+  }
+
+  id: number;
+  stepId : number;    
+  shapeType : number;
+  xPosition: number;
+  yPosition: number;
+  width: number;  
+  height: number;  
+  processId: number;
+  processStepId: number; 
+  name: string;
+  fontColor: string;
+  backColor: string;
+  fontSize: number;
+  sstProcessParentSteps: Array<SstProcessParentSteps>;
+  creationUser: string;
+  creationDate: Date;
+  modificationUser: string;
+  modificationDate: Date;
+}
+
+export class SstProcessParentSteps {
+  id: number;
+  shapeId: number;
+  edgeDescription: string;
+  parentShapeId: number;
+  processStepId: number;
+  processId: number;
+  creationUser: string;
+  creationDate: Date;
+  modificationUser: string;
+  modificationDate: Date;
+  edgeType: number;
+}
+
+export enum ShapeTypes {
+  swimlane = 1,
+  start = 2,
+  end = 3,
+  process = 4,
+  condition = 5,
+}
+
+export enum EdgeTypes {
+  arrow = 1,
+  crossover = 2
+}
+
+export class SstProcessSystems {
+  id: number;
+  processId: number;
+  systemId: number;
+  creationUser: string;
+  creationDate: Date;
+  modificationUser: string;
+  modificationDate: Date;
+}
+
+
+export class SstProccesStepItem {
+  name?: string;
+  shapeType: number;
+  icon?: string;
+}
+
+
+export enum StepsTypes {
+  Ellipse = 1,
+  Rectangle = 2,
+  Rhomboid = 3,
+  Arrow = 4,
+  Line = 5,
+  SwinLane = 6
+
+}
+
+export enum DomainId {
+  Mailer = 19,
+  Status = 20,
+  TemplateType = 21,
+  ContactType = 22
+}
+
+export enum MailerType {
+  GMail = 107,
+  Yahoo = 108,
+  Outlook= 109,
+  Mail = 110,
+  iCloud =111,
+  Other = 112
+}
+
+export enum ContactType {
+  To = 1,
+  CC = 2,
+  BCC = 3
+}
+
+export enum TemplateType {
+  Email = 1,
+  SMS = 2,
+  Alert = 3
+}
+
+export enum RecipientType {
+  group = "fa fa-group",
+  user = "fa fa-user"
+}
+
+export enum RecipientTypes {
+  user = 1,
+  group = 2,
+  both = 3
+}
+
+export class SstMailer {
+  id: number;
+  type?: number;
+  username: string;
+  password: string;
+  host: string;
+  port?: number;
+  security?: number;
+  systemId?: number;
+  companyId: number;
+  creationUser: string;
+  creationDate: Date;
+  modificationUser: string;
+  modificationDate: Date;
+}
+
+export class SstSmsProviders {
+  id: number;
+  name: string;
+  name2: string;
+  order?: number;
+  status?: number;
+  api: string;
+  username: string;
+  password: string;
+  unicode?: number;
+  systemId?: number;
+  companyId: number;
+  creationUser: string;
+  creationDate: Date;
+  modificationUser: string;
+  modificationDate: Date;
+}
+
+export class SstNotifications {
+  id: number;
+  name: string;
+  name2: string;
+  status?: number;
+  notes: string;
+  sessionKey: string;
+  systemId?: number;
+  companyId: number;
+  creationUser: string;
+  creationDate: Date;
+  modificationUser: string;
+  modificationDate: Date;
+}
+
+export class SstNotificationsTemplates {
+  id: number;
+  type: number;
+  from: string;
+  subject: string;
+  subject2: string;
+  body: number[];
+  body2: number[];
+  notificationId: string;
+  sstNotificationsContacts: SstNotificationsContacts[];
+  creationUser: string;
+  creationDate: Date;
+  modificationUser: string;
+  modificationDate: Date;
+}
+
+export class SstNotificationsContacts {
+  id: number;
+  type: number;
+  username: string;
+  groupId?: number;
+  templateId: number;
+  creationUser: string;
+  creationDate?: Date;
+  modificationUser: string;
+  modificationDate?: Date;
+}
+
+export class SstNotificationsAttachments {
+  id: number;
+  order?: number;
+  type: number;
+  attachPath: string;
+  reportCode: string;
+  status?: number;
+  notificationId: number;
+  notification: SstNotifications;
+  creationUser: string;
+  creationDate: Date;
+  modificationUser: string;
+  modificationDate: Date;
+}
+
+export class SearchProcess {
+  Names: string[];
+  filterdCols: string[];
+
+  constructor()
+  {
+    this.Names = new Array<string>();
+    this.filterdCols = new Array<string>();
+  }
+}
+
+
+
+
+
+
+5-Notification
+
+
+A-Notification.html 
+
+<div class="container">
+  <div class="row">
+
+    <div class="col-md-4">
+      <div class="row card" routerLink="notificationConfiguration" (click)="selectContent(0)">
+        <div class="col-md-3 pb-circule-de number" id="one">1</div>
+        <div class="pb-border-left"></div>
+        <div class="col-md-9 card-content">
+          <span class="card-content-header">Mailer Configuration</span>
+          <span class="card-content-text">Configure your mailer and SMS provider in order to instantly use for
+            notifications.</span>
+        </div>
+      </div>
+      <div class="row card" routerLink="notificationSetup" (click)="selectContent(1)">
+        <div class="col-md-3 pb-circule-de number" id="two">2</div>
+        <div class="pb-border-left"></div>
+        <div class="col-md-9 card-content">
+          <span class="card-content-header">Setup Notifications</span>
+          <span class="card-content-text">Define the various email and SMS notifications to be customized and setup.</span>
+        </div>
+      </div>
+      <div class="row card" routerLink="notificationFormatter" (click)="selectContent(2)">
+        <div class="col-md-3 pb-circule-de number" id="three">3</div>
+        <div class="pb-border-left"></div>
+        <div class="col-md-9 card-content">
+          <span class="card-content-header">Message Formatter</span>
+          <span class="card-content-text">Customize your email/ SMS message and configure it to ensure timely delivery
+            to the intended user groups.</span>
+        </div>
+      </div>
+    </div>
+
+    <div [@bounceIn]="bounceIn" class="col-md-8 pbd-content form-inline">
+      <div class="arrow-right display" [ngClass]="{'position1':selectedContent==0 ,'position2':selectedContent==1 ,'position3':selectedContent==2 }">
+      </div>
+      <div class="container-fuld pbd-selectedContent">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
+</div>
+
+B-Notification.css
+
+.card {
+  margin-bottom: 15px;
+  background-color: #fff;
+  border: 1px solid #cacaca;
+  min-height: 80px;
+  width: 100%;
+}
+
+.card:hover {
+  top: -15px;
+  box-shadow: 10px 12px 16px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transform: translate(5px, 5px);
+}
+
+.number {
+  border: 5px solid #fafafa;
+  color: black;
+  border-radius: 50%;
+  display: inline-block;
+  width: 63px;
+  text-align: center;
+  line-height: 60px;
+  margin: 5px;
+}
+
+.card-content {
+  margin-top: 17px;
+  width: 75%;
+  min-height: inherit;
+  display: inline-block;
+}
+
+.card-content-header {
+  margin: 0;
+  padding: 0;
+  color: #42a5f3;
+  font-weight: bold;
+  display: inherit;
+  font-size: 17px;
+
+}
+
+.card-content-text {
+  margin: 0;
+  padding: 0;
+  color: #8c8686;
+  display: inherit;
+  font-size: 11px;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#one {
+  background-color: #97e1b5;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+  box-shadow: inset 0 0 0 6px #c4eed5;
+
+}
+
+#two {
+  background-color: #ffba75;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+  box-shadow: inset 0 0 0 6px #ffd9b3;
+}
+
+#three {
+  background-color: #ef7688;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+  box-shadow: inset 0 0 0 6px #f9c6cd;
+}
+
+.arrow-right {
+  width: 0;
+  height: 0;
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+  border-left: 20px solid #bebebe;
+  display: none;
+}
+
+.container-fuld {
+  background-color: white;
+}
+
+.pb-circule-de {
+  margin-top: 12px;
+  margin-left: 12px;
+}
+
+.pbd-content {
+  background-color: #fff;
+  margin-bottom: 15px;
+  border: 1px solid #cacaca;
+  min-height: 24em;
+
+}
+
+.pbd-selectedContent .row {
+  margin-top: 30px;
+}
+
+.pb-border-left {
+  float: left;
+  min-height: 3.8em;
+  background: #cacaca;
+  margin: auto;
+  margin-top: 21px;
+  border-right: 1px solid transparent;
+}
+
+.position1 {
+  position: absolute;
+  top: 32px;
+  left: -28px;
+}
+.position2 {
+  position: absolute;
+  top: 142px;
+  left: -28px;
+}
+.position3 {
+  position: absolute;
+  top: 255px;
+  left: -28px;
+}
+
+.display {
+  display: block;
+}
+
+
+C-Notification.ts
+
+import { Component, OnInit, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
+import { bounceIn, fadeInLeft } from 'ng-animate';
+import { transition, useAnimation, trigger } from '@angular/animations';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'shc-notification',
+  templateUrl: './notification.component.html',
+  styleUrls: ['./notification.component.css'],
+  animations: [
+    trigger('fadeInLeft', [transition('* => *', useAnimation(fadeInLeft, {
+      // Set the duration to 5seconds and delay to 2seconds
+      params: { timing: 1, delay: 0 }
+    }))]),
+    trigger('bounceIn', [transition('* => *', useAnimation(bounceIn))])
+
+  ]
+})
+export class NotificationComponent implements OnInit, AfterViewChecked {
+  selectedContent: number = 0;
+  bounceIn: boolean = false;
+
+  paymetnType: string;
+  isPaymentDetails;
+
+  constructor(private router: Router, private cdRef: ChangeDetectorRef) { }
+
+  recivePaymentType($event) {
+    this.paymetnType = $event
+    this.selectContent(1);
+  }
+
+  selectContent(content: number) {
+    this.bounceIn = !bounceIn;
+    this.selectedContent = content;
+  }
+
+  ngOnInit() {
+  }
+
+  ngAfterViewChecked() {
+    if (this.router.url.indexOf('notificationConfiguration') > -1)
+      this.selectContent(0);
+    else if (this.router.url.indexOf('notificationSetup') > -1)
+      this.selectContent(1);
+    else if (this.router.url.indexOf('notificationFormatter') > -1)
+      this.selectContent(2);
+
+    this.cdRef.detectChanges();
+  }
+}
+
+
+6-Notification-attachments
+ 
+A-Notification-attachments.html 
+
+<div class="container-fluid">
+  <div class="panel panel-primary container-panel">
+    <div class="panel-heading panel-heading-padding">
+      <span>Attachment List</span>
+      <button class="btn btn-primary btn-sm upper-btn-container float-right" (click)="deletePopUp()">
+        <span class="glyphicon glyphicon-trash"></span>
+      </button>
+      <button class="btn btn-primary btn-sm upper-btn-container float-right" (click)="newRecord()">
+        <span class="glyphicon glyphicon-pencil"></span>
+      </button>
+    </div>
+    <div class="panel-body">
+      <shc-datatable2 #dataTable [cols]="attachmentCols" [rows]="attachmentRows"  [showCheckBox]="true" (OnCheckboxSelected)="onCheckBoxSelect($event)" (OnRowClicked)="onRowSelect($event)" (OnLinkSelected)="viewAttachment($event)"> </shc-datatable2>
+    </div>
+  </div>
+  <div class="panel panel-primary container-panel">
+    <div class="panel-heading panel-heading-padding"><span>Attachment Entry</span></div>
+    <div class="panel-body">
+      <form [formGroup]="attachmentForm">
+        <div class="row form-row">
+          <div class="col-md-12">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Attachment Type</label>
+                <div class="radio-header">
+                  <label class="radio-inline">
+                    <p-radioButton name="attachmentType" value=1 label="File Upload" formControlName="attachType" (onClick)="selectAttachType()">
+                    </p-radioButton>
+                  </label>
+                  <label class="radio-inline">
+                    <p-radioButton name="attachmentType" value=2 label="Report" formControlName="attachType" (onClick)="selectAttachType()">
+                    </p-radioButton>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="selectedAttachType ;then fileUpload else report"></div>
+            <ng-template #fileUpload>
+              <div class="col-md-8">
+                <div class="form-group">
+                  <label>Choose File</label>
+                  <p-fileUpload #fileUploader [name]="files" customUpload="true"
+                                maxFileSize="1000000" (uploadHandler)="UploadHandler($event)"
+                                (onSelect)="onFileSelect($event)" (onRemove)="onRemoveFile($event)" (onClear)="clearFiles($event)" class="form-control-ng"
+                                showCancelButton="true"></p-fileUpload>
+                </div>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+
+        <ng-template #report>
+          <div class="row form-row">
+            <div class="col-12">
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Application</label>
+                  <p-dropdown [style]="{'width':'100%'}" [options]="applictionsList" formControlName="applicationId" (onChange)="fillSystem($event.value)">
+                  </p-dropdown>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>System</label>
+                  <p-dropdown [style]="{'width':'100%'}" [options]="systemsList" formControlName="systemId" (onChange)="fillReportMenu(applicationId,$event.value)">
+                  </p-dropdown>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Report Group</label>
+                  <p-dropdown [style]="{'width':'100%'}" [options]="reportGroupList" formControlName="reportMenu" (onChange)="fillReports(applicationId,systemId,$event.value)">
+                  </p-dropdown>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Report Code/Name</label>
+                  <p-dropdown [style]="{'width':'100%'}" [options]="reportList" formControlName="reportCode">
+                  </p-dropdown>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+        <div class="float-right">
+          <button type="submit" class="btn btn-primary" (click)="onSave()"> {{buttonLabel}} </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+
+<p-dialog header="Delete Confirmation" [style]="{'wdith':'100px'}" [autoZIndex]="false" [(visible)]="showDeletePopUp" [responsive]="true" showEffect="fade"
+          [modal]="true">
+  <h5>Are you sure you want to delete these Row(s)?</h5>
+  <button type="button" class="btn btn-primary btn-lg margin" (click)="confirmDeletion()">Yes</button>
+  <button type="button" class="btn btn-primary btn-lg margin" (click)="cancelDeleton(dataTable)">No</button>
+</p-dialog>
+
+
+
+B-Notification-attachments.css 
+
+.margin{
+  margin:0 5px 0 5px;
+}
+
+
+C-Notification-attachments.ts 
+
+
+import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { SstNotificationsAttachments } from '../models/models';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { SelectItem } from 'primeng/api';
+import { CommonService } from 'src/app/shared/services/common.service';
+import { NotificationAttachmentsService } from '../services/notification-attachments.service';
+import { CoreService } from 'src/app/core/services/Core.service';
+import { debug } from 'util';
+import { SharedSetupService } from 'src/app/shared/services/shared-setup.service';
+import { FileUpload } from 'primeng/primeng';
+import { Datatable2Component } from 'src/app/shared/controls/datatable2/datatable2.component';
+import { MessageType } from 'src/app/shared/models/models';
+
+@Component({
+  selector: 'shc-notification-attachments',
+  templateUrl: './notification-attachments.component.html',
+  styleUrls: ['./notification-attachments.component.css']
+})
+export class NotificationAttachmentsComponent implements OnInit {
+  applicationId: number;
+  systemId: string;
+  selectedAttachType: boolean = true;
+  labelSaveUpdate: boolean = true;
+  showDeletePopUp: boolean = false;
+  buttonLabel: string = "Save";
+  applictionsList: SelectItem[] = [];
+  systemsList: SelectItem[] = [];
+  reportGroupList: SelectItem[] = [];
+  reportList: SelectItem[] = [];
+  selectedRows: any[] = [];
+  row: any;
+  fileUpload: any;
+  files: File[];
+  loading: boolean = false;
+  formData = new FormData();
+  attachmentForm: FormGroup;
+  attachModel: SstNotificationsAttachments = new SstNotificationsAttachments();
+  attachmentRows: SstNotificationsAttachments[] = new Array<SstNotificationsAttachments>();
+  @Input() notificationId: number;
+  @ViewChild('fileUploader') fileUploader: FileUpload;
+  @ViewChild('dataTable') dataTable: Datatable2Component;
+
+  attachmentCols: any[] = [
+    { field: "no", header: "No", hidden: false },
+    { field: "attachmentType", header: "Attachment Type", hidden: false },
+    { field: "attachmentReportName", header: "Attachment/Report Name", hidden: false },
+    { field: "reportCode", header: "Report Code", hidden: false },
+    { field: null, header: "View Attachment", hidden: false, commandCol: true, commandName: 'View Attachment' },
+  ];
+  datalist: any[] = [
+    { field: "no", header: "No", hidden: false },
+    { field: "attachmentType", header: "Attachment Type", hidden: false },
+    { field: "attachmentReportName", header: "Attachment/Report Name", hidden: false },
+    { field: "reportCode", header: "Report Code", hidden: false },
+    { field: null, header: "View Attachment", hidden: false, commandCol: true, commandName: 'View Attachment' },
+  ];
+
+  constructor(private fb: FormBuilder, private cs: CommonService, private attach: NotificationAttachmentsService,
+    private core: CoreService, private shareStepUp: SharedSetupService) { }
+
+  getAttachments() {
+    this.attach.getAllAttachments().subscribe(
+      data => {
+        console.log("All Attachments");
+        console.log(data.data);
+        this.datalist = data.data.map(x => <any>{
+          "no": x.id,
+          "attachmentType": this.reportType(x.type),
+          "attachmentReportName": x.attachPath,
+          "reportCode": x.reportCode,
+        });
+        debugger;
+        this.attachmentRows = this.datalist;
+      }
+    );
+    
+  }
+
+  reportType(type: number): string {
+    if (type == 1) {
+      return "File Upload";
+     }
+    else if (type == 2) {
+      return "Report";
+    }
+    return "";
+  }
+
+  selectAttachType() {
+    if (this.attachmentForm.get('attachType').value == 1) {
+      this.selectedAttachType = true;
+    }
+    else if (this.attachmentForm.get('attachType').value == 2) {
+      this.selectedAttachType = false
+    }
+   }
+
+  onCheckBoxSelect(event) {
+    this.selectedRows = event;
+  }
+
+  onRowSelect(event) {
+    this.row = event;
+    this.attach.getAttachmentById(this.row.no).subscribe(
+      data => {
+        this.fillForm(data.data);
+        this.fillModel(data.data);
+        this.selectAttachType();
+        this.labelSaveUpdate = false
+        this.buttonLabel = "Update";
+      }
+    )
+  }
+
+  fillModel(model: SstNotificationsAttachments) {
+    this.attachModel.id = model.id;
+    this.attachModel.attachPath = model.attachPath;
+    this.attachModel.notificationId = model.notificationId;
+    this.attachModel.order = model.order;
+    this.attachModel.creationUser = model.creationUser;
+    this.attachModel.creationDate = model.creationDate;
+    this.attachModel.type = model.type;
+    this.attachModel.status = model.status;
+    this.attachModel.reportCode = model.reportCode;
+    this.attachModel.modificationUser = model.modificationUser;
+    this.attachModel.modificationDate = model.modificationDate;
+  }
+
+  viewAttachment(event) {
+    debugger;
+    this.row = event.commandRow;
+    if (this.row.attachmentType != "Report")
+      this.shareStepUp.downloadFile(this.row.attachmentReportName).subscribe(
+        data => {
+          console.log("Download File");
+          console.log(data);
+          this.downloadFile(data);
+        }
+      )
+    else
+      alert("No file to download");
+  }
+
+  downloadFile(data: any) {
+    const blob = new Blob([data], { type: data.type });
+    const url = window.URL.createObjectURL(blob);
+
+    var a = document.createElement('a');
+    a.href = url;
+   // a.download = url.substr(url.lastIndexOf('/') + 1);
+    a.download = this.row.attachmentReportName;
+    a.click();
+  }
+
+  UploadHandler(event: any) {
+    this.loading = true;
+    this.cs.showOrHideSpinner(this.loading);
+    this.files = event.files;
+    if (this.files.length > 0) {
+      this.formData.set("files", "", "");
+      Array.from(this.files).forEach(file => {
+        this.formData.append("files", file, file.name);
+      });
+      console.log("Form Data");
+      console.log(this.formData.get("files"));
+      this.shareStepUp.uploadFiles(this.formData).subscribe(
+        data => {
+          this.cs.pushMessage("success", MessageType.Success, "Upload Files", "File(s) Uploaded Successfully");
+          this.loading = false;
+          this.cs.showOrHideSpinner(this.loading);
+          this.attachmentForm.patchValue({ attachPath: data[0]});
+        },
+        err => {
+          console.log(err);
+          this.cs.pushError(err);
+          this.loading = false;
+          this.cs.showOrHideSpinner(this.loading);
+        }
+      );
+    }
+  }
+
+  fillForm(data: SstNotificationsAttachments) {
+    this.attachmentForm.patchValue({
+      attachType: data.type,
+      reportCode: data.reportCode,
+      order: data.order,
+      attachPath: data.attachPath,
+      status: data.status
+    })
+  }
+
+  newRecord() {
+    this.attachmentForm.patchValue({
+      order: '',
+      attachPath:'',
+      applicationId: '',
+      systemId: '',
+      reportMenu: '',
+      reportCode: '',
+      status:''
+    });
+    this.attachModel = new SstNotificationsAttachments();
+    this.labelSaveUpdate = true;
+    this.buttonLabel = "Save";
+    this.files = [];
+    this.fileUploader.clear();
+ 
+  }
+
+  confirmDeletion() {
+      for (let i of this.selectedRows) {
+        this.attach.deleteAttachment(i.no).subscribe(
+          data => {
+            console.log("Delete");
+            console.log(data.data);
+            this.getAttachments();
+            this.selectedRows = [];
+          },
+          err => {
+            this.selectedRows = [];
+            console.log(err);
+            this.loading = false;
+            this.cs.showOrHideSpinner(this.loading);
+            this.cs.pushError(err);
+          }
+         );
+      }
+    this.showDeletePopUp = !this.showDeletePopUp;
+    this.newRecord();
+  }
+
+  cancelDeleton(dataTable) {
+    this.selectedRows = [];
+    this.showDeletePopUp = !this.showDeletePopUp;
+    this.getAttachments();
+    dataTable.selectedRows = [];
+  }
+
+  deletePopUp() {
+    if (this.selectedRows === undefined || this.selectedRows.length == 0) {
+      this.cs.pushMessage("warn", MessageType.Warn, "No rows selected.", "No rows selected.");
+      alert("No Rows Selected");
+    }
+    else {
+      this.showDeletePopUp = !this.showDeletePopUp;
+    }
+  }
+
+  onSave() {
+    this.attachModel.attachPath = this.attachmentForm.get('attachPath').value;
+    this.attachModel.type = this.attachmentForm.get('attachType').value;
+    this.attachModel.order = this.attachmentForm.get('order').value;
+    this.attachModel.reportCode = this.attachmentForm.get('reportCode').value;
+    this.attachModel.status = this.attachmentForm.get('status').value;
+    this.attachModel.notificationId = this.notificationId;
+    if (this.labelSaveUpdate) {
+      this.attachModel.creationDate = new Date();
+      this.attachModel.creationUser = "Admin";
+      this.save();
+      this.labelSaveUpdate = false;
+      this.buttonLabel = "Update";
+    }
+    else {
+      this.attachModel.modificationDate = new Date();
+      this.attachModel.modificationUser = "Admin";
+      this.update();
+      this.labelSaveUpdate = false;
+      this.buttonLabel = "Update";
+    }
+  }
+
+  update() {
+    debugger;
+    this.attach.updateAttachment(this.attachModel).subscribe(
+      data => {
+        console.log("Update");
+        console.log(data.data);
+        this.getAttachments();
+      }
+    )
+  }
+
+  save() {
+    this.attach.saveAttachment(this.attachModel).subscribe(
+      data => {
+        console.log("Save");
+        console.log(data.data);
+        this.attachModel.id = data.data.id;
+        this.getAttachments();
+      }
+    );
+  }
+
+  onFileSelect(event) {
+    this.files = event.files;
+    console.log("files select");
+    console.log(this.files);
+  }
+
+  onRemoveFile(event: any) {
+    this.files = [];
+    console.log("files remove");
+    console.log(this.files);
+  }
+
+  clearFiles(event: any) {
+    this.files = [];
+    console.log("files clear");
+    console.log(this.files);
+  }
+   
+  ngOnInit() {
+    this.attachmentForm = this.fb.group({
+      order: [''],
+      attachType: [1],
+      attachPath: [''],
+      applicationId: [''],
+      systemId: [''],
+      reportMenu:[''],
+      reportCode: [''],
+      status: ['']
+    })
+    this.getAttachments();
+    this.fillLists();
+  }
+
+  fillSystem(appId: number) {
+    this.systemsList = this.core.getSystems(appId);
+    this.applicationId = appId;
+  
+  }
+
+  fillReportMenu(appId: number, sysId: string) {
+    this.reportGroupList = this.core.getReportMenus(appId, sysId);
+    this.applicationId = appId;
+    this.systemId = sysId;
+  }
+
+  fillReports(appId: number, sysId: string, reportMenu: number) {
+    this.reportList = this.core.getReports(appId, sysId, reportMenu);
+  }
+
+  fillLists() {
+    this.applictionsList = this.core.getApplications();
+    this.fillSystem(this.attachmentForm.get('applicationId').value);
+    this.fillReportMenu(this.attachmentForm.get('applicationId').value, this.attachmentForm.get('systemId').value);
+    this.fillReports(this.attachmentForm.get('applicationId').value, this.attachmentForm.get('systemId').value, this.attachmentForm.get('reportMenu').value);
+  }
+
+}
+
+
+7-Notification Configuration 
+
+
+A-Notification-configuration.html
+
+<p-toast [style]="{marginTop: '80'}"></p-toast>
+<div class="row form-row">
+  <div class="form-group col-md-6">
+    <button #btnMailer class="float-right btn button" [ngClass]="{'button-active' : activeForm}" type="button" (click)="activeForm = true">Mailer</button>
+  </div>
+  <div class="form-group col-md-6">
+    <button class="float-left btn button" type="button" [ngClass]="{'button-active' : !activeForm}" (click)="activeForm = false">SMS
+      Provider</button>
+  </div>
+</div>
+
+<div [ngStyle]="{'display': activeForm ? 'block' : 'none'}">
+  <form [formGroup]="mailerForm" style="width:100%" (ngSubmit)="onMailerSave()">
+    <div class="row form-row">
+      <div class="form-group col-md-12">
+        <label class="col-xs-3 wizard-label">Select Your Mailer</label>
+        <div class="col-xs-9">
+          <p-selectButton [options]="mailerTypes" formControlName="type"></p-selectButton>
+        </div>
+      </div>
+    </div>
+
+    <div class="row form-row">
+      <div class="form-group col-md-12">
+        <label class="col-xs-3 wizard-label">Username</label>
+        <div class="col-xs-8">
+          <input pInputText type="text" class="form-control wizard-control" formControlName="username" required="required">
+        </div>
+      </div>
+    </div>
+    <div class="row form-row">
+      <div class="form-group col-md-12">
+        <label class="col-xs-3 wizard-label">Password</label>
+        <div class="col-xs-8">
+          <input pPassword type="password" class="form-control wizard-control" formControlName="password" required="required"/>
+        </div>
+      </div>
+    </div>
+    <div class="row form-row">
+      <div class="form-group col-md-12">
+        <label class="col-xs-3 wizard-label">Host</label>
+        <div class="col-xs-8">
+          <input pInputText type="text" class="form-control wizard-control" formControlName="host" required="required"/>
+        </div>
+      </div>
+    </div>
+    <div class="row form-row">
+      <div class="form-group col-md-12">
+        <label class="col-xs-3 wizard-label">Port</label>
+        <div class="col-xs-8">
+          <input pInputText type="number" class="form-control wizard-control" formControlName="port" required="required"/>
+        </div>
+      </div>
+    </div>
+    <div class="row form-row">
+      <div class="form-group col-md-12">
+        <label class="col-xs-3 wizard-label">Security </label>
+        <div class="col-xs-8">
+          <p-radioButton class="radioButton" name="Security" value="1" label="None" formControlName="security"></p-radioButton>
+          <p-radioButton class="radioButton" name="Security" value="2" label="SSL" formControlName="security"></p-radioButton>
+          <p-radioButton class="radioButton" name="Security" value="3" label="TLS" formControlName="security"></p-radioButton>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-12">
+      <div class="form-group col-md-12">
+        <button type="submit" class="btn btn-primary btn-sm pull-right" [disabled]="!mailerForm.valid">
+          {{showSaveUpdateMailer === false ? 'Save' : 'Update'}}</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div [ngStyle]="{'display': !activeForm ? 'block' : 'none'}">
+  <form [formGroup]="smsProviderForm" style="width:100%" (ngSubmit)="onSmsProviderSave()">
+    <div class="row form-row">
+      <div class="form-group col-md-12">
+        <label class="col-xs-3 wizard-label">Name</label>
+        <div class="col-xs-8">
+          <input pInputText type="text" class="form-control wizard-control" formControlName="name" required="required"/>
+        </div>
+      </div>
+    </div>
+    <div class="row form-row">
+      <div class="form-group col-md-12">
+        <label class="col-xs-3 wizard-label">Name 2</label>
+        <div class="col-xs-8">
+          <input pInputText type="text" class="form-control wizard-control" formControlName="name2" />
+        </div>
+      </div>
+    </div>
+    <div class="row form-row">
+      <div class="form-group col-md-12">
+        <label class="col-xs-3 wizard-label">Provider's API</label>
+        <div class="col-xs-8">
+          <input pInputText type="text" class="form-control wizard-control" formControlName="providerAPI" required="required"/>
+        </div>
+      </div>
+    </div>
+    <div class="row form-row">
+      <div class="form-group col-md-12">
+        <label class="col-xs-3 wizard-label">Username</label>
+        <div class="col-xs-8">
+          <input pInputText type="text" class="form-control wizard-control" formControlName="username" required="required" />
+        </div>
+      </div>
+    </div>
+    <div class="row form-row">
+      <div class="form-group col-md-12">
+        <label class="col-xs-3 wizard-label">Password</label>
+        <div class="col-xs-8">
+          <input pPassword type="password" class="form-control wizard-control" formControlName="password" required="required"/>
+        </div>
+      </div>
+    </div>
+    <div class="row form-row">
+      <div class="form-group col-md-12">
+        <label class="col-xs-3 wizard-label">Status</label>
+        <div class="col-xs-8">
+          <p-dropdown class="form-control-ng wizard-control" [options]="statusOptions" formControlName="status" required="required"></p-dropdown>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <p-checkbox binary="true" formControlName="unicode"></p-checkbox>
+      <label>Unicode</label>
+    </div>
+    <div class="col-md-12">
+      <div class="form-group col-md-12">
+        <button type="submit" class="btn btn-primary btn-sm pull-right" [disabled]="!smsProviderForm.valid">
+          {{showSaveUpdateSMS === false ? 'Save' : 'Update'}}</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- 
+<p>mailerForm {{ mailerForm.value | json}}</p>
+<p>smsProviderForm {{ smsProviderForm.value | json}}</p> -->
+
+
+B-Notification-configuratin .css 
+
+.wizard-label {
+  margin-top: 6px;
+  display: inherit;
+  font-size: 12px;
+  font-weight: normal;
+  font-family: Arial, Helvetica, sans-serif;
+  color: black
+}
+
+.wizard-control {
+  width: 100% !important;
+  height: 28px;
+}
+
+.form-group{
+  margin-bottom: 10px !important;
+}
+
+.form-control-ng .ui-state-default.ui-dropdown .ui-dropdown-label {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form-control-ng .ui-dropdown .ui-dropdown-trigger {
+  border: 1px solid #ccc;
+  border-radius: 0px 4px 4px 0px;
+  padding: 3px;
+}
+
+  .button {
+    background-color: transparent;
+    border: 1px solid  #b5b5b5;
+    color: black;
+    margin-top:10px;
+  }
+
+   .button:hover, .button-active {
+     color: white;
+     background-color: #2596E6;
+  }
+ 
+
+.ui-button.ui-widget.ui-state-default.ui-button-text-only.ng-star-inserted{
+  background-color: #b5b5b5 !important;
+  border: 1px solid  #b5b5b5 !important;
+  color: white;
+  margin: 1px 2px;
+  padding: 3px 1px;
+}
+
+.ui-button.ui-widget.ui-state-default.ui-button-text-only.ng-star-inserted:hover,
+.ui-button.ui-widget.ui-state-default.ui-button-text-only.ng-star-inserted.ui-state-active,
+.ui-button.ui-widget.ui-state-default.ui-button-text-only.ng-star-inserted.ui-state-focus
+ {
+  background-color: #2596E6 !important;
+} 
+
+span.ui-button-text.ui-clickable.ng-star-inserted{
+  font-size: 13px
+}
+
+
+.radioButton{
+  padding-right: 20px;
+}
+
+
+C-Notificaion-configuration.ts 
+
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, ViewEncapsulation, } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { SelectItem } from 'primeng/api';
+import { MailerService } from '../services/mailer.service';
+import { SstMailer, SstSmsProviders, DomainId, MailerType } from '../models/models';
+import { SmsProviderService } from '../services/sms-provider.service';
+import { SharedSetupService } from 'src/app/shared/services/shared-setup.service';
+import { CommonService } from 'src/app/shared/services/common.service';
+
+@Component({
+  selector: 'shc-notification-configuration',
+  templateUrl: './notification-configuration.component.html',
+  styleUrls: ['./notification-configuration.component.css'],
+  encapsulation: ViewEncapsulation.None
+})
+export class NotificationConfigurationComponent implements OnInit, AfterViewInit {
+
+  mailerForm: FormGroup;
+  smsProviderForm: FormGroup;
+
+  mailerModel: SstMailer = new SstMailer();
+  smsProviderModel: SstSmsProviders = new SstSmsProviders();
+  mailerTypes: SelectItem[] = [];
+  statusOptions: SelectItem[] = [];
+
+  activeForm: boolean = true;
+  showSaveUpdateMailer: boolean = false;
+  showSaveUpdateSMS: boolean = false;
+  isDisabled: boolean = false;
+
+  @ViewChild('btnMailer') btnMailer: ElementRef;
+  private companyId = 1;
+  private systemId = 28;
+
+  constructor(private form: FormBuilder, private sharedSetupService: SharedSetupService,
+    private mailerService: MailerService, private smsProviderService: SmsProviderService, private cs: CommonService) {
+  }
+
+  ngOnInit() {
+    this.initForm();
+
+    this.mailerTypes = this.sharedSetupService.getDomainValues(DomainId.Mailer, this.systemId, this.companyId);
+    this.mailerTypes.pop();
+    this.statusOptions = this.sharedSetupService.getDomainValues(DomainId.Status, this.systemId, this.companyId);
+
+    this.bindEvents();
+    this.getMailer();
+    this.getSmsProvider();
+  }
+
+  ngAfterViewInit() {
+    this.btnMailer.nativeElement.focus();
+  }
+
+  bindEvents() {
+    this.mailerForm.controls.type.valueChanges.subscribe(
+      mailerType => {
+        if (mailerType != MailerType.Other) {
+          this.isDisabled = true;
+          this.mailerForm.patchValue({
+            port: 587,
+            security: 2
+          });
+
+          if (mailerType == MailerType.GMail)
+            this.mailerForm.patchValue({
+              host: 'smtp.gmail.com'
+            });
+          else if (mailerType == MailerType.Yahoo)
+            this.mailerForm.patchValue({
+              host: 'smtp.mail.yahoo.com'
+            });
+          else if (mailerType == MailerType.Outlook)
+            this.mailerForm.patchValue({
+              host: 'smtp-mail.outlook.com'
+            });
+          else if (mailerType == MailerType.Mail)
+            this.mailerForm.patchValue({
+              host: 'smtp.mail.com'
+            });
+          else if (mailerType == MailerType.iCloud)
+            this.mailerForm.patchValue({
+              host: 'smtp.mail.me.com'
+            });
+        }
+        else {
+          this.isDisabled = false;
+          this.mailerForm.patchValue({
+            port: "",
+            host: "",
+            security: ""
+          });
+        }
+      }
+    )
+  }
+  initForm() {
+    this.mailerForm = this.form.group(
+      {
+        type: ['', Validators.required],
+        username: ['', Validators.required],
+        password: ['', Validators.required],
+        host: ['', Validators.required],
+        port: ['', Validators.required],
+        security: ['', Validators.required]
+      });
+
+    this.smsProviderForm = this.form.group(
+      {
+        name: ['', Validators.required],
+        name2: [''],
+        providerAPI: ['', Validators.required],
+        username: ['', Validators.required],
+        password: ['', Validators.required],
+        status: ['', Validators.required],
+        unicode: [false]
+      }
+    );
+  }
+
+  getMailer() {
+    this.mailerService.getMailer().subscribe(
+      data => {
+        if (data.data[0] !== undefined) {
+          this.mailerModel = data.data[0];
+          this.setMailerFormValues();
+          this.showSaveUpdateMailer = true;
+        }
+      }
+    )
+  }
+
+  getSmsProvider() {
+    this.smsProviderService.getSmsProvider().subscribe(
+      data => {
+        if (data.data[0] !== undefined) {
+          this.smsProviderModel = data.data[0];
+          this.setSmsProviderFormValues();
+          this.showSaveUpdateSMS = true;
+        }
+        else {
+          this.showSaveUpdateSMS = false;
+        }
+      }
+    )
+  }
+
+  setMailerFormValues() {
+    if (this.mailerModel.id > 0) {
+      this.mailerForm.patchValue(
+        {
+          type: this.mailerModel.type.toString(),
+          username: this.mailerModel.username,
+          password: this.mailerModel.password,
+          host: this.mailerModel.host,
+          port: this.mailerModel.port,
+          security: this.mailerModel.security
+        }
+      );
+
+      if (this.mailerModel.type != MailerType.Other) {
+        this.isDisabled = true;
+      }
+    }
+  }
+
+  setMailerModelValues() {
+    this.mailerModel.type = this.mailerForm.value.type;
+    this.mailerModel.username = this.mailerForm.value.username;
+    this.mailerModel.password = this.mailerForm.value.password;
+    this.mailerModel.host = this.mailerForm.value.host;
+    this.mailerModel.port = this.mailerForm.value.port;
+    this.mailerModel.security = this.mailerForm.value.security;
+  }
+
+  onMailerSave() {
+    this.setMailerModelValues();
+    this.mailerModel.companyId = this.companyId;
+    this.mailerModel.systemId = this.systemId;
+
+    if (this.mailerModel.id > 0) {
+      this.mailerModel.modificationUser = 'ADMIN';
+      this.mailerModel.modificationDate = new Date();
+      this.mailerService.putMailer(this.mailerModel).subscribe(
+        data => {
+          this.mailerModel = data.data;
+          this.setMailerFormValues();
+          this.showSaveUpdateMailer = true;
+          this.cs.addMessage("success", 'Success Message', "Mailer Configuration has been updated successfully.");
+        }
+      );
+    }
+    else {
+      this.mailerModel.creationUser = 'ADMIN';
+      this.mailerModel.creationDate = new Date();
+      this.mailerService.postMailer(this.mailerModel).subscribe(
+        data => {
+          this.mailerModel = data.data;
+          this.setMailerFormValues();
+          this.showSaveUpdateMailer = true;
+          this.cs.addMessage("success", 'Success Message', "Mailer Configuration has been added successfully.");
+        }
+      );
+    }
+  }
+
+  setSmsProviderFormValues() {
+    if (this.smsProviderModel.id > 0) {
+      {
+        this.smsProviderForm.patchValue(
+          {
+            name: this.smsProviderModel.name,
+            name2: this.smsProviderModel.name2,
+            providerAPI: this.smsProviderModel.api,
+            username: this.smsProviderModel.username,
+            password: this.smsProviderModel.password,
+            status: this.smsProviderModel.status.toString(),
+            unicode: this.smsProviderModel.unicode
+          }
+        )
+      }
+    }
+  }
+
+  setSmsProviderModelValues() {
+    this.smsProviderModel.name = this.smsProviderForm.value.name;
+    this.smsProviderModel.name2 = this.smsProviderForm.value.name2;
+    this.smsProviderModel.api = this.smsProviderForm.value.providerAPI;
+    this.smsProviderModel.username = this.smsProviderForm.value.username;
+    this.smsProviderModel.password = this.smsProviderForm.value.password;
+    this.smsProviderModel.status = this.smsProviderForm.value.status;
+    this.smsProviderModel.unicode = this.smsProviderForm.value.unicode ? 1 : 0;
+  }
+
+  onSmsProviderSave() {
+    this.setSmsProviderModelValues();
+    this.smsProviderModel.companyId = this.companyId;
+    this.smsProviderModel.systemId = this.systemId;
+
+    if (this.smsProviderModel.id > 0) {
+      this.smsProviderModel.modificationUser = 'ADMIN';
+      this.smsProviderModel.modificationDate = new Date();
+      this.smsProviderService.putSmsProvider(this.smsProviderModel).subscribe(
+        data => {
+          this.smsProviderModel = data.data;
+          this.setSmsProviderFormValues();
+          this.showSaveUpdateSMS = true;
+          this.cs.addMessage("success", 'Success Message', "SMS Provider Configuration has been updated successfully.");
+        }
+      );
+    }
+    else {
+      this.smsProviderModel.creationUser = 'ADMIN';
+      this.smsProviderModel.creationDate = new Date();
+      this.smsProviderService.postSmsProvider(this.smsProviderModel).subscribe(
+        data => {
+          this.smsProviderModel = data.data;
+          this.setSmsProviderFormValues();
+          this.showSaveUpdateSMS = true;
+          this.cs.addMessage("success", 'Success Message', "SMS Provider Configuration has been added successfully.");
+        }
+      );
+    }
+  }
+}
+
+
+
+
+
+8-Notification-formatter 
+
+A-Notification-formatter.html
+
+<p-toast [style]="{marginTop: '80'}"></p-toast>
+
+<div class="col-md-12">
+  <form [formGroup]="templateForm">
+    <h5 class="wizard-header" *ngIf="templateType == TemplateType.Email">
+      Customer Registration - Email Message
+    </h5>
+    <h5 class="wizard-header" *ngIf="templateType == TemplateType.SMS">Customer Registration - SMS Message </h5>
+
+    <div class="row form-row">
+      <div class="form-group col-md-12">
+        <label class="col-xs-2 wizard-label">From</label>
+        <div class="col-xs-10">
+          <input pInputText pKeyFilter="email" required="required" type="text" class="form-control wizard-control"
+                 formControlName="from" />
+        </div>
+      </div>
+      <div class="form-group col-md-6">
+        <label class="col-xs-4 wizard-label">Recipients</label>
+        <div class="col-xs-8">
+          <button class="btn btn-primary btn-sm fa fa-users" (click)="showContactsDialog()"> Select Recipients</button>
+        </div>
+      </div>
+      <div class="form-group col-md-6">
+        <label class="col-xs-3 wizard-label">Language</label>
+        <div class="col-xs-9">
+          <p-radioButton class="radioButton" name="language" value="1" label="English" formControlName="language"></p-radioButton>
+          <p-radioButton class="radioButton" name="language" value="2" label="Arabic" formControlName="language"></p-radioButton>
+        </div>
+      </div>
+    </div>
+    <div class="row form-row" *ngIf="showBody1">
+      <div class="form-group col-md-12">
+        <label class="col-xs-2 wizard-label">Subject </label>
+        <div class="col-xs-10">
+          <input pInputText type="text" class="form-control wizard-control" formControlName="subject1" required="required" />
+        </div>
+      </div>
+    </div>
+    <div class="row form-row" *ngIf="showBody1 && templateType == TemplateType.Email">
+      <div class="form-group col-md-12">
+        <div class="col-xs-12">
+          <p-editor formControlName="emailBody1" [style]="{'height':'100px'}"></p-editor>
+        </div>
+      </div>
+    </div>
+    <div class="row form-row" *ngIf="showBody1 && templateType == TemplateType.SMS">
+      <div class="form-group col-md-12">
+        <div class="col-xs-10 pull-right">
+          <textarea formControlName="smsBody1" [rows]="5" [style]="{'width':'100%'}"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="row form-row" *ngIf="!showBody1">
+      <div class="form-group col-md-12">
+        <label class="col-xs-2 wizard-label">Subject 2 </label>
+        <div class="col-xs-10">
+          <input pInputText type="text" class="form-control wizard-control" formControlName="subject2" />
+        </div>
+      </div>
+    </div>
+    <div class="row form-row" *ngIf="!showBody1 && templateType == TemplateType.Email">
+      <div class="form-group col-md-12">
+        <div class="col-xs-12">
+          <p-editor formControlName="emailBody2" [style]="{'height':'100px'}"></p-editor>
+        </div>
+      </div>
+    </div>
+    <div class="row form-row" *ngIf="!showBody1 && templateType == TemplateType.SMS">
+      <div class="form-group col-md-12">
+        <div class="col-xs-10 pull-right">
+          <textarea formControlName="smsBody2" [rows]="5" [style]="{'width':'100%'}"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-12">
+      <div class="form-group pull-right">
+        <p-splitButton label="{{showSaveUpdate === false ? 'Save' : 'Update'}}" [model]="templateEvents" [disabled]="notificationId === 0 || !templateForm.valid"
+                       (onClick)="onSave()">
+        </p-splitButton>
+      </div>
+    </div>
+    <div class="float-right " style="margin-bottom:10px">
+      <button type="button" class="btn btn-primary" (click)="showDialog()" [disabled]="disaableAttachment">Attachments</button>
+    </div>
+  </form>
+</div>
+<p-dialog header="Attachments Information" styleClass="ui-dialog-preview" [(visible)]="showAttachmentsDialog" [responsive]="true" showEffect="fade"
+          [modal]="true"><shc-notification-attachments></shc-notification-attachments></p-dialog>
+
+<form [formGroup]="notificationContactsForm">
+  <p-dialog header="{{dialogHeader}}" [(visible)]="displayDialog" [responsive]="false" showEffect="fade" [modal]="true">
+    <div class="dialog">
+      <div class="row form-row">
+        <div class="form-group col-md-6">
+          <label>Name Filter</label>
+          <input pInputText type="text" placeholder="Please fill a user or a group name to filter data" class="form-control wizard-control"
+                 formControlName="search" (input)="filterContacts($event)" />
+        </div>
+        <div class="form-group col-md-6">
+          <label>Recipient Type </label>
+          <p-selectButton [style]="{'width': '100%'}" [options]="recipientTypes" formControlName="recipientTypes"></p-selectButton>
+        </div>
+      </div>
+
+      <div class="row form-row">
+        <div class="form-group col-md-12">
+          <shc-datatable2 [cols]="cols" [rows]="rows" [showCheckBox]="true" (selection)="selectedRows" [mouseHover]="true"
+                          dataKey="value" (OnCheckboxSelected)="OnCheckboxSelected($event)" selectionMode="multiple"></shc-datatable2>
+        </div>
+      </div>
+      <div class="row form-row">
+        <button class="col-xs-1 btn btn-primary btn-xs pull-left" type="button" pbutton (click)="fillContacts(1)">
+          To
+          ->
+        </button>
+        <div class="col-xs-11 form-group">
+          <p-chips formControlName="toContacts" required="required">
+            <ng-template let-item pTemplate="item">
+              <span class="{{item.icon}}">{{ item.label }}</span>
+            </ng-template>
+          </p-chips>
+        </div>
+      </div>
+      <div class="row form-row" *ngIf="templateType == TemplateType.Email">
+        <button class="col-xs-1 btn btn-primary btn-xs pull-left" type="button" pbutton (click)="fillContacts(2)">
+          CC
+          ->
+        </button>
+        <div class="col-xs-11 form-group">
+          <p-chips formControlName="ccContacts">
+            <ng-template let-item pTemplate="item">
+              <span class="{{item.icon}}">{{ item.label }}</span>
+            </ng-template>
+          </p-chips>
+        </div>
+      </div>
+      <div class="row form-row" *ngIf="templateType == TemplateType.Email">
+        <button class="col-xs-1 btn btn-primary btn-xs pull-left" type="button" pbutton (click)="fillContacts(3)">
+          BCC
+          ->
+        </button>
+        <div class="col-xs-11 form-group">
+          <p-chips formControlName="bccContacts">
+            <ng-template let-item pTemplate="item">
+              <span class="{{item.icon}}">{{ item.label }}</span>
+            </ng-template>
+          </p-chips>
+        </div>
+      </div>
+    </div>
+    <p-footer>
+      <div class="row form-row">
+        <div class="col-md-12 ">
+          <button type="button" class="btn btn-primary btn-xs pull-right" pbutton (click)="onSaveContacts()">
+            Save
+          </button>
+        </div>
+      </div>
+    </p-footer>
+  </p-dialog>
+</form>
+
+
+B-Notification-formatter.css
+
+.wizard-header{
+  font-weight: bold;
+  color: black;
+  border-bottom: 1px solid #d0c0c0;
+  padding-bottom: 10px;
+  margin-bottom: 25px;
+}
+
+.wizard-label {
+  margin-top: 6px;
+  display: inherit;
+  font-size: 12px;
+  font-weight: normal;
+  font-family: Arial, Helvetica, sans-serif;
+  color: black
+}
+
+.wizard-control {
+  width: 100% !important;
+  height: 28px;
+}
+
+.form-group{
+  margin-bottom: 10px !important;
+}
+
+.form-control-ng .ui-multiselect .ui-multiselect-label{
+  height: 28px !important;
+  border-radius: 4px;
+}
+
+.dialog{
+  width : 610px
+}
+
+.radioButton{
+  padding-right: 14px;
+}
+
+li.ui-chips-token.ui-state-highlight.ui-corner-all.ng-star-inserted {
+  padding-right: 18px;
+}
+
+.group-item{
+  padding-right: 10px;
+}
+
+.ui-button.ui-widget.ui-state-default.ui-button-text-only.ng-star-inserted {
+  padding: 2px 15px;
+}
+
+.ui-splitbutton .ui-button.ui-splitbutton-menubutton {
+  vertical-align: unset;
+}
+
+.ui-button.ui-widget.ui-state-default.ui-button-text-only.ng-star-inserted{
+  background-color: #b5b5b5 !important;
+  border: 1px solid  #b5b5b5 !important;
+  color: white;
+  margin: 1px 0px;
+  padding: 2px 1px;
+}
+
+.ui-button.ui-widget.ui-state-default.ui-button-text-only.ng-star-inserted:hover,
+.ui-button.ui-widget.ui-state-default.ui-button-text-only.ng-star-inserted.ui-state-active,
+.ui-button.ui-widget.ui-state-default.ui-button-text-only.ng-star-inserted.ui-state-focus
+ {
+  background-color: #2596E6 !important;
+}
+
+textarea {
+  width: 100%
+}
+
+C-Notification-formatter.ts
+
+import { Component, OnInit, ViewEncapsulation, ViewChild } from '@angular/core';
+import { FormGroup, FormBuilder } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { SelectItem, MenuItem } from 'primeng/api';
+import { CoreService } from 'src/app/core/services/Core.service';
+import { ContactType, SstNotificationsTemplates, TemplateType, SstNotificationsContacts, RecipientType } from '../models/models';
+import { NotificationTemplatesService } from '../services/notification-templates.service';
+import { CommonService } from 'src/app/shared/services/common.service';
+import { SharedSetupService } from 'src/app/shared/services/shared-setup.service';
+
+@Component({
+  selector: 'shc-notification-formatter',
+  templateUrl: './notification-formatter.component.html',
+  styleUrls: ['./notification-formatter.component.css'],
+  encapsulation: ViewEncapsulation.None
+})
+export class NotificationFormatterComponent implements OnInit {
+
+  templateForm: FormGroup;
+  notificationContactsForm: FormGroup;
+  model: SstNotificationsTemplates = new SstNotificationsTemplates();
+  toContactsModel: SstNotificationsContacts[] = [];
+  ccContactsModel: SstNotificationsContacts[] = [];
+  bccContactsModel: SstNotificationsContacts[] = [];
+  sstNotificationsContacts: SstNotificationsContacts[] = [];
+
+  disaableAttachment: boolean = true;
+  showAttachmentsDialog: boolean = false;
+
+  templateType: number = TemplateType.Email;
+  notificationId: number = 0;
+
+  recipientTypes: SelectItem[] = [
+    { label: 'User', value: '1', icon: 'fa fa-user' },
+    { label: 'Group', value: '2', icon: 'fa fa-users' },
+    { label: 'Both', value: '3' }
+  ];
+
+  dtContacts: SelectItem[] = [];
+  toContacts: SelectItem[] = [];
+  ccContacts: SelectItem[] = [];
+  bccContacts: SelectItem[] = [];
+  contacts: SelectItem[] = [];
+  templateEvents: MenuItem[] = [
+    {
+      label: 'Cancel', command: () => {
+        this.resetTemplateForm();
+        this.resetContactsForm();
+      }
+    }
+  ];
+
+  cols: any[] = [
+    { header: 'value', field: 'value', hidden: true },
+    { header: 'Name', field: 'label' }
+  ];
+  rows: SelectItem[] = [];
+
+  selectedRows: SelectItem[] = [];
+  displayDialog: boolean = false;
+  dialogHeader: string = "";
+  showSaveUpdate: boolean = false;
+  showBody1: boolean = true;
+  private companyId = 1;
+
+  get TemplateType() { return TemplateType; }
+
+  constructor(private form: FormBuilder, private activatedRoute: ActivatedRoute, private coreService: CoreService, private sharedSetupService: SharedSetupService,
+    private cs: CommonService, private notificationTemplatesService: NotificationTemplatesService) { }
+
+  ngOnInit() {
+    let templateType: string = this.activatedRoute.snapshot.queryParamMap.get('templateType');
+    if (templateType == null)
+      this.templateType = TemplateType.Email;
+    else
+      this.templateType = parseInt(templateType);
+
+
+    let notificationId: string = this.activatedRoute.snapshot.queryParamMap.get('notificationId');
+    if (notificationId != null)
+      this.notificationId = parseInt(notificationId);
+
+    this.initTemplateForm();
+    this.initContactsForm();
+    this.getAllContacts();
+
+    if (this.notificationId > 0) {
+      this.getTemplates();
+      this.disaableAttachment = false;
+    };
+  }
+
+  showDialog() {
+    this.showAttachmentsDialog = !this.showAttachmentsDialog;
+  }		
+
+  initTemplateForm() {
+    this.templateForm = this.form.group(
+      {
+        from: [''],
+        language: [1],
+        subject1: [''],
+        emailBody1: [''],
+        smsBody1: [''],
+        subject2: [''],
+        emailBody2: [''],
+        smsBody2: ['']
+      });
+  }
+
+  initContactsForm() {
+    this.notificationContactsForm = this.form.group(
+      {
+        recipientTypes: ['1'],
+        search: [''],
+        toContacts: [null],
+        ccContacts: [null],
+        bccContacts: [null]
+      }
+    );
+    this.getUsers();
+    this.bindEvents();
+
+    if (this.templateType == TemplateType.Email)
+      this.dialogHeader = "Email Recipients Selection";
+    else
+      this.dialogHeader = "SMS Recipients Selection";
+  }
+
+  bindEvents() {
+    this.templateForm.controls.language.valueChanges.subscribe(
+      lang => {
+        if (lang == 1)
+          this.showBody1 = true;
+        else if (lang == 2)
+          this.showBody1 = false;
+      }
+    );
+
+    this.notificationContactsForm.controls.recipientTypes.valueChanges.subscribe(
+      recipientType => {
+        if (recipientType == "1") {
+          this.getUsers();
+        }
+        else if (recipientType == "2") {
+          this.getGroups();
+        }
+        else if (recipientType == "3") {
+          this.getUsersAndGroups();
+        }
+
+        this.notificationContactsForm.patchValue(
+          {
+            search: ['']
+          }
+        );
+      }
+    );
+
+    this.notificationContactsForm.controls.toContacts.valueChanges.subscribe(
+      result => {
+        this.toContacts = this.notificationContactsForm.controls.toContacts.value;
+      }
+    );
+
+    this.notificationContactsForm.controls.ccContacts.valueChanges.subscribe(
+      result => {
+        this.ccContacts = this.notificationContactsForm.controls.ccContacts.value;
+      }
+    );
+
+    this.notificationContactsForm.controls.bccContacts.valueChanges.subscribe(
+      result => {
+        this.bccContacts = this.notificationContactsForm.controls.bccContacts.value;
+      }
+    );
+  }
+
+  getTemplates(){
+    this.notificationTemplatesService.get(this.notificationId, this.templateType).subscribe(
+      data => {
+        console.log(data.data);
+        if (data.data.length > 0) {
+        this.model = data.data[0];
+          this.setTemplateFormValues();
+          this.setContactsFormValues();
+          this.showSaveUpdate = true;
+        }
+      }
+    )
+  }
+
+  showContactsDialog() {
+    this.displayDialog = true;
+  }
+
+  OnCheckboxSelected(selectedRows: SelectItem[]) {
+    this.selectedRows = selectedRows;
+  }
+
+  groups: any[] = [];
+
+  users: any[] = [];
+
+  getGroups() {
+    this.coreService.getAllgroupsByCompanyID(this.companyId).subscribe(
+      data => {
+        this.dtContacts = [];
+        data.map(group => this.dtContacts.push(
+          {
+            label: group.nAME,
+            value: group.iD,
+            icon: RecipientType.group
+          })
+        );
+        this.rows = this.dtContacts;
+      }
+    )
+  }
+
+  getUsers() {
+    this.coreService.getAllusersByCompanyID(this.companyId).subscribe(
+      data => {
+        this.dtContacts = [];
+        data.map(user => this.dtContacts.push(
+          {
+            label: user.username,
+            value: user.username,
+            icon: RecipientType.user
+          })
+        );
+        this.rows = this.dtContacts;
+      }
+    )
+  }
+
+  getUsersAndGroups() {
+    this.coreService.getAllusersByCompanyID(this.companyId).subscribe(
+      data => {
+        let userContacts: SelectItem[] = [];
+        data.map(user => userContacts.push(
+          {
+            label: user.username,
+            value: user.username,
+            icon: RecipientType.user
+          })
+        );
+        this.coreService.getAllgroupsByCompanyID(this.companyId).subscribe(
+          data => {
+            let groupContacts: SelectItem[] = [];
+            data.map(group => groupContacts.push(
+              {
+                label: group.nAME,
+                value: group.iD,
+                icon: RecipientType.group
+              })
+            );
+            this.dtContacts = userContacts.concat(groupContacts);
+            this.rows = this.dtContacts;
+          });
+      });
+  }
+
+  getAllContacts() {
+    this.coreService.getAllusersByCompanyID(this.companyId).subscribe(
+      data => {
+        let userContacts: SelectItem[] = [];
+        data.map(user => userContacts.push(
+          {
+            label: user.username,
+            value: user.username,
+            icon: RecipientType.user
+          })
+        );
+        this.coreService.getAllgroupsByCompanyID(this.companyId).subscribe(
+          data => {
+            let groupContacts: SelectItem[] = [];
+            data.map(group => groupContacts.push(
+              {
+                label: group.nAME,
+                value: group.iD,
+                icon: RecipientType.group
+              })
+            );
+            this.contacts = userContacts.concat(groupContacts);
+          });
+      });
+  }
+
+  filterContacts(event:any) {
+    let query = this.notificationContactsForm.controls.search.value;
+    let filterdContacts: any[] = [];
+    for (let i = 0; i < this.dtContacts.length; i++) {
+      let contact = this.dtContacts[i];
+      if (contact.label.toLowerCase().includes(query.toLowerCase())) {
+        filterdContacts.push(contact);
+      }
+    }
+    this.rows = filterdContacts;
+  }
+
+  fillContacts(contactType: number) {
+    if (contactType == ContactType.To) {
+      this.selectedRows.forEach(
+        contact => {
+          if (!this.isExist(this.toContacts, contact))
+            this.toContacts.push(contact)
+        }
+      );
+      this.notificationContactsForm.patchValue({
+        toContacts: this.toContacts
+      });
+    }
+    else if (contactType == ContactType.CC) {
+      this.selectedRows.forEach(
+        contact => {
+          if (!this.isExist(this.ccContacts, contact))
+            this.ccContacts.push(contact)
+        }
+      );
+      this.notificationContactsForm.patchValue({
+        ccContacts: this.ccContacts
+      });
+    }
+    else if (contactType == ContactType.BCC) {
+      this.selectedRows.forEach(
+        contact => {
+          if (!this.isExist(this.bccContacts, contact))
+            this.bccContacts.push(contact)
+        }
+      );
+      this.notificationContactsForm.patchValue({
+        bccContacts: this.bccContacts
+      });
+    }
+  }
+
+  isExist(array: SelectItem[], item: SelectItem): boolean {
+    let list = array.filter(i => i.value === item.value);
+    if (list.length > 0)
+      return true;
+    else
+      return false;
+  }
+
+  resetTemplateForm() {
+    this.initTemplateForm();
+  }
+
+  resetContactsForm() {
+    this.displayDialog = false;
+    this.toContacts = [];
+    this.ccContacts = [];
+    this.bccContacts = [];
+    this.initContactsForm();
+  }
+
+  onSaveContacts() {
+    this.displayDialog = false;
+  }
+
+  onSave() {
+    this.setContactsModelValues();
+    this.setModelValues();
+    if (this.notificationId > 0) {
+      if (this.notificationContactsForm.controls.toContacts.value != null && this.notificationContactsForm.controls.toContacts.value.length > 0) {
+        if (this.model.id > 0) {
+          this.notificationTemplatesService.put(this.model).subscribe(
+            data => {
+              this.model = data.data;
+              this.setTemplateFormValues();
+              this.setContactsFormValues();
+              this.showSaveUpdate = true;
+              this.cs.addMessage("success", 'Success Message', "Customer Registration has been updated successfully.");
+            }
+          );
+        }
+        else {
+          this.notificationTemplatesService.post(this.model).subscribe(
+            data => {
+              this.model = data.data;
+              this.setTemplateFormValues();
+              this.setContactsFormValues();
+              this.showSaveUpdate = true;
+              this.cs.addMessage("success", 'Success Message', "Customer Registration has been added successfully.");
+            }
+          );
+        }
+      }
+      else {
+        this.cs.addMessage("error", 'Error Message', "No contacts are selected.");
+      }
+    }
+    else {
+      this.cs.addMessage("warn", "Warn Message", "No notifications are selected.");
+    }
+  }
+
+  setTemplateFormValues() {
+    if (this.model != undefined) {
+      this.templateForm.patchValue({
+          from: this.model.from,
+          subject1: this.model.subject,
+          subject2: this.model.subject2
+        });
+
+      if (this.templateType == TemplateType.Email) 
+        this.templateForm.patchValue({
+            emailBody1: this.decodeText(this.model.body),
+            emailBody2: this.decodeText(this.model.body2)
+          });      
+      else 
+        this.templateForm.patchValue({
+            smsBody1: this.decodeText(this.model.body),
+            smsBody2: this.decodeText(this.model.body2)
+          });
+    }
+  }
+
+  setContactsFormValues() {
+    if (this.model != undefined) {
+      {
+        this.mapperToItems(this.model.sstNotificationsContacts);
+        if (this.templateType == TemplateType.Email)
+          this.notificationContactsForm.patchValue({
+            toContacts: this.toContacts,
+            ccContacts: this.ccContacts,
+            bccContacts: this.bccContacts
+          });
+        else
+          this.notificationContactsForm.patchValue({
+            toContacts: this.toContacts
+          });
+      }
+    }
+  }
+
+  setModelValues() {
+    this.model.from = this.templateForm.value.from;
+    this.model.subject = this.templateForm.value.subject1;
+    this.model.subject2 = this.templateForm.value.subject2;
+
+    if (this.templateType == TemplateType.Email) {
+      this.model.body = this.encodeText(this.templateForm.value.emailBody1);
+      this.model.body2 = this.encodeText(this.templateForm.value.emailBody2);
+      this.model.type = TemplateType.Email;
+    }
+    else {
+      this.model.body = this.encodeText(this.templateForm.value.smsBody1);
+      this.model.body2 = this.encodeText(this.templateForm.value.smsBody2);
+      this.model.type = TemplateType.SMS;
+    }
+
+    this.model.sstNotificationsContacts = this.sstNotificationsContacts;
+
+    if (this.model.id > 0) {
+      this.model.modificationUser = 'ADMIN';
+      this.model.modificationDate = new Date();
+    }
+    else {
+      this.model.notificationId = this.notificationId.toString();
+      this.model.creationUser = 'ADMIN';
+      this.model.creationDate = new Date();
+    }
+  }
+
+  encodeText(text: string): number[] {
+    let arr: number[] = [];  
+    new TextEncoder().encode(text).forEach( //encode to Uint8Array
+      char => {
+        arr.push(char)
+      }
+    );
+    return arr;
+  }
+
+  decodeText(value): string {
+    let text: string = atob(value); // decoding string
+    return text;
+  }
+
+  setContactsModelValues() {
+    if (this.notificationContactsForm.controls.toContacts.value != null) {
+      this.toContactsModel = this.mapperToContacts(this.notificationContactsForm.controls.toContacts.value, ContactType.To);
+    }
+
+    if (this.notificationContactsForm.controls.ccContacts.value != null) {
+      this.ccContactsModel = this.mapperToContacts(this.notificationContactsForm.controls.ccContacts.value, ContactType.CC);
+    }
+
+    if (this.notificationContactsForm.controls.bccContacts.value != null) {
+      this.bccContactsModel = this.mapperToContacts(this.notificationContactsForm.controls.bccContacts.value, ContactType.BCC);
+    }
+
+    this.sstNotificationsContacts = this.toContactsModel.concat(this.ccContactsModel, this.bccContactsModel);
+  }
+
+  mapperToContacts(arrSelectItem: SelectItem[], contactType: number) {
+    let contact: SstNotificationsContacts = new SstNotificationsContacts();
+    let arrNotificationContacts: SstNotificationsContacts[] = [];
+    arrSelectItem.forEach(
+      item => {
+        contact.type = contactType; // 1.Email 2.SMS
+        contact.groupId = item.icon === RecipientType.group ? item.value : null;
+        contact.username = item.icon === RecipientType.user ? item.value : null;
+        contact.creationUser = "Admin";
+        contact.creationDate = new Date();
+
+        arrNotificationContacts.push(contact);
+      });
+    return arrNotificationContacts;
+  }
+
+  mapperToItems(arrNotificationContacts: SstNotificationsContacts[]) {
+    this.toContacts = [];
+    this.ccContacts = [];
+    this.bccContacts = [];
+    arrNotificationContacts.forEach(
+      contact => {
+        if (contact.type == ContactType.To)
+          this.toContacts.push(this.mappContact(contact));
+        else if (contact.type == ContactType.CC && this.templateType == TemplateType.Email)
+          this.ccContacts.push(this.mappContact(contact));
+        else if (contact.type == ContactType.BCC && this.templateType == TemplateType.Email)
+          this.bccContacts.push(this.mappContact(contact));
+      }
+    );
+  }
+
+  mappContact(contact: SstNotificationsContacts) { // Group Or User
+    if (contact.groupId != null)
+      var c = this.contacts.filter(c => c.value == contact.groupId)[0];
+    else
+      var c = this.contacts.filter(c => c.value == contact.username)[0];
+    return c;
+  }
+}
+
+
+9-Notification Setup
+
+A-Notification-Setup.html 
+
+<p-toast [style]="{marginTop: '80'}"></p-toast>
+<div class="row form-row">
+    <div class="form-group col-md-12">
+        <div class="dashed-border">
+            <p> Click here to define a new notification.</p>
+            <button class="btn btn-primary btn-xs pull-right" type="button" pbutton (click)="showNotificationEntry()">
+                <span> + Notification </span>
+            </button>
+        </div>
+        <form [formGroup]="notificationEntry">
+            <p-dialog header="Notification Entry" [(visible)]="displayDialog" [responsive]="false" showEffect="fade"
+                [modal]="true">
+                <div class="dialog">
+                    <div class="row form-row">
+                        <div class="form-group col-md-6">
+                            <label class="wizard-label">Title </label>
+                            <input pInputText type="text" class="form-control wizard-control" formControlName="name" required="required" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label class="wizard-label"> Title 2</label>
+                            <input pInputText type="text" class="form-control wizard-control" formControlName="name2" />
+                        </div>
+                    </div>
+                    <div class="row form-row">
+                        <div class="form-group col-md-12">
+                            <label class="wizard-label">Status</label>
+                            <p-dropdown class="form-control-ng wizard-control" [options]="statusOptions"
+                                formControlName="status" required="required"></p-dropdown>
+                        </div>
+                    </div>
+                    <div class="row form-row">
+                        <div class="form-group col-md-12">
+                            <label class="wizard-label">Description </label>
+                            <textarea pInputTextarea formControlName="notes" class="form-control wizard-control" rows="3"
+                            required="required"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <p-footer>
+                    <div class="row form-row">
+                        <div class="col-md-12 ">
+                            <button class="btn btn-primary btn-xs pull-right" type="button" pbutton (click)="saveNotification()" [disabled]="!notificationEntry.valid">
+                                {{showSaveUpdate === false ? 'Save' : 'Update'}}
+                            </button>
+                        </div>
+                    </div>
+                </p-footer>
+            </p-dialog>
+        </form>
+
+        <div class="col-md-12" *ngFor="let notification of sstNotifications">
+            <div class="element">
+                <div class="vertical-align">
+                    <div class="col-md-9" (click)="showNotificationEntry(notification)">
+                        <h4>{{ notification.name }} </h4>
+                        <p> {{ notification.notes }} </p>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary btn-sm pull-left" type="button" pbutton (click)="navigate(1, notification)">Email</button> <!--1. Email-->
+                        <button class="btn btn-primary btn-sm pull-right" type="button" pbutton (click)="navigate(2, notification)">SMS</button><!--2. SMS-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+B-Notification-Setup.css
+
+.wizard-label {
+  margin-top: 6px;
+  display: inherit;
+  font-size: 12px;
+  font-weight: normal;
+  font-family: Arial, Helvetica, sans-serif;
+  color: black
+}
+
+.wizard-control {
+  width: 100% !important;
+  height: 28px;
+}
+
+.form-group{
+  margin-bottom: 10px !important;
+}
+
+.form-control-ng .ui-state-default.ui-dropdown .ui-dropdown-label {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form-control-ng .ui-dropdown .ui-dropdown-trigger {
+  border: 1px solid #ccc;
+  border-radius: 0px 4px 4px 0px;
+  padding: 3px;
+}
+
+.dashed-border{
+      border: 1px dashed gray;
+      padding: 10px 0px 0px 8px;
+      margin: 20px;
+  }
+
+  .dashed-border .btn-primary{
+    margin: -30px 8px 0px 0px;
+}
+
+.dialog{
+  width : 610px
+}
+
+.element {
+  border-bottom: 1px solid #d0c0c0;
+  min-height: 95px;
+  width: 100%;
+}
+.vertical-align {
+  position: relative;
+  top: 5px;
+}
+
+
+C-Notification Setup.ts
+
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { NotificationService } from '../services/notification.service';
+import { SstNotifications, DomainId } from '../models/models';
+import { SelectItem } from 'primeng/api';
+import { SharedSetupService } from 'src/app/shared/services/shared-setup.service';
+import { CommonService } from 'src/app/shared/services/common.service';
+
+@Component({
+  selector: 'shc-notification-setup',
+  templateUrl: './notification-setup.component.html',
+  styleUrls: ['./notification-setup.component.css'],
+  encapsulation: ViewEncapsulation.None
+})
+export class NotificationSetupComponent implements OnInit {
+
+  constructor(private form: FormBuilder, private notificationService: NotificationService,
+    private router: Router, private sharedSetupService: SharedSetupService, private cs: CommonService) {
+  }
+
+  notificationEntry: FormGroup;
+  model: SstNotifications = new SstNotifications();
+  sstNotifications: SstNotifications[] = [];
+  statusOptions: SelectItem[] = [];
+
+  displayDialog: boolean = false;
+  showSaveUpdate: boolean = false;
+
+  private companyId = 1;
+  private systemId = 28;
+
+
+  ngOnInit() {
+    this.initForm();
+    this.statusOptions = this.sharedSetupService.getDomainValues(DomainId.Status, this.systemId, this.companyId);
+    this.loadNotifications();
+  }
+
+  initForm() {
+    this.notificationEntry = this.form.group(
+      {
+        name: ['', Validators.required],
+        name2: [''],
+        status: [''],
+        notes: ['']
+      }
+    )
+  }
+
+  showNotificationEntry(notification?: SstNotifications) {
+    this.displayDialog = true;
+    if (notification != undefined) {
+      this.model = notification;
+      this.setFormValues();
+      this.showSaveUpdate = true;
+    }
+    else {
+      this.initForm();
+      this.showSaveUpdate = false;
+    }
+  }
+
+  setModelValues() {
+    this.model.name = this.notificationEntry.value.name;
+    this.model.name2 = this.notificationEntry.value.name2;
+    this.model.status = this.notificationEntry.value.status;
+    this.model.notes = this.notificationEntry.value.notes;
+  }
+
+  setFormValues() {
+    this.notificationEntry.patchValue(
+      {
+        name: this.model.name,
+        name2: this.model.name2,
+        status: this.model.status.toString(),
+        notes: this.model.notes
+      }
+    )
+  }
+
+  saveNotification() {
+    this.setModelValues();
+    this.model.companyId = this.companyId;
+    this.model.systemId = this.systemId;
+
+    if (this.model.id > 0) {
+      this.model.modificationUser = 'ADMIN';
+      this.model.modificationDate = new Date();
+      this.notificationService.put(this.model).subscribe(
+        data => {
+          this.model = data.data;
+          this.setFormValues();
+          this.showSaveUpdate = true;
+          this.displayDialog = false;
+          this.loadNotifications();
+          this.cs.addMessage("success", 'Success Message', "Notification has been updated successfully.");
+        }
+      );
+    }
+    else {
+      this.model.creationUser = 'ADMIN';
+      this.model.creationDate = new Date();
+      this.notificationService.post(this.model).subscribe(
+        data => {
+          this.model = data.data;
+          this.setFormValues();
+          this.showSaveUpdate = true;
+          this.displayDialog = false;
+          this.loadNotifications();
+          this.cs.addMessage("success", 'Success Message', "Notification has been added successfully.");
+        }
+      );
+    }
+  }
+
+  loadNotifications() {
+    this.notificationService.getAll().subscribe(
+      data => {
+        this.sstNotifications = data.data
+      }
+    );
+  }
+
+  navigate(param, notification: SstNotifications) {   
+    this.router.navigate(['/process-builder/notification/notificationFormatter'],
+     {queryParams:  { templateType: param, notificationId: notification.id.toString()}}
+    );
+  }
+}
+
+
+
+
+
+10-Process Definition 
+
+ A-Process-definition.html 
+
+<div class="card">
+  <div class="card-header">
+    <h3>Business Process Builder</h3>
+
+    <h5>Define your business processes in order to design their inputs, events / triggers and intended actions</h5>
+    <div class="form-group">
+      <form [formGroup]="processSearch">
+        <div class="row">
+          <div class="form-group col-md-9">
+            <p-chips [(ngModel)]="SearchBlock" formControlName="searchNames">
+              <ng-template let-item pTemaplte="item">
+                {{item}} - (active)<i class="fa fa-user" style="margin-left:2em"></i>
+              </ng-template>
+            </p-chips>
+          </div>
+          <div class="form-group col-md-2 search-bar">
+
+            <p-multiSelect [options]="SearchOptions" class="prime-form-control" formControlName="filterOptions" (onChange)="OnSearchChange($event)">
+            </p-multiSelect>
+          </div>
+          <div class="form-group col-md-1">
+            <button pButton type="button" label="Search" class="ui-button-raised " (click)="Search()"></button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="card-body">
+    <p-accordion class="ui-state-active">
+      <p-accordionTab header="Business Processes" [selected]="true">
+        <div class="row accordion-process ">
+          <div class="col-md-3">
+            <div class="square">
+              <br />
+              <br />
+              <br />
+              <br />
+              <h6>Click here to define your processes..</h6>
+              <br />
+              <button pButton type="button" label="+ Process" class="ui-button-raised" (click)="AddProcess()"></button>
+            </div>
+          </div>
+          <div class="col-md-3" *ngFor="let proc of shapes">
+            <shc-process-shape (shapesRefrechFromChild)="onUpdateDelete($event)" [data]="proc"></shc-process-shape>
+          </div>
+          <br />
+        </div>
+      </p-accordionTab>
+
+    </p-accordion>
+    <p-dialog header="Update your process" Class="ui-dialog-preview" [responsive]="true" [(visible)]="display" showEffect="fade" [modal]="true">
+      <div class="panel panel-default no-margin-bottom">
+        <div class="form-group">
+          <form [formGroup]="processEntry">
+            <div class="row">
+              <input type="hidden" formControlName="Id" />
+              <div class="col-md-4 form-group">
+                <label for="float-input" Editable="">Process Name</label>
+                <input type="text" pInputText formControlName="Name" class="ui-inputtext ui-corner-all  form-control">
+              </div>
+              <div class="col-md-4 form-group">
+                <label for="float-input" Editable="">Process Name 2</label>
+
+                <input type="text" pInputText formControlName="Name2" class="ui-inputtext ui-corner-all form-control">
+
+              </div>
+              <div class="col-md-4 form-group">
+                <label for="float-input" Editable="">Systems</label>
+                <p-multiSelect [options]="InsuranceSystem" [panelStyle]="{minWidth:'12em'}" formControlName="SstProcessesSystems" (onChange)="OnChange($event)">
+
+                </p-multiSelect>
+              </div>
+            </div>
+            <div class="row">
+
+              <div class="col-md-12 form-group">
+                <div class="prime-form-control">
+                  <label for="float-input" Editable="">Description:</label>
+                  <textarea pInputTextarea formControlName="Notes"
+                            class="ui-inputtext ui-corner-all  form-control" rows="3"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4 form-group">
+                <button pButton type="button" label="Save" class="ui-button-raised" (click)="SaveProcess()"></button>
+
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </p-dialog>
+  </div>
+</div>
+
+    <p-toast [style]="{marginTop: '80px'}" styleClass="custom-ng" position="top-right" [showTransitionOptions]="'0ms'"
+             [hideTransitionOptions]="'0ms'" sticky="'true'"></p-toast>
+
+
+
+ B-Process-definition.ts
+
+
+
+
+   import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+
+import { SstProcessService } from '../services/SstProcess.service';
+import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
+import { SelectItem } from 'primeng/api';
+import { Application } from 'src/app/shared/models/models';
+import { CommonService } from 'src/app/shared/services/common.service';
+import { SstProcessSystems, SstProcesses } from '../models/models';
+
+@Component({
+  selector: 'shc-process-definition',
+  templateUrl: './process-definition.component.html',
+  styleUrls: ['./process-definition.component.scss']
+})
+
+export class ProcessDefinitionComponent implements OnInit {
+
+
+  processEntry: FormGroup;
+  processSearch: FormGroup;
+
+  @Output() onChange: EventEmitter<any> = new EventEmitter();
+  item: SstProcessSystems = new SstProcessSystems();
+  model: SstProcesses = new SstProcesses();
+
+
+  blocked: boolean = false;
+  display: boolean = false;
+  loading: boolean = false;
+
+  shapes: SstProcesses[] = [];
+  selectedItems: SstProcessSystems[] = new Array<SstProcessSystems>();
+  selected: number[] = [];
+
+
+
+  SearchOptions: SelectItem[] =
+    [
+      { label: 'Name', value: 'Name' },
+      { label: 'Systems', value: 'SstProcessSystems' },
+      { label: 'Description', value: 'Notes'}
+    ]
+
+
+  InsuranceSystem: SelectItem[] = [
+    { label: 'General Insurance', value: Application.GeneralInsurance },
+    { label: 'Medical Insurance', value: Application.MedicalInsurance},
+    { label: 'Life Insurance', value: Application.LifeInsurance}
+
+  ];
+
+  SearchBlock: string[] = [];
+  filterdCols: string[] = [];
+
+
+  constructor(private processService: SstProcessService, private cs: CommonService, private fb: FormBuilder) { }
+
+  ngOnInit() {
+
+    this.GetAllProcesses();
+    this.CreateForm();
+  }
+
+
+  CreateForm() {
+    this.processSearch = this.fb.group({
+      searchNames: [''],
+      filterOptions: ['']
+    });
+
+    this.processEntry = this.fb.group({
+      Id: [0],
+      Name: [ ''],
+      Name2: [''],
+      Notes: [ '' ],
+      SstProcessesSystems: ['']
+    });
+  }
+
+  setModelValues() {
+
+    //this for process systems multiselect after select an item, it create a object
+    this.selected.forEach(item => {
+      const date: Date = new Date();
+      this.item = new SstProcessSystems();
+      this.item.id = 0;
+      this.item.processId = 0;
+      this.item.systemId = item;
+      this.item.creationUser = "Admin";
+      this.item.creationDate = date;
+      this.item.modificationUser = this.model.modificationUser;
+      this.item.modificationDate = this.model.modificationDate;
+
+      this.selectedItems.push(this.item);
+
+    });
+    // set model values
+    const formModel = this.processEntry.value;
+    this.model.id = 0;
+    this.model.name = formModel.Name;
+    this.model.name2 = formModel.Name2;
+    this.model.active = 1;
+    this.model.notes = formModel.Notes;
+
+    this.model.sstProcessSystems = this.selectedItems;
+
+  }
+
+  setFormValues() {
+    // set form values
+    this.processEntry.patchValue(
+      {
+        Id: this.model.id,
+        Name: this.model.name,
+        Name2: this.model.name2,
+        Notes: this.model.notes,
+        SstProcessesSystems: this.model.sstProcessSystems
+
+      });
+  }
+
+
+
+  AddProcess() {
+
+    this.setFormValues();
+    this.display = true;   
+  }
+
+
+  SaveProcess() {
+
+    this.loading = true;
+    this.cs.showOrHideSpinner(this.loading);
+    this.setModelValues();
+    this.processService.Post(this.model).subscribe(data => {
+      this.GetAllProcesses();
+      this.onResetEntry();
+      this.display = false;
+      this.blocked = false;
+      this.loading = false;
+
+      this.cs.showOrHideSpinner(this.loading);
+      this.cs.addMessage("success", "Success", "Process Added Successfully");
+    },
+      err => {
+        this.display = false;
+        this.blocked = false;
+        this.loading = false;
+        this.cs.showOrHideSpinner(this.loading);
+        this.cs.pushError(err);
+
+      });
+
+    this.loading = false;
+    this.cs.showOrHideSpinner(this.loading);
+
+  }
+
+  Search()
+  {
+    this.processService.searchProcess(this.SearchBlock, this.filterdCols).subscribe(res => {
+      debugger;
+      this.shapes = res.data;
+    });
+
+  }
+
+  OnSearchChange(event)
+  {
+    debugger;
+    this.filterdCols = event.value;
+  }
+
+  OnChange(event) {
+    this.selected = event.value;
+  }
+
+  GetAllProcesses() {
+    this.processService.getAll().subscribe(res => {
+      debugger;
+      this.shapes = res.data
+    });
+  }
+
+
+  //reset entry form
+  onResetEntry() {
+    this.selectedItems = [];
+    this.selected = [];
+    this.SearchBlock = [];
+    this.model = new SstProcesses();
+    this.CreateForm();
+  }
+
+  //from child to perant ( after delete or update child this fun. will call to update parent component)
+  onUpdateDelete(event: SstProcesses[]) {
+    this.shapes = event;
+    this.GetAllProcesses();
+  }
+
+
+ 
+
+
+}   
+
+ C-Process-definition.css 
+
+.trapezoid {
+  width: 200px;
+  height: 0;
+  border-bottom: 150px solid;
+  border-bottom-left-radius: 35%;
+  border-bottom-right-radius: 35%;
+  border-top-left-radius: 35%;
+  color: dodgerblue;
+}
+
+
+.square {
+  display: table;
+  width: 100%;
+  height: 200px;
+  border: 1px dashed;
+  border-color: gray;
+  text-align: center;
+  align-content: center;
+}
+
+:host ::ng-deep .ui-button-text-only .ui-button-text {
+  font-size: 13px;
+  padding: 6px 10px;
+}
+.row.accordion-process .col-md-3 {
+  margin-bottom: 30px !important;
+}
+
+.ui-corner-all {
+  border-radius: 0 !important;
+}
+
+
+.ui-dialog-preview {
+  width: 62.3% !important;
+}
+.form-group.col-md-2.search-bar {
+  padding: 0;
+  margin: 0;
+}
+
+.form-group.col-md-2.search-bar .prime-form-control .ui-multiselect .ui-multiselect-label {
+  padding: .25em 2em .25em .25em !important;
+  margin: 0 !important;
+}
+
+
+@media (max-width:768px) {
+  .ui-dialog-preview {
+    width: 100% !important;
+  }
+}
+
+
+            
+   
+   
+   10-Process-designer
+   
+   A-process-designer.html 
+   
+   
+<div class="row">
+  <div class="control-div col-md-2" [ngStyle]="{'display':showProcessFields}">
+    <button type="button" class="list-group-item list-group-item-action fb-collapse-btn fb-text-style"
+            data-toggle="collapse" data-target="#generalsidebarContainer">
+      Common Fields
+    </button>
+    <div id="generalsidebarContainer" class="collapse in">
+    </div>
+  </div>
+
+  <div class="control-div col-md-2" *ngIf="showSettings">
+    <shc-step-settings-editor [header]="StepHeader" [selectedStep]="stepProperities" (saveSettings)="onSaveSettings($event)" (exitSettings)=onExitSettings($event)></shc-step-settings-editor>
+  </div>
+
+  <div class="control-div col-md-10">
+    <button type="button" class="list-group-item list-group-item-action fb-collapse-btn fb-text-style">
+      Process Elements
+    </button>
+    <div id="graphContainer" #graphContainer style="height:600px;overflow:scroll;background-color:white">
+
+    </div>
+
+    <button type="button" style="float:right;margin-top:10px;" class="btn btn-primary btn-lg"
+            (click)="SaveUpdateProcessDetails()">
+      {{showProcessSaveOrUpdate == false  ? 'Save' : 'Update'}}
+
+    </button>
+    <button type="button" style="float:right;margin-top:10px;" class="btn btn-primary btn-lg"
+            (click)="BackToList()">
+      Back To List
+    </button>
+  </div>
+</div>
+
+
+
+<p-toast key="popupScreen"></p-toast>
+
+<p-dialog header="{{groupHeader}}" Class="ui-dialog-preview" [responsive]="true" [(visible)]="displayGroupDialog" showEffect="fade" [modal]="true">
+  <div class="panel panel-default no-margin-bottom">
+    <div class="form-group">
+      <form [formGroup]="userAndGroupsForm">
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label for="float-input" Editable="">Name Filter</label>
+            <input pInputText type="text" placeholder="Please fill a user or a group name to filter data" class="ui-inputtext ui-corner-all  form-control"
+                   formControlName="search" (input)="filterContacts()" />
+          </div>
+          <div class="col-md-6 form-group">
+            <label for="float-input" Editable="">Recipient Type</label>
+            <p-selectButton [style]="{'width': '100%'}" [options]="recipientTypes" formControlName="recipientTypes"></p-selectButton>
+          </div>
+        </div>
+        <div class="row">
+
+          <div class="col-md-12 form-group">
+            <shc-datatable2 [cols]="cols" [rows]="userAndGroupRows" [showCheckBox]="true" (selection)="selectedRows" [mouseHover]="true"
+                            dataKey="value" (OnCheckboxSelected)="OnCheckboxSelected($event)" selectionMode="multiple"></shc-datatable2>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4 form-group">
+            <button pButton type="button" [label]="showGroupSaveOrUpdate == false  ? 'Save' : 'Update'"  class="ui-button-raised" (click)="onSaveGroups()">
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</p-dialog>
+
+
+
+<p-dialog header="{{EdgeHeader}}" Class="ui-dialog-preview" [responsive]="true" [(visible)]="dispalyEdgeDialog" showEffect="fade" [modal]="true">
+  <div class="panel panel-default no-margin-bottom">
+    <div class="form-group">
+      <p-tabView>
+        <p-tabPanel header="Properties for Edge">
+          <div class="form-group">
+            <form [formGroup]="edgePropertiesForm">
+              <div class="row">
+                <div class="col-md-12 form-group">
+                  <label for="float-input" Editable="">Edge Desc</label>
+                  <input type="text" class="form-control" formControlName="EdgeDesc"
+                         required="required" />
+                </div>
+            
+              </div>
+              <div class="row">
+                <div class="col-md-12 form-group">
+                  <button pButton type="button" [label]="showEdgeSaveOrUpdate == false  ? 'Save' : 'Update'" class="ui-button-raised" (click)="onEdgeSubmit()">
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </p-tabPanel>
+        <p-tabPanel header="Rule Builder Form">
+          Content 2
+        </p-tabPanel>
+        <p-tabPanel header="Notifaction">
+          Content 3
+        </p-tabPanel>
+      </p-tabView>
+    </div>
+  </div>
+</p-dialog>
+
+{{this.cs.sstProcessSteps | json}}
+
+
+B-process-designer.scss
+.ui-dialog-preview {
+  width: 62% !important;
+}
+
+@media (max-width:768px) {
+  .ui-dialog-preview {
+    width: 100% !important;
+  }
+}
+
+
+C-Process-designer.ts
+
+
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Router, ActivatedRoute, Params } from '@angular/router';
+import { SstProcessService } from '../services/SstProcess.service';
+import { SstProcesses, SstProcessSteps, SstProcessParentSteps, ShapeTypes, EdgeTypes, RecipientType, RecipientTypes } from '../models/models';
+import { mxgraph } from "mxgraph";
+import { MessageService, SelectItem } from 'primeng/api';
+import { CommonService } from '../services/common.service';
+import { FormGroup, Validators } from '@angular/forms';
+import { forEach } from '@angular/router/src/utils/collection';
+import { SelectableRow } from 'primeng/table';
+import { CoreService } from 'src/app/core/services/Core.service';
+import { StepSettingsEditorComponent } from '../Editor/step-settings-editor/step-settings-editor.component';
+declare var require: any;
+const mx = require('mxgraph')({
+  mxImageBasePath: '../../../assets/shapes',
+  mxBasePath: 'assets/mxgraph'
+});
+
+//These variable is very important to handle cases when javascript need to read typescript
+var flagSW;
+//End
+
+@Component({
+  selector: 'app-process-designer',
+  templateUrl: './process-designer.component.html',
+  styleUrls: ['./process-designer.component.css']
+})
+export class ProcessDesignerComponent implements OnInit {
+
+  //For Prepare Publish
+  dialogTitle: any;
+  selectedStep: any;
+  proc: any;
+
+
+  // stepPropertiesForm: FormGroup;
+  edgePropertiesForm: FormGroup;
+  userAndGroupsForm: FormGroup;
+  dispalyEdgeDialog: boolean = false;
+  showProcessFields: string = 'Block';
+  showSettings: boolean = false;
+  displayGroupDialog: boolean = false;
+
+
+  showProcessSaveOrUpdate: boolean = false;
+  showGroupSaveOrUpdate: boolean = false;
+  showEdgeSaveOrUpdate: boolean = false;
+
+  stepProperities: SstProcessSteps = new SstProcessSteps();
+  selectedCell: any;
+  oldSelectedCell: any;
+
+  groupHeader: string = "Group / User Selection";
+  selectedRows: SelectItem[] = [];
+  dtContacts: SelectItem[] = [];
+  companyId = 1;
+  userAndGroupRows: SelectItem[];
+  recipientTypes: SelectItem[] = [
+    { label: 'User', value: RecipientTypes.user.toString(), icon: 'fa fa-user' },
+    { label: 'Group', value: RecipientTypes.group.toString() , icon: 'fa fa-users' },
+    { label: 'Both', value: RecipientTypes.both.toString() }
+  ];
+
+  cols: any[] = [
+    { header: 'value', field: 'value', hidden: true },
+    { header: 'Name', field: 'label' }
+  ];
+
+  StepHeader: string = "Process Step Property"; 
+  EdgeHeader: string = "Edge Property";
+
+
+  @ViewChild('graphContainer') container: ElementRef;
+  constructor(public _router: Router, public route: ActivatedRoute, public cs: CommonService,
+    public procService: SstProcessService, public msgSer: MessageService, private coreService: CoreService) {
+    this.route.params.subscribe((params: Params) => {
+      this.cs.processID = parseInt(params.id);
+    })
+  }
+
+  ngOnInit(): void {
+    this.procService.LoadProcessWithDetails(this.cs.processID).subscribe(
+      data => {
+        this.cs.sstProcessSteps = data.data;
+        this.prepareGraph();
+      },
+      err => {
+        console.log(err);
+      }
+    )
+
+    this.createProcessForm();
+    this.bindEvents();
+  }
+
+  getGroups() {
+    this.coreService.getAllgroupsByCompanyID(this.companyId).subscribe(
+      data => {
+        this.dtContacts = [];
+        data.map(group => this.dtContacts.push(
+          {
+            label: group.nAME,
+            value: group.iD,
+            icon: RecipientType.group
+          })
+        );
+        this.userAndGroupRows = this.dtContacts;
+      }
+    )
+  }
+
+  getUsers() {
+    this.coreService.getAllusersByCompanyID(this.companyId).subscribe(
+      data => {
+        this.dtContacts = [];
+        data.map(user => this.dtContacts.push(
+          {
+            label: user.username,
+            value: user.username,
+            icon: RecipientType.user
+          })
+        );
+        this.userAndGroupRows = this.dtContacts;
+      }
+    )
+  }
+
+  getUsersAndGroups() {
+    this.coreService.getAllusersByCompanyID(this.companyId).subscribe(
+      data => {
+        let userContacts: SelectItem[] = [];
+        data.map(user => userContacts.push(
+          {
+            label: user.username,
+            value: user.username,
+            icon: RecipientType.user
+          })
+        );
+        this.coreService.getAllgroupsByCompanyID(this.companyId).subscribe(
+          data => {
+            let groupContacts: SelectItem[] = [];
+            data.map(group => groupContacts.push(
+              {
+                label: group.nAME,
+                value: group.iD,
+                icon: RecipientType.group
+              })
+            );
+            this.dtContacts = userContacts.concat(groupContacts);
+            this.userAndGroupRows = this.dtContacts;
+          });
+      });
+  }
+
+  OnCheckboxSelected(selectedRows: SelectItem[]) {
+    this.selectedRows = selectedRows;
+  }
+
+  onSaveGroups() {
+
+  }
+
+  createProcessForm() {
+
+    this.edgePropertiesForm = this.cs.fb.group({
+      EdgeDesc: ['', [Validators.required]]
+    });
+
+
+    this.userAndGroupsForm = this.cs.fb.group({
+      search: [''],
+      recipientTypes: ['1']
+    });
+  }
+
+
+  filterContacts() {
+    let query = this.userAndGroupsForm.controls.search.value;
+    let filterdContacts: any[] = [];
+    for (let i = 0; i < this.dtContacts.length; i++) {
+      let contact = this.dtContacts[i];
+      if (contact.label.toLowerCase().includes(query.toLowerCase())) {
+        filterdContacts.push(contact);
+      }
+    }
+    this.userAndGroupRows = filterdContacts;
+  }
+
+
+  bindEvents() {
+    this.userAndGroupsForm.controls.recipientTypes.valueChanges.subscribe(
+      recipientType => {
+        if (recipientType == RecipientTypes.user) {
+          this.getUsers();
+        }
+        else if (recipientType == RecipientTypes.group) {
+          this.getGroups();
+        }
+        else if (recipientType == RecipientTypes.both) {
+          this.getUsersAndGroups();
+        }
+
+        this.userAndGroupsForm.patchValue(
+          {
+            search: ['']
+          }
+        );
+      }
+    );
+
+  }
+
+
+
+  onProcessStepSubmit() {
+    this.mapProcessModel(this.cs.graph);
+    this.closeModalDialog();
+  }
+
+  onEdgeSubmit() {
+    this.mapEdgeModel(this.cs.graph);
+    this.closeModalDialog();
+  }
+
+  saveSettings() { }
+
+
+  //mxGraph Section Code
+  prepareGraph() {
+    document.oncontextmenu = () => {
+      return false;
+    }
+
+    var generalsidebar = document.getElementById("generalsidebarContainer");
+
+    //	var predefinedsidebar = document.getElementById("predefinedsidebarContainer");
+
+    // Creates new toolbar without event processing  
+    var toolbar = new mx.mxToolbar(generalsidebar);
+    toolbar.enabled = false;
+
+    // Workaround for Internet Explorer ignoring certain styles
+    if (mx.mxClient.IS_QUIRKS) {
+      document.body.style.overflow = 'hidden';
+      new mx.mxDivResizer(generalsidebar);
+      //	new mx.mxDivResizer(predefinedsidebar);
+      new mx.mxDivResizer(this.container);
+    }
+
+    // Creates the model and the graph inside the container
+    // using the fastest rendering available on the browser
+    var model = new mx.mxGraphModel();
+    this.cs.graph = new mx.mxGraph(this.container.nativeElement, model);
+
+
+    // Returns a shorter label if the cell is collapsed and no
+    // label for expanded groups
+    // this.graph.getLabel = function (cell) {
+    // 	var tmp = mx.mxGraph.prototype.getLabel.apply(this, arguments); // "supercall"
+
+    // 	if (this.isCellLocked(cell)) {
+    // 		// Returns an empty label but makes sure an HTML
+    // 		// element is created for the label (for event
+    // 		// processing wrt the parent label)
+    // 		return "";
+    // 	} else if (this.isCellCollapsed(cell)) {
+    // 		var index = tmp.indexOf("</h1>");
+
+    // 		if (index > 0) {
+    // 			tmp = tmp.substring(0, index + 5);
+    // 			console.log(tmp)
+    // 		}
+    // 	}
+
+    // 	return tmp;
+    // };
+
+    // Disables HTML labels for swimlanes to avoid conflict
+    // for the event processing on the child cells. HTML
+    // labels consume events before underlying cells get the
+    // chance to process those events.
+    //
+    // NOTE: Use of HTML labels is only recommended if the specific
+    // features of such labels are required, such as special label
+    // styles or interactive form fields. Otherwise non-HTML labels
+    // should be used by not overidding the following function.
+    // See also: configureStylesheet.
+    this.cs.graph.isHtmlLabel = function (cell) {
+      return !this.isSwimlane(cell);
+    };
+
+    //we enable dragable inside the mxGraph
+    this.cs.graph.dropEnabled = true;
+    // Enables the connection inside vertex
+    this.cs.graph.setConnectable(true);
+    this.cs.graph.setMultigraph(false);
+    // this important command resolve the problem  when connect vertex to nothing it will not create that edge
+    this.cs.graph.setAllowDanglingEdges(false);
+    //graph.setTooltips(true);
+    new mx.mxRubberband(this.cs.graph);
+
+
+    var manager = new mx.mxSwimlaneManager(this.cs.graph);
+    var layout = new mx.mxStackLayout(this.cs.graph, true);
+    layout.resizeParent = true;
+
+    var layoutMgr = new mx.mxLayoutManager(this.cs.graph);
+    //when make drag the vertex this function is called
+    layoutMgr.getLayout = function (cell) {
+      //This means that all swimlanes inside mxStackLayout set vertically 
+      layout.horizontal = false;
+
+      if (!model.isEdge(cell) && this.graph.getModel().getChildCount(cell) > 0 && cell.style != ShapeTypes[ShapeTypes.swimlane] &&
+        (model.getParent(cell) == model.getRoot() || this.graph.isPool(cell))) {
+        layout.fill = this.graph.isPool(cell);
+        return layout;
+      }
+      return null;
+    };
+
+    this.cs.graph.isPool = (cell) => {
+      //the below command get all the mx Cells (inner swimlanes and all shapes)
+      var model = this.cs.graph.getModel();
+      //the below command get the parent swimlane that contain the inner swimlane which is Pool 1 or Pool 2
+      var parent = model.getParent(cell);
+      //the below command get the Parent Container for all the inner swimlanes which is parent
+      var boss = model.getRoot();
+
+      if (flagSW)
+      {
+        return false;
+      }
+      return parent != null && model.getParent(parent) == model.getRoot();
+    };
+
+    this.cs.parent = this.cs.graph.getDefaultParent();
+
+    //this function is used to add images inside toolbar
+    this.setStyle(this.cs.graph);
+    if (this.cs.sstProcessSteps.length > 0) {
+      this.showProcessSaveOrUpdate = true;
+      this.loadData();
+    }
+    else {
+      this.showProcessSaveOrUpdate = false;
+      this.beginAddShape();
+    }
+
+    this.addSidebarIcon(this.cs.graph, generalsidebar, 'Swimlane', './assets/shapes/swimLane.png', 600, 200, ShapeTypes[ShapeTypes.swimlane]);
+    this.addSidebarIcon(this.cs.graph, generalsidebar, 'Step', './assets/shapes/process.png', 100, 70, ShapeTypes[ShapeTypes.process]);
+    this.addSidebarIcon(this.cs.graph, generalsidebar, 'Start', './assets/shapes/start.png', 50, 50, ShapeTypes[ShapeTypes.start]);
+    this.addSidebarIcon(this.cs.graph, generalsidebar, 'Condition', './assets/shapes/decision.png', 100, 100, ShapeTypes[ShapeTypes.condition]);
+    this.addSidebarIcon(this.cs.graph, generalsidebar, 'End', './assets/shapes/end.png', 50, 50, ShapeTypes[ShapeTypes.end]);
+
+    //The below command is to prevent vertex to go outside from swimlane
+    this.cs.graph.graphHandler.setRemoveCellsFromParent(false);
+    //when make right click on the graph this event will fired
+    this.cs.graph.popupMenuHandler.factoryMethod = (menu, cell, evt) => {
+      this.createPopupMenu(this.cs.graph, menu, cell, evt);
+    };
+    //The below command will assign mouse Domw (left click , right click) , mouse hover (mouse over and mouse out)
+    this.cs.graph.addMouseListener(
+      {
+        mouseDown: (sender, evt) => {
+
+          if (evt.state != null) {
+            this.cs.cell = evt.state.cell;
+            //to make check if the cell is edge
+            if (this.cs.cell.source != null && this.cs.cell.target != null && this.cs.cell.edge) {
+
+              this.cs.selectedEdge.shapeId = parseInt(this.cs.cell.target.id);
+              this.cs.selectedEdge.processStepId = parseInt(this.cs.cell.source.id);
+              this.cs.selectedEdge.processId = this.cs.processID;
+              if (this.cs.cell.value) {
+                this.cs.selectedEdge.edgeDescription = this.cs.cell.value;
+              } else {
+                this.cs.selectedEdge.edgeDescription = '';
+              }
+              this.cs.graph.stopEditing(false);
+            }
+            else {
+              this.cs.setSelectedCellValue(this.cs.cell);
+              this.selectedCell = this.cs.cell;
+              this.stepProperities = this.cs.selectedStep;
+              this.cs.graph.stopEditing(false);
+              this.showProcessFields = 'None';
+              this.showSettings = true;
+            }
+          }
+        },
+        mouseMove: (sender, me) => {
+          this.mouseMove(sender, me);
+        },
+        mouseUp: function (sender, me) { },
+      }
+    );
+    //it will check if this location valid to drop vertex
+    mx.mxDragSource.prototype.getDropTarget = (graph, x, y) => {
+      var cell = graph.getCellAt(x, y);
+      if (!graph.isValidDropTarget(cell)) {
+        cell = null;
+      }
+      return cell;
+    };
+
+    //This means that we  allow assign edge to another vertex in swimlane
+    this.cs.graph.setSplitEnabled(true);
+
+    //This method will called when make connect between 2 vertex 
+    this.cs.graph.connectionHandler.addListener(mx.mxEvent.CONNECT, (sender, evt) => {
+      var edge = evt.getProperty('cell');
+      var source = this.cs.graph.getModel().getTerminal(edge, true);
+      var target = this.cs.graph.getModel().getTerminal(edge, false);
+
+
+
+      if (target.parent.id != source.parent.id) {
+        edge.style = EdgeTypes[EdgeTypes.crossover];
+        this.cs.selectedEdge.edgeType = EdgeTypes.crossover;
+      } else {
+        edge.style = EdgeTypes[EdgeTypes.arrow];
+        this.cs.selectedEdge.edgeType = EdgeTypes.arrow;
+      }
+
+
+      //set max edge for start vertex = 1 
+      if (this.cs.getShapeTypeValue(source.style) == ShapeTypes.start) {
+        var EdgeCount = this.cs.graph.getModel().getEdgeCount(source);
+        var maxEdgeCount = 1;
+        if (EdgeCount < maxEdgeCount) {
+          source.setConnectable(true);
+        } else {
+          source.setConnectable(false);
+          this.msgSer.add({ key: 'popupScreen', severity: 'warn', summary: 'Warning', detail: 'Exceed the maximum number of start connection' });
+
+        }
+      } else {
+        //set max edge for condition vertex = 3 
+        if (this.cs.getShapeTypeValue(source.style) == ShapeTypes.condition) {
+          var EdgeCount = this.cs.graph.getModel().getEdgeCount(source);
+          var maxEdgeCount = 3;
+          if (EdgeCount < maxEdgeCount) {
+            source.setConnectable(true);
+          } else {
+            source.setConnectable(false);
+            this.msgSer.add({ key: 'popupScreen', severity: 'warn', summary: 'Warning', detail: 'Exceed the maximum number of condition connection' });
+
+          }
+        }
+      }
+
+
+
+      if (this.cs.sstProcessSteps.find(i => i.stepId == parseInt(source.id)) != null) {
+        this.cs.selectedEdge.shapeId = parseInt(target.id);
+        this.cs.selectedEdge.parentShapeId = parseInt(source.id);
+        this.cs.selectedEdge.processId = this.cs.processID;
+        this.cs.selectedEdge.edgeDescription = "";
+        this.cs.selectedEdge.creationUser = "Admin";
+        this.cs.selectedEdge.creationDate = new Date();
+        if (this.cs.sstProcessSteps.find(i => i.stepId == this.cs.selectedEdge.shapeId) != null) {
+          this.cs.sstProcessSteps.find(i => i.stepId == this.cs.selectedEdge.shapeId).sstProcessParentSteps.push({ ...this.cs.selectedEdge });
+          this.msgSer.add({ key: 'popupScreen', severity: 'success', summary: 'Success', detail: source.value + ' connect to ' + target.value + ' Successfully.' });
+        }
+
+      }
+    });
+
+
+    //(after swapping an edge, the parent will be changed for new target vertex  and will be removed from old target vertex).
+    this.cs.graph.addListener(mx.mxEvent.CELL_CONNECTED, (sender, evt) => {
+
+      //If the connection is occured on previous target vertex then this code executed
+      if (evt.properties.previous != null) {
+
+        var old_source_previous = evt.properties.previous.id;
+        let edgeDesc_old_target = evt.properties.edge;
+
+        this.cs.DeleteSwapedEdge(old_source_previous);
+
+        if (sender.selectionModel.cells != null) {
+          var new_target = evt.properties.terminal.id;
+          var source = sender.selectionModel.cells[0].source.id;
+
+          // let parent = new ParentShape();
+          this.cs.selectedEdge.shapeId = parseInt(new_target);
+          this.cs.selectedEdge.parentShapeId = parseInt(source);
+          this.cs.selectedEdge.processId = this.cs.processID;
+          if (edgeDesc_old_target.value != null) {
+            this.cs.selectedEdge.edgeDescription = edgeDesc_old_target.value;
+          }
+          else {
+            this.cs.selectedEdge.edgeDescription = "";
+          }
+          this.cs.selectedEdge.creationUser = "Admin";
+          this.cs.selectedEdge.creationDate = new Date();
+
+          this.cs.sstProcessSteps.find(i => i.stepId == this.cs.selectedEdge.shapeId).sstProcessParentSteps.push({ ...this.cs.selectedEdge });
+          this.msgSer.add({ key: 'popupScreen', severity: 'success', summary: 'Success', detail: this.cs.selectedEdge.shapeId + ' Reconnect to ' + this.cs.selectedEdge.parentShapeId + ' Successfully.' });
+
+        } else {
+          this.msgSer.add({ key: 'popupScreen', severity: 'error', summary: 'Error', detail: 'Reconnect failed.' });
+        }
+      }
+    });
+
+    //This method will called when make resize cells
+    this.cs.graph.addListener(mx.mxEvent.CELLS_RESIZED,
+      mx.mxUtils.bind(this, (sender, evt) => {
+        if (evt.properties.cells.length > 0) {
+          //The below check is very important to make sure that the vertex resized is the same in the selectedStep varaible
+          if (this.cs.selectedStep != null && this.cs.selectedStep.stepId == evt.properties.cells[0].id) {
+            this.cs.setSelectedCellValue(evt.properties.cells[0]);
+            this.selectedCell = this.cs.cell;
+            this.stepProperities = this.cs.selectedStep;
+            this.cs.graph.stopEditing(false);
+          }
+        }
+      })
+    );
+
+    //This method will called when make move cells
+    this.cs.graph.addListener(mx.mxEvent.CELLS_MOVED,
+      mx.mxUtils.bind(this, (sender, evt) => {
+
+        if (evt.properties.cells.length > 0) { 
+        //The below check is very important to make sure that the vertex resized is the same in the selectedStep varaible
+        if (this.cs.selectedStep != null && this.cs.selectedStep.stepId == evt.properties.cells[0].id) {
+          this.cs.setSelectedCellValue(evt.properties.cells[0]);
+          this.selectedCell = this.cs.cell;
+          this.stepProperities = this.cs.selectedStep;
+          this.cs.graph.stopEditing(false);
+        }
+        }
+      })
+
+    );
+  }
+
+  loadData() {
+    try {
+      //we need to define local variable to attach the global variable to be accessable inside foreach loop
+      let graph = this.cs.graph;
+      let parent = this.cs.parent;
+      graph.getModel().beginUpdate();
+
+      var root = undefined;
+      var dict = {};
+      var swimLane;
+      var graphElement;
+      
+
+
+
+      //we make 2 seperate for loop to make:
+      //1-Insert vertexs inside the graph
+      //2-Insert Edges that connect between the vertexs
+      this.cs.sstProcessSteps.forEach(function (element) {
+        var id = element.stepId;
+        var name = element.name;
+
+        if (element.shapeType == ShapeTypes.swimlane) {
+          swimLane = graph.insertVertex(parent, id, name, element.xPosition, element.yPosition, element.width, element.height, ShapeTypes[ShapeTypes.swimlane].toString());
+          swimLane.setConnectable(false);
+          let lst: any[] = [swimLane];
+          flagSW = true;
+
+          graph.setCellStyles(mx.mxConstants.STYLE_FILLCOLOR, element.backColor, lst);
+          graph.setCellStyles(mx.mxConstants.STYLE_FONTCOLOR, element.fontColor, lst);
+          graph.setCellStyles(mx.mxConstants.STYLE_FONTSIZE, element.fontSize, lst);
+        }
+        else {
+
+          if (element.shapeType == ShapeTypes.start) {
+             graphElement = graph.insertVertex(swimLane, id, name, element.xPosition, element.yPosition, element.width, element.height, ShapeTypes[ShapeTypes.start].toString());
+            graphElement.setConnectable(false);
+          }
+          else if (element.shapeType == ShapeTypes.end) {
+             graphElement = graph.insertVertex(swimLane, id, name, element.xPosition, element.yPosition, element.width, element.height, ShapeTypes[ShapeTypes.end].toString());
+          }
+          else if (element.shapeType == ShapeTypes.process) {
+             graphElement = graph.insertVertex(swimLane, id, name, element.xPosition, element.yPosition, element.width, element.height, ShapeTypes[ShapeTypes.process].toString());
+          }
+          else if (element.shapeType == ShapeTypes.condition) {
+             graphElement = graph.insertVertex(swimLane, id, name, element.xPosition, element.yPosition, element.width, element.height, ShapeTypes[ShapeTypes.condition].toString());
+            graphElement.setConnectable(false);
+          }
+          else {
+             graphElement = graph.insertVertex(swimLane, id, name, element.xPosition, element.yPosition, element.width, element.height, ShapeTypes[ShapeTypes.process].toString());
+          }
+          dict[id] = graphElement;
+          let lst: any[] = [graphElement];
+          graph.setCellStyles(mx.mxConstants.STYLE_FILLCOLOR, element.backColor, lst);
+          graph.setCellStyles(mx.mxConstants.STYLE_FONTCOLOR, element.fontColor, lst);
+          graph.setCellStyles(mx.mxConstants.STYLE_FONTSIZE, element.fontSize, lst);
+        }
+      });
+
+      var AllCells = this.cs.graph.getModel();
+
+      //This Step will allow Insert Edges that connect between the vertexs
+      this.cs.sstProcessSteps.forEach(function (element) {
+        var graphElement = AllCells.getCell(element.stepId.toString());
+
+        if (element.sstProcessParentSteps != null) {
+          if (element.sstProcessParentSteps.length > 0) {
+            // run through each parent element
+            element.sstProcessParentSteps.forEach(function (parentObj) {
+              var parentGraphElement = dict[parentObj.parentShapeId];
+
+              // add line between current element and parent
+              if (parentObj.edgeDescription != null) {
+                graph.insertEdge(swimLane, null, parentObj.edgeDescription, parentGraphElement, graphElement, EdgeTypes[parentObj.edgeType]);
+              }
+              else {
+                graph.insertEdge(swimLane, null, '', parentGraphElement, graphElement, EdgeTypes[parentObj.edgeType]);
+              }
+
+            });
+          } else {
+            // set root for layouting
+            root = graphElement;
+          }
+        }
+
+      });
+    }
+    finally {
+      this.cs.graph.getModel().endUpdate();
+      //   new mx.mxHierarchicalLayout(graph).execute(graph.getDefaultParent());
+    }
+  }
+
+  addSidebarIcon(graph, sidebar, label, image, width, height, style) {
+    let funct = (graph, evt, cell) => {
+
+      var model = graph.getModel();
+      graph.stopEditing(true);
+      var pt = graph.getPointForEvent(evt);
+      var graphElement = null;
+
+      var YAxisSwimlane = 0;
+      if (this.cs.sstProcessSteps.length > 0) {
+        YAxisSwimlane = (this.cs.sstProcessSteps.filter(i => i.shapeType == ShapeTypes.swimlane).length) * 200;
+      }
+
+      model.beginUpdate();
+      try {
+        if (style != ShapeTypes[ShapeTypes.swimlane]) {
+          //we make check if the vertex dragged inisde swimlane only else show error message
+          if (cell != null) {
+            //we will check if the dragged element is start element > 1 ==> we will show error message
+            if (style == ShapeTypes[ShapeTypes.start]) {
+              var count = this.cs.sstProcessSteps.filter(i => i.shapeType == ShapeTypes.start ).length;
+            }
+            if (count >= 1) {
+              this.msgSer.add({ key: 'popupScreen', severity: 'error', summary: 'Error', detail: 'Cannot add more start step inside the process' });
+              return null;
+            }
+            //we make insert vertex inside the specified swimlane
+            this.cs.selectedStep = this.createInstance(label, style, width, height, cell);
+            this.cs.selectedStep.xPosition = (pt.x - cell.geometry.x);
+            this.cs.selectedStep.yPosition = (pt.y - cell.geometry.y);
+
+            graphElement = graph.insertVertex(cell, null, this.cs.selectedStep.name, this.cs.selectedStep.xPosition, this.cs.selectedStep.yPosition, this.cs.selectedStep.width, this.cs.selectedStep.height, style);
+
+
+            this.cs.selectedStep.stepId = parseInt(graphElement.id);
+            this.cs.selectedStep.processStepId = parseInt(cell.id);
+            graph.setSelectionCells(graphElement);
+            this.cs.selectedStep.width = width;
+            this.cs.selectedStep.height = height;
+            this.msgSer.add({ key: 'popupScreen', severity: 'success', summary: 'Success', detail: ShapeTypes[this.cs.selectedStep.shapeType] + ' Added Successfully.' });
+
+          }
+          else {
+            this.msgSer.add({ key: 'popupScreen', severity: 'error', summary: 'Error', detail: 'Cannot add vertex outside swimlane' });
+            return null;
+          }
+        }
+        else {
+          //it will create swimlane 
+          this.cs.selectedStep = this.createInstance(label, style, width, height, cell);
+
+          this.cs.selectedStep.xPosition = 0;
+          this.cs.selectedStep.yPosition = YAxisSwimlane;
+          graphElement = graph.insertVertex(this.cs.parent, null, this.cs.selectedStep.name, this.cs.selectedStep.xPosition, this.cs.selectedStep.yPosition, this.cs.selectedStep.width, this.cs.selectedStep.height, style);
+          graphElement.setConnectable(false);
+          this.cs.selectedStep.stepId = parseInt(graphElement.id);
+          this.cs.selectedStep.processStepId = null;
+          this.msgSer.add({ key: 'popupScreen', severity: 'success', summary: 'Success', detail: this.cs.selectedStep.shapeType + ' Added Successfully.' });
+        }
+      } finally {
+        model.endUpdate();
+      }
+      graph.setSelectionCell(graphElement);
+      //push copy to array (spread object)
+      this.cs.pushToArray({ ...this.cs.selectedStep });
+
+    };
+
+    // Creates the image which is used as the sidebar icon (drag source)
+    var img = document.createElement("img");
+    img.setAttribute("src", image);
+    img.style.width = "100%";
+    img.style.height = "15%";
+    img.title = "Drag this to the diagram to create a new vertex";
+    sidebar.appendChild(img);
+
+    this.cs.dragElt = document.createElement("div");
+    this.cs.dragElt.style.border = "dashed black 1px";
+    this.cs.dragElt.style.width = "10px";
+    this.cs.dragElt.style.height = "10px";
+
+    // Creates the image which is used as the drag icon (preview)
+    var ds = mx.mxUtils.makeDraggable(
+      img,
+      graph,
+      funct,
+      this.cs.dragElt,
+      0,
+      0,
+      true,
+      true
+    );
+    this.cs.dragElt = null;
+    ds.setGuidesEnabled(true);
+  }
+
+  createInstance(label, style, width, height, cell): SstProcessSteps {
+    let selectedStep = new SstProcessSteps();
+    if (this.cs.getShapeTypeValue(style) != ShapeTypes.swimlane) 
+      var uniqueID = this.cs.sstProcessSteps.filter(i => i.shapeType == this.cs.getShapeTypeValue(style) && i.processStepId == cell.id).length + 1;
+    else
+      var uniqueID = this.cs.sstProcessSteps.filter(i => i.shapeType == this.cs.getShapeTypeValue(style)).length + 1;
+
+      selectedStep.name = label + uniqueID;
+      selectedStep.shapeType = this.cs.getShapeTypeValue(style);
+      selectedStep.width = width;
+      selectedStep.height = height;
+      selectedStep.processId = this.cs.processID;
+      selectedStep.creationUser = "Admin";
+      selectedStep.creationDate = new Date();
+      selectedStep.fontSize = 11;
+      selectedStep.fontColor = "#FFFFFF";
+
+    switch (style)
+    {
+      case ShapeTypes[ShapeTypes.swimlane]:
+        selectedStep.backColor = "#2A506F";
+        break;
+      case ShapeTypes[ShapeTypes.process]:
+        selectedStep.backColor = "#0099CF";
+        break;
+      case ShapeTypes[ShapeTypes.start]:
+        selectedStep.backColor = "#394D54";
+        break;
+      case ShapeTypes[ShapeTypes.condition]:
+        selectedStep.backColor = "#F58725";
+        break;
+      case ShapeTypes[ShapeTypes.end]:
+        selectedStep.backColor = "#394D54";
+        break;
+
+      default:
+        selectedStep.backColor = "#0099CF";
+        break;
+    }
+       
+
+
+      return selectedStep;
+  }
+
+  addPredefinedSidebarIcon(graph, sidebar, label, image) {
+    // Function that is executed when the image is dropped on
+    // the graph. The cell argument points to the cell under
+    // the mousepointer if there is one.
+    var funct = function (graph, evt, cell, x, y) {
+      var parent = graph.getDefaultParent();
+      var model = graph.getModel();
+
+      var v1 = null;
+
+      model.beginUpdate();
+      try {
+        // NOTE: For non-HTML labels the image must be displayed via the style
+        // rather than the label markup, so use 'image=' + image for the style.
+        // as follows: v1 = graph.insertVertex(parent, null, label,
+        // pt.x, pt.y, 120, 120, 'image=' + image);
+        v1 = graph.insertVertex(parent, null, label, x, y, 120, 120);
+        v1.setConnectable(false);
+
+        // Presets the collapsed size
+        v1.geometry.alternateBounds = new mx.mxRectangle(0, 0, 120, 40);
+
+        // Adds the ports at various relative locations
+
+      } finally {
+        model.endUpdate();
+      }
+
+      graph.setSelectionCell(v1);
+    };
+
+    // Creates the image which is used as the sidebar icon (drag source)
+    var img = document.createElement("img");
+    img.setAttribute("src", image);
+    img.style.width = "30px";
+    img.style.height = "30px";
+    img.title = "Drag this to the diagram to create a new vertex";
+    sidebar.appendChild(img);
+
+    var dragElt = document.createElement("div");
+    dragElt.style.border = "dashed black 1px";
+    dragElt.style.width = "120px";
+    dragElt.style.height = "120px";
+
+    // Creates the image which is used as the drag icon (preview)
+    var ds = mx.mxUtils.makeDraggable(
+      img,
+      graph,
+      funct,
+      dragElt,
+      0,
+      0,
+      true,
+      true
+    );
+    ds.setGuidesEnabled(true);
+  }
+
+  beginAddShape() {
+    var initial = this.cs.graph.insertVertex(this.cs.parent, null, 'swimlane1', 0, 0, 800, 200, ShapeTypes[ShapeTypes.swimlane]);
+    initial.setConnectable(false);
+
+    this.cs.selectedStep.stepId = initial.id;
+    this.cs.selectedStep.name = 'swimlane1';
+    this.cs.selectedStep.shapeType = ShapeTypes.swimlane;
+    this.cs.selectedStep.xPosition = 100;
+    this.cs.selectedStep.yPosition = 100;
+    this.cs.selectedStep.width = 1000;
+    this.cs.selectedStep.height = 200;
+    this.cs.selectedStep.processStepId = null;
+    this.cs.selectedStep.processId = this.cs.processID;
+    this.cs.selectedStep.creationUser = "Admin";
+    this.cs.selectedStep.creationDate = new Date();
+    //The below command will focus on the specific mxCell (vertex)
+    this.cs.graph.selectVertices(initial);
+
+    this.cs.pushToArray({ ...this.cs.selectedStep });
+
+  }
+
+  setStyle(graph) {
+    var style = graph.getStylesheet().getDefaultVertexStyle();
+
+    //we set style for the SHAPE_SWIMLANE on the class name called swimlane
+    style = mx.mxUtils.clone(style);
+    style[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_SWIMLANE;
+    style[mx.mxConstants.STYLE_VERTICAL_ALIGN] = 'middle';
+    style[mx.mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = 'rgb(42, 80, 111)';
+    style[mx.mxConstants.STYLE_FILLCOLOR] = '#2A506F';
+    style[mx.mxConstants.STYLE_SHADOW] = false;
+    style[mx.mxConstants.STYLE_FONTSIZE] = 14;
+    style[mx.mxConstants.STYLE_FONTSTYLE] = 1;
+    style[mx.mxConstants.STYLE_STARTSIZE] = 22;
+    style[mx.mxConstants.STYLE_HORIZONTAL] = false;
+    style[mx.mxConstants.STYLE_FONTCOLOR] = 'white';
+    style[mx.mxConstants.STYLE_STROKECOLOR] = 'black';
+    style[mx.mxConstants.STYLE_RESIZEABLE] = 1;
+    graph.getStylesheet().putCellStyle(ShapeTypes[ShapeTypes.swimlane], style);
+
+    style[mx.mxConstants.STYLE_SHADOW] = true;
+    style[mx.mxConstants.STYLE_OPACITY] = '85';
+    // //we set style for the SHAPE_RECT on the class name called process
+    style = mx.mxUtils.clone(style);
+    style[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_RECTANGLE;
+    style[mx.mxConstants.STYLE_FONTSIZE] = 14;
+    style[mx.mxConstants.STYLE_FONTSTYLE] = 1;
+    style[mx.mxConstants.STYLE_ROUNDED] = true;
+    style[mx.mxConstants.STYLE_HORIZONTAL] = true;
+    style[mx.mxConstants.STYLE_VERTICAL_ALIGN] = 'middle';
+    delete style[mx.mxConstants.STYLE_STARTSIZE];
+    style[mx.mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = 'none';
+    style[mx.mxConstants.STYLE_FILLCOLOR] = '#0099CF';
+
+    graph.getStylesheet().putCellStyle(ShapeTypes[ShapeTypes.process], style);
+
+
+    // //we set style for the SHAPE_Ellipse on the class name called state
+    style = mx.mxUtils.clone(style);
+    style[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_ELLIPSE;
+    style[mx.mxConstants.STYLE_PERIMETER] = mx.mxPerimeter.EllipsePerimeter;
+    delete style[mx.mxConstants.STYLE_ROUNDED];
+    style[mx.mxConstants.STYLE_FONTSIZE] = 14;
+    style[mx.mxConstants.STYLE_FONTSTYLE] = 1;
+    style[mx.mxConstants.STYLE_FILLCOLOR] = '#394D54';
+
+    graph.getStylesheet().putCellStyle(ShapeTypes[ShapeTypes.start], style);
+
+    //we set style for the SHAPE_RHOMBUS on the class name called condition
+    style = mx.mxUtils.clone(style);
+    style[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_RHOMBUS;
+    style[mx.mxConstants.STYLE_PERIMETER] = mx.mxPerimeter.RhombusPerimeter;
+    style[mx.mxConstants.STYLE_FONTSIZE] = 14;
+    style[mx.mxConstants.STYLE_FONTSTYLE] = 1;
+    style[mx.mxConstants.STYLE_FILLCOLOR] = '#F58725';
+    graph.getStylesheet().putCellStyle(ShapeTypes[ShapeTypes.condition], style);
+
+    //we set style for the SHAPE_DOUBLE_ELLIPSE on the class name called end
+    style = mx.mxUtils.clone(style);
+    style[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_DOUBLE_ELLIPSE;
+    style[mx.mxConstants.STYLE_PERIMETER] = mx.mxPerimeter.EllipsePerimeter;
+    style[mx.mxConstants.STYLE_FONTSIZE] = 14;
+    style[mx.mxConstants.STYLE_FONTSTYLE] = 1;
+    delete style[mx.mxConstants.STYLE_SPACING_RIGHT];
+    style[mx.mxConstants.STYLE_FILLCOLOR] = '#394D54';
+    graph.getStylesheet().putCellStyle(ShapeTypes[ShapeTypes.end], style);
+
+    //we set style of normal arrow line
+    style = graph.getStylesheet().getDefaultEdgeStyle();
+    style[mx.mxConstants.STYLE_EDGE] = mx.mxEdgeStyle.ElbowConnector;
+    style[mx.mxConstants.STYLE_ENDARROW] = mx.mxConstants.ARROW_BLOCK;
+    style[mx.mxConstants.STYLE_ROUNDED] = true;
+    style[mx.mxConstants.STYLE_FONTSIZE] = 14;
+    style[mx.mxConstants.STYLE_FONTSTYLE] = 1;
+    style[mx.mxConstants.STYLE_FONTCOLOR] = 'black';
+    style[mx.mxConstants.STYLE_STROKECOLOR] = 'black';
+    style[mx.mxConstants.STYLE_SPACING_TOP] = 28;
+    style[mx.mxConstants.STYLE_FILLCOLOR] = '#000000';
+    graph.getStylesheet().putCellStyle(EdgeTypes[EdgeTypes.arrow], style);
+
+    //we set style of Arrow Open on the class called crossover   like ---------
+    style = mx.mxUtils.clone(style);
+    style[mx.mxConstants.STYLE_EDGE] = mx.mxEdgeStyle.BLOCK;
+    style[mx.mxConstants.STYLE_DASHED] = true;
+    style[mx.mxConstants.STYLE_ROUNDED] = false;
+    style[mx.mxConstants.STYLE_ENDARROW] = mx.mxConstants.ARROW_OPEN;
+    style[mx.mxConstants.STYLE_STARTARROW] = mx.mxConstants.ARROW_OVAL;
+    style[mx.mxConstants.STYLE_FONTSIZE] = 14;
+    style[mx.mxConstants.STYLE_FONTSTYLE] = 1;
+    graph.getStylesheet().putCellStyle(EdgeTypes[EdgeTypes.crossover], style);
+
+    // Installs double click on middle control point and
+    // changes style of edges between empty and this value
+    graph.alternateEdgeStyle = 'elbow=vertical';
+  }
+  //this function used to create the entries in the popupmenu
+  createPopupMenu(graph, menu, cell, evt) {
+
+    if (cell != null) {
+
+      if (cell.edge == true) {
+        this.fillEdgeOptions(graph, menu);
+      }
+      else if (cell.vertex == true) {
+
+        if (cell.style.split(";")[0] == ShapeTypes[ShapeTypes.swimlane]) {
+          this.fillBasicOptions(graph, menu);
+          this.fillSwimlaneOptions(menu);
+        }
+        else if (cell.style.split(";")[0] == ShapeTypes[ShapeTypes.process]) {
+          this.fillBasicOptions(graph, menu);
+          this.fillRectOptions(menu);
+        }
+        else if (cell.style.split(";")[0] == ShapeTypes[ShapeTypes.condition]) {
+          this.fillBasicOptions(graph, menu);
+          this.fillConditionOptions(menu);
+        }
+        else {
+          this.fillBasicOptions(graph, menu);
+          this.fillRectOptions(menu);
+        }
+      }
+    }
+  };
+
+  fillEdgeOptions(graph, menu) {
+    menu.addItem('Edit', null, () => {
+      if (graph.isEnabled()) {
+        this.dispalyEdgeDialog = true;
+        this.edgePropertiesForm.patchValue({
+          EdgeDesc: this.cs.selectedEdge.edgeDescription
+        });
+        //this.showEdgeProperties(this.cs.graph, this.cs.selectedEdge);
+      }
+    })
+
+    menu.addItem('Delete', null, () => {
+      if (graph.isEnabled()) {
+        this.deleteCells();
+      }
+    })
+  }
+
+  fillBasicOptions(graph, menu) {
+    menu.addItem('Delete', null, () => {
+      if (graph.isEnabled()) {
+        this.deleteCells();
+      }
+    })
+  }
+
+  //this functionis used to begin fill option only for rectangle shapes
+  fillRectOptions(menu) {
+    menu.addItem('Set Properties', null, () => {
+      this.stepProperities = this.cs.selectedStep;
+      this.showSettings = true;
+
+    });
+  }
+
+  //this functionis used to begin fill option only for rectangle shapes
+  fillConditionOptions(menu) {
+    menu.addItem('Set Properties', null, () => {
+      this.stepProperities = this.cs.selectedStep;
+      this.showSettings = true;
+
+    });
+  }
+
+
+  fillSwimlaneOptions(menu) {
+    menu.addItem('users And Groups', null, () => {
+      //	this.showProperties(this.cs.graph, this.cs.selectedStep);
+      this.displayGroupDialog = true;
+      //this.userAndGroupsForm.patchValue({
+      //  search: [''],
+      //  recipientTypes: ['1']
+      //});
+
+    });
+  }
+
+  onSaveSettings(step: SstProcessSteps)
+  {
+    debugger;
+    this.mapProcessModel2(this.cs.graph, step);
+
+  }
+
+  onExitSettings(exitSetting: boolean)
+  {
+    this.showSettings = exitSetting;
+    this.showProcessFields = 'block';
+  }
+
+  //This Method repsonsible for delete vertex and edge
+  deleteCells() {
+    this.cs.graph.escape();
+    if (this.cs.graph.isEnabled()) {
+      this.cs.graph.removeCells();
+
+      if (this.cs.cell.vertex == true) {
+        //we remove everything inside the swimlane
+        if (this.cs.selectedStep.shapeType == ShapeTypes.swimlane) {
+          this.cs.sstProcessSteps = this.cs.sstProcessSteps
+            .filter(i =>
+              i.stepId != this.cs.selectedStep.stepId
+            );
+
+          this.cs.sstProcessSteps = this.cs.sstProcessSteps
+            .filter(i =>
+              i.processStepId != this.cs.selectedStep.stepId
+            );
+        }
+        else {
+          //If the Delete item is process , condition , except swimlane we  remove it plush the parent shape connection
+          this.cs.sstProcessSteps = this.cs.sstProcessSteps.filter(i => i.stepId != this.cs.selectedStep.stepId);
+          let temp = this.cs.sstProcessSteps;
+          temp.forEach(item => {
+            let shapeID = item.stepId;
+            if (item.sstProcessParentSteps.length > 0) {
+              item.sstProcessParentSteps.forEach(parent => {
+                if (parent.parentShapeId == this.cs.selectedStep.stepId) {
+                  let parentID = parent.parentShapeId;
+                  this.cs.sstProcessSteps.find(x => x.stepId == shapeID).sstProcessParentSteps = this.cs.sstProcessSteps.find(x => x.stepId == shapeID).sstProcessParentSteps.filter(i => i.parentShapeId != parentID);
+                }
+              })
+            }
+
+          });
+          this.msgSer.add({ key: 'popupScreen', severity: 'success', summary: 'Success', detail: this.cs.selectedStep.name + ' Deleted Successfully.' });
+        }
+        this.cs.selectedStep = new SstProcessSteps();
+      }
+      else if (this.cs.cell.edge == true) {
+
+        this.cs.DeleteEdge(this.cs.selectedEdge);
+
+
+        //enable connect from source start after delete an edge if EdgeCount < maxEdgeCount
+        if (this.cs.getShapeTypeValue(this.cs.cell.source.style) == ShapeTypes.start) {
+          var EdgeCount = this.cs.graph.getModel().getEdgeCount(this.cs.cell.source);
+          var maxEdgeCount = 1;
+          if (EdgeCount < maxEdgeCount) {
+            this.cs.cell.source.setConnectable(true);
+          }
+        } else {
+          //enable connect from source condition after delete an edge if EdgeCount < maxEdgeCount
+          if (this.cs.getShapeTypeValue(this.cs.cell.source.style) == ShapeTypes.condition) {
+            var EdgeCount = this.cs.graph.getModel().getEdgeCount(this.cs.cell.source);
+            var maxEdgeCount = 3;
+            if (EdgeCount < maxEdgeCount) {
+              this.cs.cell.source.setConnectable(true);
+            }
+          }
+        }
+      }
+    }
+  };
+  //This method is used to detect the state of the hover operation (drag Enter , drage Leave) 
+  //based on the current state which refelect on the selected Step variable
+  mouseMove(sender, me) {
+    if (sender != null && me != null) {
+      if (this.cs.currentState != null && me.getState() == this.cs.currentState) {
+        return;
+      }
+      if (me.state != null) {
+        var tmp = me.state.cell;
+      }
+      if (tmp != this.cs.currentState) {
+        if (this.cs.currentState != null) {
+          this.dragLeave(me.getEvent(), this.cs.currentState);
+        }
+        this.cs.currentState = tmp;
+
+        if (this.cs.currentState != null) {
+          this.dragEnter(me.getEvent(), this.cs.currentState);
+        }
+      }
+    }
+  }
+
+  dragEnter(evt, state) {
+    this.cs.cell = state;
+    if (this.cs.cell != null && this.cs.graph.isEnabled()) {
+      this.cs.setSelectedCellValue(this.cs.cell);
+      this.cs.graph.stopEditing(false);
+    }
+  }
+
+  dragLeave(evt, state) {
+    this.cs.cell = state;
+    if (this.cs.cell != null && this.cs.graph.isEnabled()) {
+      this.cs.graph.stopEditing(false);
+    }
+
+    if (state != null) {
+      this.cs.graph.stopEditing(false);
+    }
+  }
+
+  Validation(): boolean {
+    var swimlanes = this.cs.sstProcessSteps.filter(x => x.shapeType == ShapeTypes.swimlane);
+    var test = 0;
+    let flagRelation = <boolean[]>[];
+
+    if (swimlanes.length > 1) {
+      for (var swimlane of swimlanes) {
+        var swimlanesSteps = this.cs.sstProcessSteps.filter(x => x.processStepId == swimlane.stepId);
+        var otherSwimlaneSteps = this.cs.sstProcessSteps.filter(x => x.processStepId != swimlane.stepId);
+
+        console.log("swimlanes " + swimlane.stepId + "swimlanes Steps length = " + swimlanesSteps.length);
+
+        swimlanesSteps.forEach(step => {
+          console.log("step =" + step.stepId + ' it swimlane = ' + step.processStepId);
+
+          step.sstProcessParentSteps.forEach(parent => {
+            console.log("step =" + parent.shapeId + 'it parent = ' + parent.parentShapeId);
+            otherSwimlaneSteps.forEach(otherSwimlaneStep => {
+              if (parent.parentShapeId != step.stepId && parent.parentShapeId == otherSwimlaneStep.stepId) {
+                var index = swimlanes.findIndex((e) => e.stepId == swimlane.stepId);
+                flagRelation[index] = true;
+                console.log(flagRelation[index]);
+                stop();
+              }
+            });
+          });
+
+        });
+
+      }
+    }
+    var valid = false;
+    flagRelation.forEach(x => {
+      if (x == true && flagRelation.length == swimlanes.length) {
+        valid = true;
+      } else {
+        valid = false;
+        return null;
+      }
+    });
+
+    return valid;
+  }
+
+  SaveUpdateProcessDetails() {
+    var validOrNot = false;
+    validOrNot = this.Validation();
+
+    var coubt3 = this.cs.sstProcessSteps.filter(x => (x.shapeType == ShapeTypes.end)).length;
+    var count2 = this.cs.sstProcessSteps.filter(x => (x.shapeType == ShapeTypes.start)).length;
+
+    var swimlanes = this.cs.sstProcessSteps.filter(x => x.shapeType == ShapeTypes.swimlane);
+    for (var item of swimlanes) {
+      var count1 = this.cs.sstProcessSteps.filter(x => x.processStepId == item.stepId);
+      // var count2 = count1.filter(x => (x.shapeType == ShapeTypes.start)).length;
+      // var coubt3 = count1.filter(x => (x.shapeType == ShapeTypes.end)).length;
+      if (count2 == 0 || coubt3 == 0) {
+        this.msgSer.add({ key: 'popupScreen', severity: 'error', summary: 'Error', detail: item.name + ' must contain at least one start and one end at process' });
+        return null;
+      }
+    }
+    var count = this.cs.sstProcessSteps.filter(x => x.sstProcessParentSteps.length == 0 && ((x.shapeType != ShapeTypes.swimlane) && (x.shapeType != ShapeTypes.start))).length;
+    if (count > 0) {
+      this.msgSer.add({ key: 'popupScreen', severity: 'error', summary: 'Error', detail: 'one or more steps not connected' });
+      return null;
+    }
+    else {
+      if (swimlanes.length > 1 && validOrNot == false) {
+
+        this.msgSer.add({ key: 'popupScreen', severity: 'error', summary: 'Error', detail: 'one or more swimlanes are not connected' });
+        return null;
+
+      } else {
+        this.procService.putProcessWidthDetails(this.cs.processID, this.cs.sstProcessSteps).subscribe(
+          data => {
+            if (this.showProcessSaveOrUpdate) {
+              this._router.navigate(["process-builder/process"]);
+            }
+            else {
+              this.msgSer.add({ key: 'popupScreen', severity: 'success', summary: 'Success', detail: 'process steps Added successfully' });
+              this.showProcessSaveOrUpdate = true;
+            }
+          });
+      }
+
+    }
+  }
+
+  BackToList() {
+    this._router.navigate(["process-builder/process"]);
+  }
+
+  closeModalDialog() {
+    this.dispalyEdgeDialog = false;//set none css after close dialog
+    this.showSettings = false;
+    this.resetForm();
+  }
+
+  resetForm() {
+   // this.cs.resetForm(this.stepPropertiesForm);
+    this.cs.resetForm(this.edgePropertiesForm);
+    this.createProcessForm();
+  }
+
+
+
+  mapProcessModel(graph) {
+    this.cs.pushToArray({ ...this.cs.selectedStep });
+    graph.model.setValue(this.cs.cell, this.cs.selectedStep.name);
+  }
+
+
+
+  mapProcessModel2(graph, step) {
+
+    if (this.oldSelectedCell != this.selectedCell) {
+      this.oldSelectedCell = this.selectedCell;
+    }
+    
+    let lst: any[] = [this.selectedCell];
+
+    graph.getModel().beginUpdate();
+    this.selectedCell.name = step.name;
+    this.selectedCell.geometry.width = step.width;
+    this.selectedCell.geometry.height = step.height;
+
+ 
+
+    if (this.selectedCell.style == ShapeTypes[ShapeTypes.swimlane])
+      flagSW = true;
+      graph.model.setValue(this.selectedCell, step.name);
+      graph.setCellStyles(mx.mxConstants.STYLE_FILLCOLOR, step.backColor, lst);
+      graph.setCellStyles(mx.mxConstants.STYLE_FONTCOLOR, step.fontColor, lst);
+      graph.setCellStyles(mx.mxConstants.STYLE_FONTSIZE, step.fontSize, lst);
+      graph.setCellStyles(mx.mxConstants.STYLE_RESIZE_WIDTH, step.width, lst);
+      graph.setCellStyles(mx.mxConstants.STYLE_RESIZE_HEIGHT, step.height, lst);
+      graph.moveCells(lst, (step.xPosition - this.oldSelectedCell.geometry.x), (step.yPosition - this.oldSelectedCell.geometry.y), false);
+    
+    graph.getModel().endUpdate();
+    this.cs.pushToArray({ ...step });
+  }
+
+ 
+
+  mapEdgeModel(graph) {
+    this.cs.selectedEdge.edgeDescription = this.edgePropertiesForm.value.EdgeDesc;
+    graph.model.setValue(this.cs.cell, this.cs.selectedEdge.edgeDescription);
+    this.cs.updateEdge({ ...this.cs.selectedEdge });
+  }
+
+}
+
+   
+11-Services
+     
+A-Common Services.ts
+
+import { Injectable } from '@angular/core';
+import { MessageService } from 'primeng/api';
+import { HttpClient } from '@angular/common/http';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { SstProcesses, SstProcessSteps, SstProcessParentSteps, ShapeTypes } from '../models/models';
+
+
+@Injectable({
+  providedIn: 'root'
+})
+
+export class CommonService {
+
+  constructor(private messageService: MessageService, private httpClient: HttpClient, public fb: FormBuilder) { }
+
+  selectedStep: SstProcessSteps = new SstProcessSteps();
+ // proc: SstProcesses = new SstProcesses();
+
+  processID: number;
+  sstProcessSteps: SstProcessSteps[];
+  graph: any;
+  parent: any;
+  cell: any;
+  selectedEdge: SstProcessParentSteps = new SstProcessParentSteps();
+  currentState: any;
+  dragElt: any;
+
+  resetForm(formGroup: FormGroup) {
+    formGroup.reset();
+    this.messageService.clear();
+  }
+
+  DeleteSwapedEdge(s1: number) {
+
+    const index = this.sstProcessSteps.findIndex((e) => e.stepId == s1);
+    var res = this.sstProcessSteps.find((e) => e.stepId == s1);
+    const parentIndex = res.sstProcessParentSteps.findIndex(i => i.shapeId == s1);
+    // this.proc.ProcessSteps[index].ParentObjects[parentIndex]
+
+    this.sstProcessSteps[index].sstProcessParentSteps.splice(parentIndex, 1);
+    this.selectedEdge = new SstProcessParentSteps();
+  }
+
+  getShapeTypeValue(type: string) {
+
+    var shapeType = type.split(";")[0];
+
+    if (shapeType == ShapeTypes[ShapeTypes.swimlane]) {
+      return ShapeTypes.swimlane;
+    }
+    else if (shapeType == ShapeTypes[ShapeTypes.start]) {
+      return ShapeTypes.start;
+    }
+    else if (shapeType == ShapeTypes[ShapeTypes.end]) {
+      return ShapeTypes.end;
+    }
+    else if (shapeType == ShapeTypes[ShapeTypes.process]) {
+      return ShapeTypes.process;
+    }
+    else if (shapeType == ShapeTypes[ShapeTypes.condition]) {
+      return ShapeTypes.condition;
+    }
+  }
+
+  DeleteEdge(s1: SstProcessParentSteps) {
+    const index = this.sstProcessSteps.findIndex((e) => e.stepId == s1.shapeId);
+    var res = this.sstProcessSteps.find((e) => e.stepId == s1.shapeId);
+    const parentIndex = res.sstProcessParentSteps.findIndex(i => i.shapeId == s1.shapeId
+      && i.parentShapeId == s1.parentShapeId);
+    // this.proc.ProcessSteps[index].ParentObjects[parentIndex]
+
+    this.sstProcessSteps[index].sstProcessParentSteps.splice(parentIndex, 1);
+    this.selectedEdge = new SstProcessParentSteps();
+  }
+
+  updateEdge(s1: SstProcessParentSteps) {
+    debugger;
+    const index = this.sstProcessSteps.findIndex((e) => e.stepId == s1.shapeId);
+    var res = this.sstProcessSteps.find((e) => e.stepId == s1.shapeId);
+    const parentIndex = res.sstProcessParentSteps.findIndex(i => i.shapeId == s1.shapeId
+      && i.parentShapeId == s1.processStepId);
+    this.sstProcessSteps[index].sstProcessParentSteps[parentIndex].edgeDescription = s1.edgeDescription;
+  }
+
+  pushToArray(obj: SstProcessSteps) {
+    debugger;
+    const index = this.sstProcessSteps.findIndex((e) => e.stepId == obj.stepId);
+    if (index === -1) {
+      this.sstProcessSteps.push(obj);
+    } else {
+      this.sstProcessSteps[index] = obj;
+    }
+  }
+
+  setSelectedCellValue(cell: any) {
+
+    if (cell != null) {
+      if (cell.vertex == true) {
+        this.selectedStep = new SstProcessSteps();
+        this.selectedStep.stepId = parseInt(cell.id);
+        this.selectedStep.name = cell.value;
+        this.selectedStep.shapeType = this.getShapeTypeValue(cell.style);
+        this.selectedStep.xPosition = cell.geometry.x;
+        this.selectedStep.yPosition = cell.geometry.y;
+        this.selectedStep.width = cell.geometry.width;
+        this.selectedStep.height = cell.geometry.height;
+        this.selectedStep.processId = this.processID;
+        this.selectedStep.creationUser = "Admin";
+        this.selectedStep.creationDate = new Date();
+
+        var mx = this.graph.getCellStyle(cell);
+        if (mx.fontColor == "white") {
+          this.selectedStep.fontColor = "#FFFFFF";
+        }
+        else
+        {
+          this.selectedStep.fontColor = mx.fontColor;
+        }
+        this.selectedStep.backColor = mx.fillColor;
+        console.log('color is :' + this.selectedStep.fontColor);
+        this.selectedStep.fontSize = mx.fontSize;
+
+        //If the selected shape is not swimlane then we put the vertex  swimlane ID = ID of the swimlane object
+        if (this.selectedStep.shapeType != ShapeTypes.swimlane) {
+          this.selectedStep.processStepId = parseInt(cell.parent.id);
+        }
+        else {
+          this.selectedStep.processStepId = null;
+        }
+
+        if (this.sstProcessSteps.find(obj => obj.stepId== this.selectedStep.stepId) != null) {
+          this.selectedStep.sstProcessParentSteps = this.sstProcessSteps.find(obj => obj.stepId == this.selectedStep.stepId).sstProcessParentSteps;
+          }
+        //This part is used for update the process object
+        const index = this.sstProcessSteps.findIndex((e) => e.stepId == this.selectedStep.stepId);
+        if (index >= 0) {
+          this.sstProcessSteps[index] = this.selectedStep;
+        }
+
+      }
+    }
+  }
+
+}
+   
+ B-mailer.service.ts
+ 
+ import { Injectable } from '@angular/core';
+import { HttpHeaders, HttpClient } from '@angular/common/http';
+import { ResponseResult } from 'src/app/shared/models/models';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { SstMailer } from '../models/models';
+import { environment } from 'src/environments/environment';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MailerService {
+
+  private apiUrl = environment.apiUrl + 'api/Mailer';
+  private httpHeaders = new HttpHeaders().set('accept', 'application/json');
+
+  constructor(private http: HttpClient) { }
+
+  postMailer(mailerModel: SstMailer): Observable<ResponseResult<SstMailer>> {
+    return this.http.post<ResponseResult<SstMailer>>(this.apiUrl, mailerModel,
+      { headers: this.httpHeaders, responseType: 'json' }).pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        }),
+      );
+  }
+
+  putMailer(mailerModel: SstMailer): Observable<ResponseResult<SstMailer>> {
+    return this.http.put<ResponseResult<SstMailer>>(this.apiUrl + "/" + mailerModel.id, mailerModel,
+      { headers: this.httpHeaders, responseType: 'json' }).pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        }),
+      );
+  }
+
+  getMailer(): Observable<ResponseResult<SstMailer[]>> {
+    return this.http.get<ResponseResult<SstMailer[]>>(this.apiUrl,
+      { headers: this.httpHeaders, responseType: 'json' }).pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        }),
+      );
+  }
+}
+
+C-notification-servcice.ts
+
+import { Injectable } from '@angular/core';
+import { HttpHeaders, HttpClient } from '@angular/common/http';
+import { ResponseResult } from 'src/app/shared/models/models';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { SstNotifications } from '../models/models';
+import { environment } from 'src/environments/environment';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class NotificationService {
+
+  private apiUrl = environment.apiUrl + 'api/Notification';
+  private httpHeaders = new HttpHeaders().set('accept', 'application/json');
+
+  constructor(private http: HttpClient) { }
+
+
+  post(sstNotification: SstNotifications): Observable<ResponseResult<SstNotifications>> {
+    return this.http.post<ResponseResult<SstNotifications>>(this.apiUrl, sstNotification,
+      { headers: this.httpHeaders, responseType: 'json' }).pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        }),
+      );
+  }
+
+  put(sstNotification: SstNotifications): Observable<ResponseResult<SstNotifications>> {
+    return this.http.put<ResponseResult<SstNotifications>>(this.apiUrl + "/" + sstNotification.id, sstNotification,
+      { headers: this.httpHeaders, responseType: 'json' }).pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        }),
+      );
+  }
+
+  getAll(): Observable<ResponseResult<SstNotifications[]>> {
+    return this.http.get<ResponseResult<SstNotifications[]>>(this.apiUrl,
+      { headers: this.httpHeaders, responseType: 'json' }).pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        }),
+      );
+  }
+}
+C-NotificationAttachmentsService
+
+
+import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment.prod';
+import { HttpHeaders, HttpClient } from '@angular/common/http';
+import { SstNotificationsAttachments } from '../models/models';
+import { Observable, throwError } from 'rxjs';
+import { ResponseResult } from 'src/app/shared/models/models';
+import { catchError } from 'rxjs/operators';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class NotificationAttachmentsService {
+
+  private apiUrl = environment.apiUrl + 'api/NotificationAttachments';
+  private httpHeaders = new HttpHeaders().set('accept', 'application/json');
+  constructor(private http: HttpClient) { }
+
+  getAttachmentById(id: number): Observable<ResponseResult<SstNotificationsAttachments>> {
+    let getUrl = this.apiUrl + "/" + id;
+    return this.http.get<ResponseResult<SstNotificationsAttachments>>(getUrl, { headers: this.httpHeaders, responseType: 'json' }).pipe(
+      catchError(err => {
+        console.log('Handling error locally and rethrowing it...', err);
+        return throwError(err);
+      }),
+    );
+  }
+
+  getAllAttachments(): Observable<ResponseResult<SstNotificationsAttachments[]>> {
+    return this.http.get<ResponseResult<SstNotificationsAttachments[]>>(this.apiUrl, { headers: this.httpHeaders, responseType: 'json' }).pipe(
+      catchError(err => {
+        console.log('Handling error locally and rethrowing it...', err);
+        return throwError(err);
+      }),
+    );
+  }
+
+  deleteAttachment(id: number): Observable<ResponseResult<SstNotificationsAttachments>> {
+    let getUrl = this.apiUrl + "/" + id;
+    return this.http.delete<ResponseResult<SstNotificationsAttachments>>(getUrl, { headers: this.httpHeaders, responseType: 'json' }).pipe(
+      catchError(err => {
+        console.log('Handling error locally and rethrowing it...', err);
+        return throwError(err);
+      }),
+    );
+  }
+
+  saveAttachment(notificationsAttachments: SstNotificationsAttachments): Observable<ResponseResult<SstNotificationsAttachments>> {
+    return this.http.post<ResponseResult<SstNotificationsAttachments>>(this.apiUrl, notificationsAttachments, { headers: this.httpHeaders, responseType: 'json' }).pipe(
+      catchError(err => {
+        console.log('Handling error locally and rethrowing it...', err);
+        return throwError(err);
+      }),
+    );
+  }
+
+  updateAttachment(notificationsAttachments: SstNotificationsAttachments): Observable<ResponseResult<SstNotificationsAttachments>> {
+    let getUrl = this.apiUrl + "/" + notificationsAttachments.id;
+    return this.http.put<ResponseResult<SstNotificationsAttachments>>(getUrl, notificationsAttachments, { headers: this.httpHeaders, responseType: 'json' }).pipe(
+      catchError(err => {
+        console.log('Handling error locally and rethrowing it...', err);
+        return throwError(err);
+      }),
+    );
+  }
+}
+
+
+
+import { Injectable } from '@angular/core';
+import { SstNotificationsTemplates } from '../models/models';
+import { ResponseResult } from 'src/app/shared/models/models';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class NotificationTemplatesService {
+
+  private apiUrl = environment.apiUrl + 'api/NotificationTemplates';
+  private httpHeaders = new HttpHeaders().set('accept', 'application/json');
+
+  
+  constructor(private http: HttpClient) { }
+
+  post(model: SstNotificationsTemplates): Observable<ResponseResult<SstNotificationsTemplates>> {
+    return this.http.post<ResponseResult<any>>(this.apiUrl, model,
+      { headers: this.httpHeaders, responseType: 'json' }).pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        }),
+      );
+  }
+
+  put(model: SstNotificationsTemplates): Observable<ResponseResult<SstNotificationsTemplates>> {
+    return this.http.put<ResponseResult<SstNotificationsTemplates>>(this.apiUrl + "/" + model.id, model,
+      { headers: this.httpHeaders, responseType: 'json' }).pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        }),
+      );
+  }
+
+  get(notificationId: number, templateType: number): Observable<ResponseResult<SstNotificationsTemplates[]>> {
+      return this.http.get<ResponseResult<SstNotificationsTemplates[]>>(this.apiUrl + '/' + notificationId + '/' + templateType,
+      { headers: this.httpHeaders, responseType: 'json' }).pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        }),
+      );
+  }
+}
+
+
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { throwError, Observable } from 'rxjs';
+import { ResponseResult } from 'src/app/shared/models/models';
+import { catchError } from 'rxjs/operators';
+import { SstSmsProviders } from '../models/models';
+import { environment } from 'src/environments/environment';
+
+
+@Injectable({
+  providedIn: 'root'
+})
+export class SmsProviderService {
+  private apiUrl = environment.apiUrl + 'api/SmsProvider';
+  private httpHeaders = new HttpHeaders().set('accept', 'application/json'); 
+
+  constructor(private http: HttpClient) { } 
+
+  postSmsProvider(smsProviderModel: SstSmsProviders): Observable<ResponseResult<SstSmsProviders>> {
+    return this.http.post<ResponseResult<any>>(this.apiUrl, smsProviderModel,
+      { headers: this.httpHeaders, responseType: 'json' }).pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        }),
+      );
+  }
+
+  putSmsProvider(smsProviderModel: SstSmsProviders): Observable<ResponseResult<SstSmsProviders>> {
+    return this.http.put<ResponseResult<SstSmsProviders>>(this.apiUrl + "/" + smsProviderModel.id, smsProviderModel,
+      { headers: this.httpHeaders, responseType: 'json' }).pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        }),
+      );
+  }
+
+  getSmsProvider(): Observable<ResponseResult<SstSmsProviders[]>> {
+    return this.http.get<ResponseResult<SstSmsProviders[]>>(this.apiUrl,
+      { headers: this.httpHeaders, responseType: 'json' }).pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        }),
+      );
+  }
+}
+
+
+import { Injectable } from '@angular/core';
+import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
+import { ResponseResult, IService } from 'src/app/shared/models/models';
+import { SstProcesses, SstProcessSystems, SearchProcess } from '../models/models';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { environment } from 'src/environments/environment.prod';
+import { SelectItem } from 'primeng/api';
+
+@Injectable({
+  providedIn: 'root'
+})
+
+export class SstProcessService implements IService<SstProcesses>{
+
+
+  private apiUrl = environment.apiUrl + 'api/SstProcesses';
+  private httpHeaders = new HttpHeaders().set('Accept', 'application/json').set('Access-Control-Allow-Origin', '*').set('content-type', 'application/json; charset=utf-8');;
+
+
+
+
+  shapes: SstProcesses[] = new Array<SstProcesses>();
+
+  constructor(private http: HttpClient) { }
+
+  getAll(): Observable<ResponseResult<SstProcesses[]>> {
+    let getUrl = this.apiUrl + '/GetAll';
+
+    return this.http.get<ResponseResult<SstProcesses[]>>(getUrl,
+      { headers: this.httpHeaders, responseType: 'json' })
+      .pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        })
+      );
+  }
+
+
+
+  Post(entity: SstProcesses): Observable<ResponseResult<SstProcesses>> {
+    let getUrl = this.apiUrl;
+    debugger;
+    entity.creationUser = "Admin";
+    entity.creationDate = new Date();
+    return this.http.post<ResponseResult<SstProcesses>>(getUrl, entity, { headers: this.httpHeaders, responseType: 'json' })
+      .pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        })
+      );
+  }
+
+
+
+  Put(entity: SstProcesses): Observable<ResponseResult<SstProcesses>> {
+    debugger;
+    let getUrl = this.apiUrl;
+    debugger;
+    entity.modificationUser = "Admin";
+    entity.modificationDate = new Date();
+    return this.http.put<ResponseResult<SstProcesses>>(getUrl, entity, { headers: this.httpHeaders, responseType: 'json' })
+      .pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        })
+      );
+  }
+
+
+  Delete(id: number): Observable<ResponseResult<SstProcesses>> {
+    let getUrl = this.apiUrl + '/' + id;
+    return this.http.delete<ResponseResult<SstProcesses>>(getUrl, { headers: this.httpHeaders, responseType: 'json' })
+      .pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        })
+      );
+  }
+
+  GetId(Id: number): Observable<any[]> {
+    let getUrl = this.apiUrl + '/' + Id;
+    return this.http.get<any[]>(getUrl, { headers: this.httpHeaders, responseType: 'json' });
+  }
+
+  RemoveRange(range: SstProcessSystems[]): any {
+    debugger;
+    let getUrl = this.apiUrl + "/RemoveRange";
+    return this.http.post<SstProcessSystems[]>(getUrl, range, { headers: this.httpHeaders, responseType: 'json' })
+      .pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        })
+      );
+  }
+
+  GetById(Id: number): Observable<ResponseResult<SstProcesses>> {
+    throw new Error("Method not implemented.");
+  }
+
+
+
+
+
+
+
+
+  LoadProcessWithDetails(id: number): Observable<any> {
+    debugger;
+    const httpOptions =
+    {
+      headers: new HttpHeaders({
+        'accept': 'application/json'
+      })
+    };
+    let getUrl = this.apiUrl + '/LoadProcessWithDetails' + '/' + id;
+    return this.http.get<any>(getUrl, { headers: this.httpHeaders, responseType: 'json' });
+  }
+
+  putProcessWidthDetails(procID, procsteps) {
+    debugger;
+    var body = JSON.stringify(procsteps);
+    const httpOptions =
+    {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': 'my-auth-token'
+      })
+    };
+    let getUrl = this.apiUrl + '/UpdateProcessSteps/' + procID;
+
+
+    return this.http.put<ResponseResult<SstProcesses>>(getUrl, procsteps, { headers: this.httpHeaders, responseType: 'json' })
+      .pipe(
+        catchError(err => {
+          console.log('Handling error locally and rethrowing it...', err);
+          return throwError(err);
+        })
+      );
+
+
+  }
+
+  copyProcess(id: number): Observable<any> {
+    debugger;
+    const httpOptions =
+    {
+      headers: new HttpHeaders({
+        'accept': 'application/json'
+      })
+    };
+    let getUrl = this.apiUrl + '/copyProcess' + '/' + id;
+    return this.http.get<any>(getUrl, { headers: this.httpHeaders, responseType: 'json' });
+
+  }
+
+
+  searchProcess(names: string[], filteredCols: string[]): Observable<ResponseResult<SstProcesses[]>>
+  {
+    debugger;
+    const httpOptions =
+    {
+      headers: new HttpHeaders({
+        'accept': 'application/json'
+      })
+    };
+    let body = new SearchProcess();
+    body.Names = names;
+    body.filterdCols = filteredCols;
+
+    let getUrl = this.apiUrl + '/Search';
+    return this.http.post<ResponseResult<SstProcesses[]>>(getUrl, body ,{ headers: this.httpHeaders, responseType: 'json' });
+  }
+
+}
+  
+       
+      
+      
+ 12-processBuilderModele.ts
+      
+     import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+import { DialogModule } from 'primeng/dialog';
+import { TieredMenuModule } from 'primeng/tieredmenu';
+import { SharedModule } from '../shared/shared.module';
+
+import { ProcessBuilderRoutingModule } from './process-builder-routing.module';
+
+import { ProcessShapeComponent } from './dynamic-shapes/process-shape/process-shape.component';
+import { ProcessDesignerComponent } from './process-designer/process-designer.component';
+
+import { ProcessDefinitionComponent } from './process-definition/process-definition.component';
+import { MainAppComponent } from '../process-builder/app/app.component';
+
+
+import { ShapeDirective } from './directive/directive';
+import { AccordionModule, SidebarModule, ContextMenuModule, MultiSelectModule, ChipsModule, SplitButtonModule } from 'primeng/primeng';
+import { InplaceModule } from 'primeng/inplace';
+import { SstProcessService } from './services/SstProcess.service';
+import { BlockUIModule } from 'primeng/blockui';
+
+import { CheckboxModule } from 'primeng/checkbox';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { ColorPickerModule } from 'primeng/colorpicker';
+
+import { NotificationSetupComponent } from './notification-setup/notification-setup.component';
+import { NotificationComponent } from './notification/notification.component';
+import { NotificationConfigurationComponent } from './notification-configuration/notification-configuration.component';
+import { NotificationFormatterComponent } from './notification-formatter/notification-formatter.component';
+
+
+import { NotificationAttachmentsComponent } from './notification-attachments/notification-attachments.component';
+import { NotificationService } from './services/notification.service';
+import { MailerService } from './services/mailer.service';
+import { SmsProviderService } from './services/sms-provider.service';
+import { NotificationTemplatesService } from './services/notification-templates.service';
+import { NotificationAttachmentsService } from './services/notification-attachments.service';
+import { DynamicControlComponent } from './dynamic-shapes/dynamic-control.component';
+import { StepSettingsEditorComponent } from './Editor/step-settings-editor/step-settings-editor.component';
+@NgModule({
+  declarations: [
+    MainAppComponent,
+    ProcessDefinitionComponent,
+    ProcessDesignerComponent,
+    ProcessShapeComponent,
+    ShapeDirective,
+
+    NotificationSetupComponent,
+    NotificationComponent,
+    NotificationConfigurationComponent,
+    NotificationFormatterComponent,
+   
+  
+    NotificationAttachmentsComponent,
+    DynamicControlComponent,
+    StepSettingsEditorComponent
+  ],
+  imports: [
+    CommonModule,
+    SharedModule,
+    ProcessBuilderRoutingModule,
+    DialogModule,
+    TieredMenuModule,
+    AccordionModule,
+    InplaceModule,
+    SidebarModule,
+    BlockUIModule,
+    ContextMenuModule,
+    CheckboxModule,
+    MultiSelectModule,
+    ChipsModule,
+    SplitButtonModule,
+    InputSwitchModule,
+    ColorPickerModule
+  ],
+  providers: [
+    SstProcessService,
+    MailerService,
+    SmsProviderService,
+    NotificationService,
+    NotificationTemplatesService,
+    NotificationAttachmentsService
+  ]
+
+})
+export class ProcessBuilderModule { }
+
+
+
+
+13-proces-builder-routing.ts
+
+import { NgModule } from '@angular/core';
+import { Routes, RouterModule } from '@angular/router';
+import { ProcessDefinitionComponent } from './process-definition/process-definition.component';
+import { ProcessDesignerComponent } from './process-designer/process-designer.component';
+import { MainAppComponent } from './app/app.component';
+import { NotificationComponent } from './notification/notification.component';
+import { NotificationConfigurationComponent } from './notification-configuration/notification-configuration.component';
+import { NotificationSetupComponent } from './notification-setup/notification-setup.component';
+import { NotificationFormatterComponent } from './notification-formatter/notification-formatter.component';
+
+const routes: Routes = [
+  {
+    path: '',
+    redirectTo: 'app',
+    pathMatch: 'full'
+  },
+  {
+    path: 'app',
+    component: MainAppComponent
+
+  }
+  ,
+  {
+    path: 'process',
+    component: ProcessDefinitionComponent
+
+  },
+  {
+    path: 'processDesigner/:id',
+    component: ProcessDesignerComponent
+  },
+  {
+    path: 'notification',
+    component: NotificationComponent,
+    children: [
+      {
+        path: '',
+        redirectTo: 'notificationConfiguration',
+        pathMatch: 'full'
+      },
+      {
+        path: 'notificationConfiguration',
+        component: NotificationConfigurationComponent
+      },
+      {
+        path: 'notificationSetup',
+        component: NotificationSetupComponent
+      },
+      {
+        path: 'notificationFormatter',
+        component: NotificationFormatterComponent
+      },
+    ]
+  }
+
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class ProcessBuilderRoutingModule { }
+ 
+      
+      
+      
+      
+          
+ */
+
+
+end;

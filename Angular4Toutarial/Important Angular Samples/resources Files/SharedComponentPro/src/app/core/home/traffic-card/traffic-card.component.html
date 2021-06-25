@@ -1,0 +1,17 @@
+<nb-reveal-card [showToggleButton]="false" [revealed]="revealed">
+  <nb-card-front>
+    <nb-card size="small">
+      <shc-traffic-card-header [type]="period" (periodChange)="setPeriodAngGetData($event)"></shc-traffic-card-header>
+      <shc-traffic-front-side [frontCardData]="trafficListData"></shc-traffic-front-side>
+      <i class="fa fa-arrow-up" aria-hidden="true" (click)="toggleView()"></i>
+    </nb-card>
+  </nb-card-front>
+  <nb-card-back>
+    <nb-card size="small">
+      <!--<shc-traffic-card-header [type]="period" (periodChange)="setPeriodAngGetData($event)"></shc-traffic-card-header>-->
+      <!--<shc-traffic-back-side [trafficBarData]="trafficBarData"></shc-traffic-back-side>-->
+      <shc-back-traffic-chart></shc-back-traffic-chart>
+      <i class="fa fa-arrow-down" aria-hidden="true" (click)="toggleView()"></i>
+    </nb-card>
+  </nb-card-back>
+</nb-reveal-card>

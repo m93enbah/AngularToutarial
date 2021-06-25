@@ -1,0 +1,90 @@
+<div>
+  <img src="../../../assets/images/payment/{{paymentType}}.png" alt="{{paymentType}}" />
+</div>
+<form [formGroup]="manageForm" style="width:100%" (ngSubmit)="onSave()">
+  <div class="card">
+    <div class="card-content">
+      <span class="card-content-header">Payment Success Notification</span>
+      <span class="card-content-text">Send an email when payment has been processed successfully.</span>
+    </div>
+    <div class="float-right">
+      <label class="swtich">
+        <input type="checkbox" formControlName="paymentSuccess" />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-content">
+      <span class="card-content-header">Cancel Recurring Payment</span>
+      <span class="card-content-text">Send an email when a recurring payment is canceled.</span>
+    </div>
+    <div class="float-right">
+      <label class="swtich">
+        <input type="checkbox" formControlName="CancelRecurring" />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-content">
+      <span class="card-content-header">Payment expired</span>
+      <span class="card-content-text">Send an email when recurring payment has expired.</span>
+    </div>
+    <div class="float-right">
+      <label class="swtich">
+        <input type="checkbox" formControlName="paymentExpired" />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-content">
+      <span class="card-content-header">Card about to Expire</span>
+      <span class="card-content-text">Send an email 15 days before the payment card is set to expire.</span>
+    </div>
+    <div class="float-right">
+      <label class="swtich">
+        <input type="checkbox" formControlName="cardToExpire" />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-content">
+      <span class="card-content-header">Card Expired  </span>
+      <span class="card-content-text">Sent an email after the payment card has expired.</span>
+    </div>
+    <div class="float-right">
+      <label class="swtich">
+        <input type="checkbox" formControlName="cardExpired" />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-content">
+      <span class="card-content-header">Payment Renewal Ahead</span>
+      <span class="card-content-text">Send an email 5 days before the payment renewal date.</span>
+    </div>
+    <div class="float-right">
+      <label class="swtich">
+        <input type="checkbox" formControlName="paymentRenewal" />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-content">
+      <span class="card-content-header">Payment Failure Notification</span>
+      <span class="card-content-text">Send an email when a recurring payment has failed.</span>
+    </div>
+    <div class="float-right">
+      <label class="swtich">
+        <input type="checkbox" formControlName="paymentFailure" />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+  <div class="float-right"><button type="button" class="btn btn-primary">Save</button></div>
+</form>

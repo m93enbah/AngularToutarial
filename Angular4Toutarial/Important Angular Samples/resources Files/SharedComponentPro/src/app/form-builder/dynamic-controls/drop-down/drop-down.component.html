@@ -1,0 +1,24 @@
+<div class="form-group editor-control" [ngClass]="{'col-md-3': control.width ==1 ,'col-md-6': control.width==2, 'col-md-9':control.width==3,'col-md-12':control.width==4  }">
+
+  <div [formGroup]="form" class="prime-form-control">
+
+    <span class="ui-float-label">
+
+      <div [ngSwitch]="control.multiSelect">
+        <p-dropdown *ngSwitchCase="false" [options]="control.options"   [panelStyle]="{minWidth:'12em'}"
+                    [formControlName]="control.key"
+                    [name]="" [required]="control.required" [shcRequired]="control.required" [filter]="control.filter" [appDisable]="control.disabled"
+                    class="form-control-ng"></p-dropdown>
+
+        <p-multiSelect *ngSwitchCase="true" [options]="control.options" [formControlName]="control.key" [panelStyle]="{minWidth:'12em'}"
+                       [appDisable]="control.disabled" [required]="control.required" [shcRequired]="control.required" [styleClass]=""></p-multiSelect>
+      </div>
+
+      <label [attr.for]="control.key" class="component-label">{{control.name}}</label>
+    </span>
+
+
+
+
+  </div>
+</div>

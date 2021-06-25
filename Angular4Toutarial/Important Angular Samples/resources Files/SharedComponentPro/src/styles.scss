@@ -1,0 +1,825 @@
+/* You can add global styles to this file, and also import other style files */
+/*@import url("assets/styles/ThemeStyle.min.css");
+@import url("assets/styles/AdminLTE.css");*/
+@import url("assets/styles/skin-eska-blue.min.css");
+@import url("assets/styles/login-en.css");
+@import url("assets/styles/EskaTheme-en.css"); 
+@import url("assets/styles/custom.css");
+@import url("assets/styles//FormBuilder.css");
+
+
+/*Master Page design*/
+
+
+@import "~@angular/material/theming";
+@include mat-core();
+
+$ESKATheme-primary: mat-palette($mat-blue);
+$ESKATheme-accent: mat-palette($mat-green, A200, A100, A400);
+
+$ESKATheme-warn: mat-palette($mat-red);
+
+$ESKATheme-theme: mat-light-theme($ESKATheme-primary, $ESKATheme-accent, $ESKATheme-warn);
+
+@font-face {
+  font-family: "Material Icons";
+  font-style: normal;
+  font-weight: 400;
+  src: url(../node_modules/material-design-icons/iconfont/MaterialIcons-Regular.eot);
+  src: local("Material Icons"), local("MaterialIcons-Regular"), url(../node_modules/material-design-icons/iconfont/MaterialIcons-Regular.woff2) format("woff2"), url(../node_modules/material-design-icons/iconfont/MaterialIcons-Regular.woff) format("woff"), url(../node_modules/material-design-icons/iconfont/MaterialIcons-Regular.ttf) format("truetype");
+}
+
+.material-icons {
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  vertical-align: middle;
+  /* Support for all Webkit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+  /* Support for IE. */
+  font-feature-settings: "liga";
+}
+
+
+@include angular-material-theme($ESKATheme-theme);
+
+
+@import "~@swimlane/ngx-datatable/release/index.css";
+@import "~@swimlane/ngx-datatable/release/themes/material.css";
+@import "~@swimlane/ngx-datatable/release/assets/icons.css";
+@import "~@angular/material/theming";
+
+
+
+/*Scroll*/
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c5c5c5;
+}
+
+body {
+  scrollbar-3dlight-color: #fff;
+  scrollbar-arrow-color: #68bee7;
+  scrollbar-darkshadow-color: #ffffff;
+  scrollbar-face-color: #68bee7;
+  scrollbar-highlight-color: #68bee7;
+  scrollbar-shadow-color: #ffffff;
+  scrollbar-track-color: #e1ecf1;
+  -ms-overflow-style: scrollbar;
+}
+
+.mat-drawer-inner-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+/*Scroll*/
+body,
+html {
+  height: 100%;
+}
+
+body.layout-boxed {
+  background-color: #e8e8e8;
+}
+
+body.layout-boxed {
+  .wrapper {
+    max-width: 1250px;
+    margin: 0 auto;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+  }
+}
+
+@media (min-width: 1249px) {
+  body.layout-boxed {
+    .wrapper {
+      .content-wrapper {
+        .mat-drawer {
+          visibility: visible !important;
+
+          .mat-drawer-inner-container {
+            .toggle-menu {
+              .mini-menu-btn {
+                left: 0;
+                right: 819px;
+                margin: auto;
+              }
+            }
+          }
+        }
+
+        &.sidebar-mini {
+          .mat-drawer {
+            .mat-drawer-inner-container {
+              .toggle-menu {
+                .mini-menu-btn {
+                  left: 0;
+                  right: 1100px;
+                  margin: auto;
+                }
+              }
+            }
+          }
+        }
+
+        .mat-drawer-content {
+          .main-footer {
+            left: 85px;
+            right: 215px;
+            width: 1189px;
+            margin: auto;
+          }
+
+          &[style*="margin"] {
+            .main-footer {
+              left: 231px;
+              right: 0;
+              width: 1019px;
+              margin: auto;
+            }
+          }
+        }
+
+        &.sidebar-mini {
+          .mat-drawer-content[style*="margin"] {
+            .main-footer {
+              left: 61px;
+              right: 0;
+              width: 1189px;
+            }
+          }
+        }
+
+        &.sidebar-mini {
+          .mat-drawer-content {
+            .main-footer {
+              left: 0;
+              right: 0;
+              width: 1250px;
+            }
+          }
+        }
+      }
+    }
+
+    .main-footer {
+      .floating-btn {
+        right: 70px;
+      }
+
+      .to-do-list {
+        right: 0;
+        left: 940px;
+        margin: auto;
+      }
+
+      .to-do-list.active {
+        right: 0;
+        left: 940px;
+        margin: auto;
+      }
+
+      .speed-dial {
+        right: 0;
+        left: 1180px;
+        margin: auto;
+        width: 40px;
+      }
+    }
+  }
+}
+
+.mat-drawer-container {
+  color: #888;
+}
+
+/*Inputs*/
+
+.ng-form-control,
+.ng-form-control > * {
+  width: 100%;
+}
+
+textarea.mat-input-element {
+  min-height: 20px;
+  height: 20px;
+}
+
+.buttons-group {
+  display: table;
+}
+
+.buttons-group > * {
+  display: table-cell !important;
+  float: none !important;
+}
+
+.buttons-group > *:not(:first-child) {
+  margin-left: 8px !important;
+}
+
+.ui-button, .ui-state-active {
+  background-color: #2196f3 !important;
+  border-color: #2196f3 !important;
+}
+
+/*Boxes*/
+
+.box.mat-card {
+  border-top: 2px solid #e7edc5;
+  border-radius: 10px !important;
+  margin-bottom: 15px;
+
+  .mat-card-header {
+    padding: 0 16px;
+    margin-left: -16px;
+    margin-right: -16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #e4e4e4;
+
+    .mat-card-header-text {
+      margin: 0;
+
+      .mat-card-title {
+        font-weight: bold
+      }
+    }
+
+    .box-tools {
+      display: flex;
+      margin-left: auto;
+
+      button:not(:first-child) {
+        margin-left: 5px;
+      }
+
+      .mat-raised-button.mat-icon-button {
+        border-radius: 5px !important;
+        height: 30px !important;
+        width: 30px !important;
+        line-height: 30px !important;
+        padding: 0 !important;
+
+        .material-icons {
+          font-size: 18px;
+        }
+      }
+    }
+  }
+
+  .mat-card-content {
+    margin-bottom: 0
+  }
+
+  .mat-card-actions {
+    margin: 0 -16px;
+    padding: 8px 8px 0;
+    margin-bottom: 0px;
+
+    .buttons-group {
+      display: block
+    }
+  }
+}
+
+/*Check Boxes and Radio*/
+
+.mat-checkbox {
+  margin-right: 15px;
+}
+
+.mat-checkbox:last-of-type {
+  margin-right: 0;
+}
+
+.mat-checkbox-checked.mat-primary .mat-checkbox-background {
+  background-color: #00a7f8;
+}
+
+.checkbox-group {
+  .prime-radio {
+    display: inline-block;
+    margin-right: 15px;
+    margin-bottom: 10px;
+    vertical-align: middle;
+  }
+
+  .prime-radio:last-of-type {
+    margin-right: 0;
+  }
+}
+
+.radio-group {
+  .prime-checkbox {
+    display: inline-block;
+    margin-right: 15px;
+    margin-bottom: 10px;
+    vertical-align: middle;
+  }
+
+  .prime-checkbox:last-of-type {
+    margin-right: 0;
+  }
+}
+
+/*Grids*/
+
+.data-table > .mat-form-field {
+  width: 100%;
+}
+
+.data-table .mat-table {
+  width: 100%;
+
+  .mat-sort-header-arrow {
+    color: #fff;
+  }
+
+  thead {
+    background: #6993a7;
+  }
+
+  tr.mat-header-row,
+  tr.mat-row,
+  tr.mat-footer-row {
+    height: 33px;
+  }
+
+  .mat-header-cell {
+    color: #fff;
+  }
+}
+
+.tabs-group {
+  .mat-tab-body-content {
+    overflow: hidden;
+  }
+
+  .mat-tab-header {
+    margin-bottom: 0px;
+    overflow: visible;
+  }
+
+  .mat-tab-body-wrapper {
+    padding: 15px 15px 0;
+  }
+}
+
+
+.box.mat-card .mat-card-content {
+  .tabs-group {
+    .mat-tab-body-wrapper {
+      padding: 15px 0 0;
+    }
+  }
+}
+
+
+
+.tabs-group.mat-primary {
+  .mat-ink-bar {
+    background-color: #68bee7;
+    visibility: hidden !important;
+  }
+
+  .mat-tab-label {
+    background-color: #f5f5f5;
+    opacity: 1;
+  }
+
+  .mat-tab-label.mat-tab-label-active {
+    background-color: #68bee7;
+    opacity: 1;
+    color: #fff;
+  }
+}
+
+.btn-group > .btn-primary:first-of-type,
+.btn-group > .btn-primary:last-of-type {
+  border-color: transparent;
+}
+
+.btn-group > .btn-primary {
+  border-left-color: #61cbff;
+  border-right-color: #61cbff;
+  margin: 0 !important;
+}
+
+.mat-raised-button {
+  border-radius: 5px !important;
+  line-height: normal !important;
+  padding: 7px 25px !important;
+}
+
+/*Color Picker*/
+.color-label {
+  font-size: 11px;
+  margin: 0;
+  display: block;
+  color: rgba(0, 0, 0, 0.54);
+  font-weight: normal;
+}
+
+.p-color-picker {
+  .ui-inputtext {
+    height: 23px;
+    width: 23px;
+    padding: 0;
+    border-radius: 50%;
+  }
+}
+
+.ngx-datatable.material .datatable-header {
+  height: auto !important;
+  background: #6993a7;
+
+  .datatable-header-cell {
+    color: #fff;
+  }
+
+  .resize-handle {
+    border-right: solid 1px #557686;
+  }
+}
+
+.mat-form-field {
+  width: 100%;
+
+  .mat-form-field-wrapper {
+    margin: .5em 0 .25em !important;
+
+    .mat-form-field-infix {
+      padding: .4em 0 0.4em 0;
+
+      .mat-form-field-label-wrapper {
+        overflow: visible;
+      }
+    }
+
+    .mat-form-field-label {
+      top: 0 !important;
+      transform: none !important;
+      overflow: visible;
+
+      mat-label {
+        position: relative;
+        z-index: 9;
+
+        &:before {
+          content: '';
+          position: absolute;
+          height: 2px;
+          top: 8px;
+          left: -5px;
+          right: -5px;
+          background: #fff;
+          z-index: -1;
+        }
+      }
+    }
+  }
+}
+
+.prime-form-control {
+  padding-top: 10px;
+
+  .ui-float-label > label {
+    font-size: 14px !important;
+    left: 10px !important;
+    top: 0px !important;
+    z-index: 9;
+
+    &:before {
+      content: '';
+      position: absolute;
+      height: 1px;
+      top: 7px;
+      left: -5px;
+      right: -5px;
+      background: #fff;
+      z-index: -1;
+    }
+  }
+
+  .ui-inputtext {
+    width: 100%;
+    padding: .4em .8em .4em .8em;
+    border-color: rgba(0, 0, 0, 0.12);
+  }
+
+  .ui-multiselect {
+    width: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+
+    .ui-multiselect-label {
+      padding: .4em .8em;
+      margin: 0;
+    }
+
+    .ui-multiselect-trigger {
+      width: 2.8em;
+    }
+  }
+
+  .ui-multiselect.ui-multiselect-open, .ui-multiselect.ui-multiselect-open:hover {
+    border-color: #007ad9
+  }
+}
+
+
+
+.ng-select .ng-select-container .ng-value-container {
+  padding: 0.25em 0;
+}
+
+.ng-select .ng-select-container {
+  min-height: 39px;
+}
+
+/* You can add global styles to this file, and also import other style files */
+button.btn-submit {
+  background-color: #38547b;
+  color: #fff;
+  width: 100%;
+}
+
+button.btn-submit:focus,
+button.btn-submit:hover {
+  background-color: #38547b;
+}
+
+
+div.error-message i {
+  vertical-align: middle !important;
+}
+
+/*for tab control*/
+.tabs {
+  height: 65px;
+}
+
+.tabs .tab {
+  text-transform: none !important;
+  line-height: 65px;
+  height: 65px;
+}
+
+.tabs .tab a {
+  font-size: 25px;
+  color: grey !important;
+}
+
+.tabs .tab a.active {
+  background-color: #fff !important;
+}
+
+
+.ngx-datatable.material {
+  box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+
+  .datatable-header {
+    background: #6993a7;
+
+    .datatable-header-cell {
+      color: #fff;
+    }
+  }
+
+  .mat-icon-button {
+    height: 20px;
+    width: 20px;
+    line-height: 20px;
+
+    i {
+      line-height: normal;
+    }
+  }
+
+  .datatable-body {
+    .datatable-body-row {
+      .info-btn {
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity ease-in-out 0.3s;
+
+        .ui-button-text {
+          padding: 0;
+        }
+      }
+    }
+
+    .datatable-body-row:hover {
+      .info-btn {
+        visibility: visible;
+        opacity: 1;
+      }
+    }
+
+    .datatable-body-row.active:hover {
+      background-color: rgba(0, 0, 0, 0.2) !important;
+
+      .datatable-row-group {
+        background-color: rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    .datatable-body-row.active {
+      background-color: rgba(0, 0, 0, 0.1) !important;
+
+      .datatable-row-group {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    .datatable-row-wrapper:nth-child(odd) {
+      .datatable-body-row {
+        background: #f7f7f7;
+      }
+    }
+
+    .datatable-body-cell {
+      border-bottom: solid 1px #d9d9d9;
+    }
+  }
+}
+
+.prime-tab-content {
+  padding: 10px 0;
+}
+/* Popup Dialog */
+
+.mat-dialog-container {
+  position: relative;
+
+  .mat-dialog-footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0 15px;
+    padding-bottom: 10px;
+  }
+}
+
+
+/* Settings */
+
+.fixed-header {
+  .mat-drawer-container {
+    overflow: hidden !important;
+  }
+}
+
+/* Skins */
+
+.wrapper {
+  .main-header {
+    background: #E5EFFB;
+  }
+}
+
+.blue-theme {
+  $ESKATheme-primary: mat-palette($mat-blue);
+  color: $light-primary-text;
+  $blue-primary: mat-palette($mat-blue);
+  $blue-accent: mat-palette($mat-blue, A400, A100, A700);
+  $blue-warn: mat-palette($mat-blue);
+  $blue-theme: mat-light-theme($blue-primary, $blue-accent, $blue-warn);
+  @include angular-material-theme($blue-theme);
+  @import "assets/skins/blue.scss";
+}
+
+.red-theme {
+  $ESKATheme-primary: mat-palette($mat-red);
+  color: $light-primary-text;
+  $red-primary: mat-palette($mat-red);
+  $red-accent: mat-palette($mat-red, A400, A100, A700);
+  $red-warn: mat-palette($mat-red);
+  $red-theme: mat-light-theme($red-primary, $red-accent, $red-warn);
+  @include angular-material-theme($red-theme);
+  @import "assets/skins/red.scss";
+}
+
+.purple-theme {
+  $ESKATheme-primary: mat-palette($mat-purple);
+  color: $light-primary-text;
+  $purple-primary: mat-palette($mat-purple);
+  $purple-accent: mat-palette($mat-purple, A400, A100, A700);
+  $purple-warn: mat-palette($mat-purple);
+  $purple-theme: mat-light-theme($purple-primary, $purple-accent, $purple-warn);
+  @include angular-material-theme($purple-theme);
+  @import "assets/skins/purple.scss";
+}
+
+.yellow-theme {
+  $ESKATheme-primary: mat-palette($mat-yellow);
+  color: $light-primary-text;
+  $yellow-primary: mat-palette($mat-yellow);
+  $yellow-accent: mat-palette($mat-yellow, A400, A100, A700);
+  $yellow-warn: mat-palette($mat-yellow);
+  $yellow-theme: mat-light-theme($yellow-primary, $yellow-accent, $yellow-warn);
+  @include angular-material-theme($yellow-theme);
+  @import "assets/skins/yellow.scss";
+}
+
+.blue-grey-theme {
+  $ESKATheme-primary: mat-palette($mat-blue-grey);
+  color: $light-primary-text;
+  $blue-grey-primary: mat-palette($mat-blue-grey);
+  $blue-grey-accent: mat-palette($mat-blue-grey, A400, A100, A700);
+  $blue-grey-warn: mat-palette($mat-blue-grey);
+  $blue-grey-theme: mat-light-theme($blue-grey-primary, $blue-grey-accent, $blue-grey-warn);
+  @include angular-material-theme($blue-grey-theme);
+  @import "assets/skins/blue-grey-light.scss";
+}
+
+.purple-light-theme {
+  $ESKATheme-primary: mat-palette($mat-purple);
+  color: $light-primary-text;
+  $purple-primary: mat-palette($mat-purple);
+  $purple-accent: mat-palette($mat-purple, A400, A100, A700);
+  $purple-warn: mat-palette($mat-purple);
+  $purple-theme: mat-light-theme($purple-primary, $purple-accent, $purple-warn);
+  @include angular-material-theme($purple-theme);
+  @import "assets/skins/purple-light.scss";
+}
+
+.green-light-theme {
+  $ESKATheme-primary: mat-palette($mat-green);
+  color: $light-primary-text;
+  $green-primary: mat-palette($mat-green);
+  $green-accent: mat-palette($mat-green, A400, A100, A700);
+  $green-warn: mat-palette($mat-green);
+  $green-theme: mat-light-theme($green-primary, $green-accent, $green-warn);
+  @include angular-material-theme($green-theme);
+  @import "assets/skins/green-light.scss";
+}
+
+.red-light-theme {
+  $ESKATheme-primary: mat-palette($mat-red);
+  color: $light-primary-text;
+  $red-primary: mat-palette($mat-red);
+  $red-accent: mat-palette($mat-red, A400, A100, A700);
+  $red-warn: mat-palette($mat-red);
+  $red-theme: mat-light-theme($red-primary, $red-accent, $red-warn);
+  @include angular-material-theme($red-theme);
+  @import "assets/skins/red-light.scss";
+}
+
+.yellow-light-theme {
+  $ESKATheme-primary: mat-palette($mat-yellow);
+  color: $light-primary-text;
+  $yellow-primary: mat-palette($mat-yellow);
+  $yellow-accent: mat-palette($mat-yellow, A400, A100, A700);
+  $yellow-warn: mat-palette($mat-yellow);
+  $yellow-theme: mat-light-theme($yellow-primary, $yellow-accent, $yellow-warn);
+  @include angular-material-theme($yellow-theme);
+  @import "assets/skins/yellow-light.scss";
+}
+
+.delete-button {
+  background: #e9e9ea;
+}
+
+/*Custom*/
+
+.wrapper-overlay {
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+
+  .master-component {
+    flex: 1
+  }
+}
+
+
+
+
+
+
+
+ 
+
+  

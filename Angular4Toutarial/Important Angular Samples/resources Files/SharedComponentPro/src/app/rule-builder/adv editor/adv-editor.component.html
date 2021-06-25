@@ -1,0 +1,85 @@
+<form [formGroup]="advRuleForm">
+  <div>
+    <div class="textarea-container" pDroppable="dragDrop" (onDrop)="drop()">
+      <textarea [rows]="5" [cols]="60" pInputTextarea autoResize="autoResize"
+                fromControlName="expreesion">{{this.advRuleForm.controls['expreesion'].value}}</textarea>
+      <button class="btn btn-sm"><i class="pi pi-check"></i></button>
+    </div>
+    <br>
+    <div class="ui-g">
+      <div class="ui-g-4">
+        <p-table [(selection)]="selectedRow" [value]="ElementsList" selectionMode="single"
+                 (onRowSelect)="onRowSelect(selectedRow)">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>ElementsList</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-Element>
+            <tr [pSelectableRow]="Element">
+              <td>{{Element.label}}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div class="ui-g-4">
+        <p-table [value]="source" [columns]="colSource">
+          <ng-template pTemplate="header" let columns>
+            <tr>
+              <th *ngFor="let col of colSource">
+                {{col.header}}
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr pDraggable="dragDrop" (onDragStart)="dragStart(rowData)" (onDragEnd)="dragEnd()">
+              <td *ngFor="let col of columns">
+                {{rowData[col.field]}}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div class="ui-g-4">
+
+      </div>
+    </div>
+    <p-fieldset legend="Preform the following actions">
+      <div formArrayName="actions">
+        <div *ngFor="let section of getActions(advRuleForm); let i = index">
+          <div [formGroupName]="i">
+            <div class="ui-g">
+              <div class="ui-g-auto">
+                <p-dropdown [options]="actions" formControlName="action"></p-dropdown>
+              </div>
+              <div class="ui-g-auto">
+                <label class="radio-inline">
+                  <p-radioButton [name]="radioName[i]" value=1 label="Filed Rules" formControlName="selectedValue">
+                  </p-radioButton>
+                </label>
+                <label class="radio-inline">
+                  <p-radioButton [name]="radioName[i]" value=2 label="Component Rules" formControlName="selectedValue">
+                  </p-radioButton>
+                </label>
+              </div>
+              <div class="ui-g-auto">
+                <span class="ui-float-label">
+                  <input type="text" pInputText formControlName="actionName">
+                  <label> Questions/Actions </label>
+                </span>
+              </div>
+              <span>
+                <button style="font-size:10px; background: transparent" type="button" class="btn btn-light"
+                        (click)="addAction()">
+                  <i class="pi pi-plus"></i>
+                  <span style="display: block">and</span>
+                </button>
+              </span>
+            </div>
+            <br>
+          </div>
+        </div>
+      </div>
+    </p-fieldset>
+  </div>
+</form>

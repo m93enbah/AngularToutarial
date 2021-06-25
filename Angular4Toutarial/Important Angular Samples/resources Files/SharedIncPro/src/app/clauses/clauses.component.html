@@ -1,0 +1,313 @@
+<!--Form-->
+<!--First Card Section Start clause Search Form-->
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <form [formGroup]="clausesFormSearch">
+        <div class="card-header">
+          <h6 class="card-title">Clauses Search </h6>
+
+          <div class="card-tools">
+            <div class="buttons-group pull-right">
+              <button pButton type="submit" icon="pi pi-refresh" pTooltip="Reset" tooltipPosition="top" (click)="onReset()"></button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Insurance System</label>
+              <p-dropdown [options]="InsSystemEntryList" formControlName="insuranceSystemSearch"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Insurance Class</label>
+              <p-dropdown [options]="InsuranceClassSearchList" formControlName="insuranceClassSearch"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Sub Line of Business</label>
+              <p-dropdown [options]="SubLineofBusinessSearch" formControlName="subLineOfBusinessSearch"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable="lblDGNameResource">Clause Name</label>
+              <input id="float-input" type="text" pInputText
+                     formControlName="ClauseNameSearch" name="Name"
+                     class="ui-inputtext ui-corner-all">
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Clause Type</label>
+              <p-dropdown [options]="ModuleSearchList" formControlName="ClauseTypeSearch"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Search Critenion</label>
+              <div>
+                <p-radioButton name="group1" value="Option 1" label="Start With" formControlName="CirterionSearch" inputId="opt1"></p-radioButton>
+                <p-radioButton name="group1" value="Option 2" label="End With" formControlName="CirterionSearch" inputId="opt2"></p-radioButton>
+                <p-radioButton name="group1" value="Option 3" label="Contains" formControlName="CirterionSearch" inputId="opt3"></p-radioButton>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable="lblDGNameResource">Description</label>
+              <input id="float-input" type="text" pInputText
+                     formControlName="DescriptionSearch" name="Name"
+                     class="ui-inputtext ui-corner-all">
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="buttons-group">
+              <button pButton type="submit" label="Search"></button>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!--First Card Section END -->
+<!--Second Card Section Clause List-->
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="card-title">Clause List</h6>
+        <div class="card-tools">
+
+          <div class="buttons-group pull-right">
+            <button pButton type="submit" icon="pi pi-file" pTooltip="Add" tooltipPosition="top" (click)="onResetEntry()"></button>
+            <button pButton type="submit" icon="pi pi-trash" pTooltip="Remove" tooltipPosition="top" (click)="onRemove()"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="row form-row">
+          <div class="col-md-12 form-group">
+            <css-datatable title="Closing Period List" [cols]="cols" [rows]="ClosingPeriodDetailsRows" [showCheckBox]="true"
+                           (OnCheckboxSelected)="OnCheckboxSelected($event)" [mouseHover]="true"
+                           (OnRowClicked)="OnRowClickedEdit($event)" selectionMode="multiple"></css-datatable>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--Second Card Section End-->
+<!--third Card Section Clause Entry-->
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <form [formGroup]="clausesFormEntry">
+        <div class="card-header">
+          <h6 class="card-title">Clauses Entry</h6>
+          <div class="card-tools">
+            <div class="buttons-group pull-right">
+              <button pButton type="submit" icon="pi pi-refresh" pTooltip="Reset" tooltipPosition="top" (click)="onReset()"></button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Insurance System</label>
+              <p-dropdown [options]="InsSystemSearchList" formControlName="insuranceSystemEntry"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable="lblDGNameResource">Code</label>
+              <input id="float-input" type="text" pInputText
+                     formControlName="ClauseCode"
+                     class="ui-inputtext ui-corner-all">
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable="lblDGNameResource">Name</label>
+              <input id="float-input" type="text" pInputText
+                     formControlName="ClauseNameSearch1"
+                     class="ui-inputtext ui-corner-all">
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable="lblDGNameResource">Name 2</label>
+              <input id="float-input" type="text" pInputText
+                     formControlName="ClauseNameSearch2"
+                     class="ui-inputtext ui-corner-all">
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Insurance Class</label>
+              <p-dropdown [options]="InsuranceClassEntryList" formControlName="insuranceClassEntry"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Sub Line of Business</label>
+              <p-dropdown [options]="SubLineofBusinessEntryList" formControlName="subLineOfBusinessEntry"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Marine Clause</label>
+              <p-dropdown [options]="MarineClause" formControlName="MarineClause"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Status</label>
+              <p-dropdown [options]="StatusClause" formControlName="StatusClause"></p-dropdown>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="buttons-group">
+              <button pButton type="submit" (click)="SaveClosingPeriod()">
+                {{showSaveUpdate === false ? 'Save' : 'Update'}}
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!--third Card Section Clause Entry End-->
+<!--Second Card Section Clause text -->
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="card-title">Clause Text</h6>
+        <div class="card-tools">
+
+          <div class="buttons-group pull-right">
+            <button pButton type="submit" icon="pi pi-file" pTooltip="Add" tooltipPosition="top" (click)="onResetEntry()"></button>
+            <button pButton type="submit" icon="pi pi-trash" pTooltip="Remove" tooltipPosition="top" (click)="onRemove()"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="row form-row">
+          <div class="col-md-12 form-group">
+            <css-datatable title="Closing Period List" [cols]="cols" [rows]="ClosingPeriodDetailsRows" [showCheckBox]="true"
+                           (OnCheckboxSelected)="OnCheckboxSelected($event)" [mouseHover]="true"
+                           (OnRowClicked)="OnRowClickedEdit($event)" selectionMode="multiple"></css-datatable>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--Second Card Section End-->
+<!--5th Card Section Clause Entry-->
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <form [formGroup]="clausesTextEntry">
+        <div class="card-header">
+          <h6 class="card-title">Clause Text Entry</h6>
+
+          <div class="card-tools">
+            <div class="buttons-group pull-right">
+              <button pButton type="submit" icon="pi pi-refresh" pTooltip="Reset" tooltipPosition="top" (click)="onReset()"></button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Clause Type</label>
+              <p-dropdown [options]="ClauseType" formControlName="ClauseType"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable="lblDGNameResource">Print Order</label>
+              <input id="float-input" type="text" pInputText
+                     formControlName="PrintOrder"
+                     class="ui-inputtext ui-corner-all">
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Cover Type</label>
+              <p-dropdown [options]="CoverType" formControlName="CoverType"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Discount Type</label>
+              <p-dropdown [options]="DiscountType" formControlName="DiscountType"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Effictive Date</label>
+              <p-calendar formControlName="EffictiveDate" [showIcon]="true" dateFormat="{{  DATE_FMT }}"></p-calendar>
+            </div>
+          </div>
+
+          <div class="col-md-12 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Description 1 </label>
+              <p-editor  [style]="{'height':'120px'}"></p-editor>
+            </div>
+          </div>
+
+          <div class="col-md-12 form-group">
+            <div class="prime-form-control">
+              <label for="float-input">Description 2 </label>
+              <p-editor [style]="{'height':'120px'}"></p-editor>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="buttons-group">
+              <button pButton type="submit" (click)="SaveClosingPeriod()">
+                {{showSaveUpdate === false ? 'Save' : 'Update'}}
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!--5th Card Section Clause Entry End-->

@@ -1,0 +1,6 @@
+<div class="wrapper-overlay-login" *ngIf="!showMasterPage">
+  <router-outlet></router-outlet>
+</div>
+<div class="wrapper-overlay" *ngIf="showMasterPage">
+  <ribms-master-page class="master-component"></ribms-master-page>
+</div>

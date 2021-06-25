@@ -1,0 +1,35 @@
+<!--<p>
+  home works!
+</p>
+<h1>Application says what?</h1>
+<ul>
+  <li *ngFor="let value of apiValues">{{value}}</li>
+</ul>-->
+<div class="row user-profile">
+  <shc-profile-info></shc-profile-info>
+  
+</div>
+<div class="widgets">
+  <shc-widgets></shc-widgets>
+</div>
+
+<nb-layout>
+  <nb-layout-column>
+    <div class="row user-cards">
+      <div class="col-md-6">
+        <shc-profit-card></shc-profit-card>
+        
+      </div>
+      <div class="col-md-6">
+        
+        <shc-earning-card></shc-earning-card>
+      </div>
+    </div>
+
+    <div class="row user-traffic">
+      <shc-traffic-card></shc-traffic-card>
+    </div>
+  </nb-layout-column>
+</nb-layout>
+
+

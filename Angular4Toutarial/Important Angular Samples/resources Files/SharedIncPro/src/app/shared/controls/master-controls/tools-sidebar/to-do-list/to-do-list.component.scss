@@ -1,0 +1,110 @@
+.to-do-list {
+  z-index: 99;
+  width: 300px;
+  position: fixed;
+  right: 0px;
+  bottom: -340px;
+  background: #fff;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
+  transition: all ease-in-out 0.3s;
+
+  h3 {
+    margin: 0;
+    padding: 10px;
+    font-size: 21px;
+    background: #00a7f8;
+    color: #fff;
+  }
+
+  .list-content {
+    padding: 5px 10px;
+  }
+
+  .mat-list {
+    max-height: 170px;
+    overflow: auto;
+    padding: 0;
+    border: solid 1px #e0e0e0;
+    margin: 10px 0;
+
+    .mat-list-item:last-of-type {
+      .mat-divider {
+        display: none;
+      }
+    }
+  }
+
+  .mat-list:empty {
+    border: 0;
+  }
+
+  .todo-form {
+    width: 100%;
+  }
+
+  .todo-width {
+    width: 100%;
+  }
+
+  .taskComplete {
+    text-decoration: line-through;
+  }
+
+  .todoStatus {
+    text-align: right;
+  }
+}
+
+:host ::ng-deep .to-do-list {
+  .mat-form-field-wrapper {
+    margin: 0;
+  }
+}
+
+.floating-btn {
+  position: fixed;
+  font-size: 13px;
+  border-radius: 50% !important;
+  color: #fff;
+  border: solid 2px #fff;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  right: 10px;
+  bottom: 2px;
+  height: 34px;
+  width: 34px;
+  line-height: 23px !important;
+  min-width: 0;
+  text-align: center;
+  padding: 0 !important;
+}
+
+.to-do-list.active {
+  bottom: 0;
+}
+
+:host ::ng-deep .to-do-list {
+  h3 {
+    .floating-btn {
+      position: relative;
+      font-size: 12px;
+      bottom: 0;
+      right: 0;
+      border: 0;
+      background: #fff;
+      color: #333;
+      height: 25px;
+      width: 25px;
+      line-height: 23px;
+
+      .mat-button-wrapper {
+        display: block;
+        line-height: 1px;
+      }
+    }
+
+    .floating-btn:hover {
+      opacity: 0.8;
+    }
+  }
+}

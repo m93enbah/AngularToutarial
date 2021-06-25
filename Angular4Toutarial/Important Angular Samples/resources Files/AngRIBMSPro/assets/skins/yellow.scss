@@ -1,0 +1,65 @@
+$mainBg: #f39c12;
+$seconderyBg: #333;
+
+.wrapper {
+  .main-header {
+    background: $mainBg;
+    .logo{
+        .logo-upload label{
+            background: $seconderyBg!important;
+        }
+        .logo-upload label:hover{
+            background: #fff!important;
+            color: $seconderyBg!important;
+        }
+    }
+  }
+  .mat-drawer {
+    background: $seconderyBg !important;
+  }
+  .ui-panelmenu .ui-panelmenu-header>a,
+  .ui-panelmenu .ui-panelmenu-header>a .ui-panelmenu-icon {
+    color: #fff
+  }
+  .main-sidebar {
+    .ui-panelmenu .ui-panelmenu-header>a:hover,
+    .ui-panelmenu .ui-state-active .ui-panelmenu-header-link {
+      background-color: darken($seconderyBg, 5);
+      color: #fff;
+    }
+    .ui-panelmenu .ui-panelmenu-content {
+      background-color: darken($seconderyBg, 10);
+      .ui-menuitem-link {
+        color: #fff
+      }
+      .ui-menuitem-link:hover {
+        background-color: lighten($seconderyBg, 10);
+        .ui-panelmenu-icon,
+        .ui-menuitem-icon,
+        .ui-menuitem-text
+         {
+          color: #fff
+        }
+      }
+    }
+  }
+  .mat-table thead,
+  .ngx-datatable.material .datatable-header {
+    background: lighten($mainBg, 10);
+  }
+  .mat-header-cell,
+  .mat-sort-header-arrow,
+  .ngx-datatable.material .datatable-header .datatable-header-cell {
+    color: #333
+  }
+  .tools-button{
+      background-color: $mainBg!important
+  }
+  .tools-button:hover{
+    background-color: transparent!important;
+    color: $mainBg!important
+  }
+}
+::-webkit-scrollbar-thumb {
+    background: lighten($mainBg, 10);
+}

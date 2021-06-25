@@ -1,0 +1,53 @@
+<div class="hold-transition login-page">
+  <div class="login-box">
+    <div class="login-box-bg">
+      <div class="login-box-body">
+        <div class="login-logo">
+          ESKA
+          <sup>®</sup>
+          <b>RIBMS</b>
+        </div>
+        <p class="login-box-msg">Sign in to start your session</p>
+        <form [formGroup]="loginForm">
+          <div class="form-group has-feedback">
+            <input type="text" class="form-control" id="userName" name="userName" placeholder="UserName"
+                   formControlName="userName" />
+            <span class="glyphicon glyphicon-user form-control-feedback"></span>
+          </div>
+          <div class="form-group has-feedback">
+            <input type="password" class="form-password form-control" id="password" name="password" placeholder="Password" formControlName="password" />
+            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+          </div>
+          <div class="form-group has-feedback">
+            <select class="form-control" id="companiesList" formControlName="company" name="company">
+              <option value="" selected>Select Company..</option>
+              <option *ngFor="let c of companies" value="{{ c.value }}">{{ c.label }}</option>
+            </select>
+          </div>
+          <div class="form-group has-feedback">
+            <select class="form-control" id="branchesList" formControlName="branch" name="branch">
+              <option value="" selected>Select Branch..</option>
+              <option *ngFor="let b of branches" value="{{ b.value }}">{{ b.label }}</option>
+            </select>
+          </div>
+          <div class="form-group has-feedback">
+            <select class="form-control" id="languagesList" formControlName="language" name="language">
+              <option value="" selected>Select Language..</option>
+              <option *ngFor="let l of languages" value="{{ l.value }}">{{ l.label }}</option>
+            </select>
+          </div>
+          <div class="form-group has-feedback">
+            <input type="submit" value="Sign In" class="btn btn-warning btn-block btn-flat" [disabled]="!loginForm.valid" (click)="login()" />
+            <!-- /.col -->
+          </div>
+        </form>
+        <a href="#">I forgot my password</a>
+      </div>
+    </div>
+
+    <small>
+      Powered by
+      <a href="http://www.eskadenia.com">ESKADENIA Software</a>. © 2000 - {{currentYear}}
+    </small>
+  </div>
+</div>

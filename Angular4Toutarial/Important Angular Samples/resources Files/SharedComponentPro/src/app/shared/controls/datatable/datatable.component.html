@@ -1,0 +1,75 @@
+ 
+  <p-table [columns]="cols" [value]="rows" class="form-control-ng"  [lazy]="true"
+   selectionMode="multiple" [paginator]="true"   (onRowClick)="onRowClicked($event)"
+    (onRowSelect)="onRowSelected($event)" (onRowUnselect)="onRowUnSelected($event)" (onHeaderCheckboxToggle)="onHeaderCheckboxToggle($event)"
+    [rows]="5" [(selection)]="selectedRows" [dataKey]="dataKey" [rowHover]="mouseHover" [style]="style">
+  
+    <ng-template pTemplate="header"  >
+      <tr>
+        <th *ngIf="showCheckBox" style="width: 3em">
+          <p-tableHeaderCheckbox class="form-control-ng"></p-tableHeaderCheckbox>
+        </th>
+        <th *ngFor="let col of cols">
+          {{col.header}}
+        </th>
+  
+        <th *ngIf="showSelectionColumn">
+  
+        </th>
+  
+  
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowData>
+  
+  
+      <tr >
+        <td *ngIf="showCheckBox" style="width: 3.5em">
+          <p-tableCheckbox [value]="rowData"  class="form-control-ng" ></p-tableCheckbox>
+        </td>
+  
+  
+        <td *ngFor="let col of cols">
+          <span *ngIf="col.editable" pEditableColumn style="width:100%">
+  
+            <!-- <input type="text" [(ngModel)]="rowData[col.field]" style="width:100%"> -->
+  
+            <p-cellEditor>
+  
+              <ng-template pTemplate="input">
+               <input type="text" [(ngModel)]="rowData[col.field]" style="width:100%"   >
+              </ng-template> -->
+               <ng-template pTemplate="output">
+                {{rowData[col.field]}}
+              </ng-template>
+            </p-cellEditor>
+  
+  
+          </span>
+          <span *ngIf="col.editable==false" style="width:100%">
+            {{rowData[col.field]}}
+  
+          </span>
+  
+  
+        </td>
+  
+  
+        <td *ngIf="showSelectionColumn">
+          <button class="btn btn-primary btn-xs" type="button" pbutton (click)="selectRow(item)" data-dismiss="modal">
+            <span class="glyphicon glyphicon-edit"></span>
+          </button>
+        </td>
+      </tr>
+  
+  
+  
+  
+  
+    </ng-template>
+  
+   
+  </p-table>
+  
+   
+  

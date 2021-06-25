@@ -1,0 +1,170 @@
+<div class="toggle-menu" #toggleMenu>
+  <div class="main-sidebar">
+    <ul>
+
+      <p-panelMenu id="AllMenus" [multiple]="false" [model]="userMenus"></p-panelMenu>
+
+      <!-- <li [ngClass]="{active:activeRoute(menu.PAGE_URL)}" *ngFor="let menu of items"><a routerLink="/radtime/{{menu.PAGE_URL}}"><i
+            class="{{menu.ICON}}"></i><span>{{menu.MENU_NAME}}</span></a></li>
+      <li><a (click)="signOut()"><i class="fa fa-sign-in"></i><span>Sign Out</span></a></li> -->
+    </ul>
+
+
+  </div>
+
+  <div class="tools-settings" #toolsSettings>
+    <div class="tools-list">
+      <div class="tools-header">
+        <div class="row">
+          <div class="col-xs-3">
+            <button mat-raised-button [swal]="confirmResetSwal" class="tools-header-btn pull-left" color="primary">
+              <i class="fa fa-undo" matTooltip="Reset"></i>
+            </button>
+          </div>
+          <div class="col-xs-6 text-center">
+            <div class="tools-inner-header">
+              Settings
+            </div>
+          </div>
+          <div class="col-xs-3">
+            <button mat-raised-button (click)="menuOpenHandler()" class="tools-header-btn pull-right" color="primary"
+                    matTooltip="Cancel">
+
+              <i class="fa fa-close"></i>
+            </button>
+          </div>
+        </div>
+
+
+      </div>
+      <ul>
+        <li>
+          <mat-accordion>
+            <mat-expansion-panel [expanded]="step===1" (opened)=setStep(1)>
+              <mat-expansion-panel-header [collapsedHeight]="'auto'" [expandedHeight]="'auto'">
+                <mat-panel-title>
+                  <span class="tools-icon"><i class="fa fa-filter"></i></span><span>Layout</span>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <ul>
+                <li>
+                  <span class="settings-text">Fixed Layout</span>
+                  <p-inputSwitch [(ngModel)]="FixedLayoutChecked" (onChange)="layoutChanged($event)" class="switch-toggle pull-right"></p-inputSwitch>
+                </li>
+                <li>
+                  <span class="settings-text">Boxed Layout</span>
+                  <p-inputSwitch [(ngModel)]="BoxedLayoutChecked" (onChange)="layoutChanged($event)" class="switch-toggle pull-right"></p-inputSwitch>
+                </li>
+                <li>
+                  <span class="settings-text">Toggle Sidebar</span>
+                  <p-inputSwitch [(ngModel)]="ToggleSidebarChecked" (onChange)="layoutChanged($event)" class="switch-toggle pull-right"></p-inputSwitch>
+                </li>
+                <li>
+                  <span class="settings-text">Dark Skin</span>
+                  <p-inputSwitch [(ngModel)]="DarkSkinChecked" (onChange)="darkSkinHanlder($event)" class="switch-toggle pull-right"></p-inputSwitch>
+                </li>
+              </ul>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </li>
+        <li>
+          <mat-accordion>
+            <mat-expansion-panel [expanded]="step===2" (opened)=setStep(2)>
+              <mat-expansion-panel-header [collapsedHeight]="'auto'" [expandedHeight]="'auto'">
+                <mat-panel-title>
+                  <span class="tools-icon"><i class="fa fa-toggle-on"></i></span><span>Switch Layout</span>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <span class="settings-text">Switch Theme</span>
+              <p-inputSwitch [(ngModel)]="swithedThemeChecked" class="switch-toggle pull-right"></p-inputSwitch>
+
+            </mat-expansion-panel>
+          </mat-accordion>
+        </li>
+        <li>
+          <mat-accordion>
+            <mat-expansion-panel [expanded]="step===3" (opened)=setStep(3)>
+              <mat-expansion-panel-header [collapsedHeight]="'auto'" [expandedHeight]="'auto'">
+                <mat-panel-title>
+                  <span class="tools-icon"><i class="fa fa-paint-brush"></i></span><span>Skins</span>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <ul class="skins">
+                <li *ngFor="let skin of websiteSkins">
+                  <a href="javascript:void(0);" class="{{skin.class}}" pTooltip="{{skin.tooltip}}" (click)="changeSkinHandler(skin.class)"
+                     tooltipPosition="top">
+                    <div class="skin-head"></div>
+                    <div class="skin-sidebar"></div>
+                    <div class="skin-wrapper"></div>
+                  </a>
+                </li>
+
+              </ul>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </li>
+        <li>
+          <mat-accordion>
+            <mat-expansion-panel [expanded]="step===4" (opened)=setStep(4)>
+              <mat-expansion-panel-header [collapsedHeight]="'auto'" [expandedHeight]="'auto'">
+                <mat-panel-title>
+                  <span class="tools-icon"><i class="fa fa-paint-brush"></i></span><span>Color Picker</span>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <diV class="skin-picker">
+                <p-colorPicker appendTo="body" class="p-color-picker layout-head" [(ngModel)]="headerColor" (onChange)="manualColorChange($event,'headerColor')"
+                               name="headerColor"></p-colorPicker>
+                <p-colorPicker appendTo="body" class="p-color-picker layout-sidebar" [(ngModel)]="sideColor" name="sideColor"
+                               (onChange)="manualColorChange($event,'sideColor')"></p-colorPicker>
+                <p-colorPicker appendTo="body" class="p-color-picker layout-wrapper" [(ngModel)]="bodyColor" name="bodyColor"
+                               (onChange)="manualColorChange($event,'bodyColor')"></p-colorPicker>
+                <div class="skin-apply text-center">
+                  <button mat-raised-button color="primary" type="button">Apply</button>
+                </div>
+              </diV>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </li>
+        <!-- <li>
+          <mat-accordion>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header [collapsedHeight]="'auto'" [expandedHeight]="'auto'">
+                <mat-panel-title>
+                  <span class="tools-icon"><i class="fa fa-expand"></i></span><span>Layout Size</span>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <diV class="">
+                <ul>
+                  <li class="content layout-size">
+                    <ul>
+                      <li *ngFor="let size of websiteSize">
+                        <a (click)="ResizeWindowHandler()">
+                          <i class="{{size.icon}}"></i>
+                          <span>{{size.type}}</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </diV>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </li> -->
+      </ul>
+    </div>
+    <button mat-mini-fab type="button" (click)="snavToggleHandler()" color="primary" class="mini-menu-btn">
+      <mat-icon>keyboard_backspace</mat-icon>
+    </button>
+    <button (click)="toolsOpenHandler()" class="tools-button tools-hidden">
+      <i class="fa fa-cog"></i> <span> Settings</span>
+    </button>
+    <button (click)="menuOpenHandler()" class="tools-button menu-hidden">
+      <i class="fa fa-bars"></i> <span> Menu</span>
+    </button>
+  </div>
+
+</div>
+
+<swal #confirmResetSwal title="Are you sure?" text="You are goning to reset the settings to the default" type="warning"
+      [options]="{ showCancelButton: true,  confirmButtonText: 'Yes',  confirmButtonColor: '#DD6B55' }" (confirm)="resetSettings()">
+</swal>

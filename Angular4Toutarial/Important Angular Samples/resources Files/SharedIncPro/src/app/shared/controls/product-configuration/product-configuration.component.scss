@@ -1,0 +1,31 @@
+.chart_wrap_shape {
+  max-width: 900px;
+  margin: auto;
+  display: block;
+  position: relative;
+  
+}
+
+
+.minimize_wrap {
+  max-width: 720px;
+  margin: auto;
+  display: block;
+  position: relative;
+  transition: width 2s;
+  font-weight:bold;
+}
+
+tspan {
+  font-weight: bold;
+}
+
+#piechart g text
+{
+  font-weight:bold;
+}
+
+div
+{
+  text-align:center;
+}

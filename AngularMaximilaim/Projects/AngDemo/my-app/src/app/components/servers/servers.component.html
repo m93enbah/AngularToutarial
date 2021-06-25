@@ -1,0 +1,8 @@
+
+<div class="container">
+  <app-server-entry (SaveAlias)="onSaveUpdate($event)"></app-server-entry>
+
+    <div *ngFor="let element of serverElements">
+      <app-server-list [aliasElement]="element"></app-server-list>
+    </div>
+</div>

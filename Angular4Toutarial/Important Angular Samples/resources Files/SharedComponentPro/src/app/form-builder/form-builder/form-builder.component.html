@@ -1,0 +1,101 @@
+<div class="row">
+  <div class="controls-div col-md-2">
+    <div class="clearfix">
+      <h3>Controls</h3>
+      <hr>
+      <ul class="nav nav-tabs">
+        <li class="active" (click)="resetShowSettings()" [ngClass]="{'active': showSettings == false}">
+          <a data-toggle="tab" href="#Controls">Controls</a>
+        </li>
+
+        <li [ngClass]="{'active': showSettings == true}">
+          <a data-toggle="tab" href="#Properties" #viewProperties>
+            Properties
+          </a>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <div id="Controls" class="tab-pane active in" [ngClass]="{'active in': showSettings == false}">
+          <ul class="list-group">
+            <li class="list-group-item" pDraggable="controls" (onDragEnd)="dragEnd($event)" (onDragStart)="dragStart($event,control)"
+                *ngFor="let control of controls"><i class="float-right {{control.icon}}"></i>{{control.label}}</li>
+          </ul>
+        </div>
+
+        <div id="Properties" class="tab-pane fade" [ngClass]="{'active in': showSettings == true}">
+          <div class="options-div" *ngIf="selectedControl != undefined">
+            <shc-settings-editor (saveSettings)="saveSettings($event)" [control]="selectedControl"></shc-settings-editor>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-10" pDroppable="controls" [ngClass]="{'ui-highlight-car':draggedControl}" (onDrop)="drop($event)">
+    <div class="clearfix">
+      <h3>Your form</h3>
+      <hr>
+      <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#Editor">Editor</a></li>
+
+        <li><a data-toggle="tab" href="#Preview">Preview</a></li>
+      </ul>
+
+      <div class="tab-content">
+        <div id="Editor" class="tab-pane active in">
+          <div class="container-div">
+            <div *ngFor="let container of formContent; let i= index">
+              <div [formGroup]="form">
+                <div class="panel panel-primary container-panel">
+                  <div class="panel-heading panel-heading-padding">
+                    <button class="btn btn-primary btn-sm upper-btn-container" (click)="setSelectedContainer(i)">
+                      <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+
+                    <input type='text' *ngIf="container.containerType == 2" class="editable-header" (blur)="endEditContainerHeader($event,i)"
+                           value="{{container.containerHeader}}" [ngStyle]="{display: i != selectedContainerIndex  ? 'none' : 'inline'}">
+
+                    <span class="header-span" *ngIf="container.containerType == 2" [ngStyle]="{display: i == selectedContainerIndex ? 'none' : 'inline'}">
+                      {{container.containerHeader}}
+                    </span>
+
+                    <span class="header-span" *ngIf="container.containerType == 1">
+                      Row (
+                      {{container.formControls.length}} controls)
+                    </span>
+
+                    <span class="header-span" *ngIf="container.containerType == 2">
+                      : Panel (
+                      {{container.formControls.length}} controls)
+                    </span>
+
+                    <button class="btn btn-primary btn-sm upper-btn-container float-right" (click)="removeContainer(i)"><span class="glyphicon glyphicon-remove"></span></button>
+                  </div>
+
+                  <div class="panel-body" [ngStyle]="{display: i != selectedContainerIndex ? 'none' : 'block'}" [ngClass]="{'edit-mode': selectedContainerIndex == i}">
+                    <div *ngFor="let control of container.formControls" style="padding-right: 0">
+                      <shc-dynamic-control-editor [control]="control" (remove)="remove($event)" (viewSettings)="viewSettings($event)"
+                                                  [form]="form"></shc-dynamic-control-editor>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            <button class="btn btn-primary fb-button" (click)="save()">Save</button>
+          </div>
+        </div>
+
+        <div id="Preview" class="tab-pane fade">
+          <div class="container-div">
+            <shc-preview [formContent]="formContent" [form]="form"></shc-preview>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+

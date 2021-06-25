@@ -1,0 +1,79 @@
+.container-fluid {
+  /*background-color: white;*/
+}
+:host ::ng-deep .ui-card {
+  min-height: 80px;
+  min-width: 80px;
+  margin-bottom: 15px;
+}
+:host ::ng-deep .ui-card:hover {
+  top: -5px;
+  box-shadow: 5px 5px 5px rgba(0,0,0,0.2);
+}
+
+.alpha {
+  border: 1px solid #fff;
+  color: black;
+  border-radius: 50%;
+  text-align: center;
+}
+.card-content {
+  margin-top: 8px;
+  margin-left: 10px;
+}
+
+.card-body {
+  margin-left: 10px;
+}
+
+#C {
+  background-color: #03A9F4;
+  color: white;
+}
+
+#M {
+  background-color: #f4511e;
+  color: white;
+}
+
+#A {
+  background-color: #fb8c00;
+  color: white;
+}
+
+.position1 {
+  position: absolute;
+  top: 120px;
+}
+
+.position2 {
+  position: absolute;
+  top: 215px;
+}
+
+.position3 {
+  position: absolute;
+  top: 310px;
+}
+.arrow-right {
+  width: 0;
+  height: 0;
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+  border-left: 20px solid gray;
+  display: none;
+}
+
+.header {
+  margin-top: 5px;
+  margin-bottom: -10px;
+  color: #191818;
+}
+
+.divider {
+  border-top: 1px solid rgba(0,0,0,0.2);
+  margin-bottom: 5px;
+}
+.display {
+  display: block;
+}

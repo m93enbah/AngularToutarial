@@ -1,0 +1,9 @@
+{
+    "version": 3,
+    "mappings": "",
+    "sources": [
+        "../../app/components/shopping/shopping.component.scss"
+    ],
+    "names": [],
+    "file": "shopping.component.css"
+}

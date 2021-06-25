@@ -1,0 +1,52 @@
+<form class="form-horizontal" [formGroup]="empForm" (ngSubmit)="onSubmit()">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">Create Employee</h3>
+        </div>
+        <div class="panel-body">
+                <div class="row form-row" dragula="sortable">
+
+            <!-- <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12" for="email">Email</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                    <li>
+                        <p-calendar class="form-control-ng" showIcon="true" utc="true" required="required" formControlName="dateFirstAdvice"
+                            dateFormat="{{ calenderDateFormat }}"></p-calendar>
+            
+                        <span appChangeText>Welcome to</span>
+                    </li>
+                </ul>
+            </div> -->
+
+            <div class="form-group col-md-8">
+                <label class="control-label col-sm-5 col-xs-12">Signed Line %</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                        <li>
+                            <input type="text" formControlName="minSalary" class="form-control" required="required" pInputText NumFor
+                                numberType="1" allowNegative="false" />
+                        </li>
+                        
+                        <li>
+                            <input type="text" formControlName="Salary" class="form-control" required="required" pInputText NumFor numberType="2"
+                                minDecimalPoint="2" maxDecimalPoint="4" allowNegative="false" />
+                        </li>
+                        <li>
+                            <input type="text" class="form-control" min="1" max="100" formControlName="signedLine" required="required"
+                                pInputText NumFor numberType="3" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" />
+                        </li>                  
+                        <li>
+                            <input type="text" formControlName="maxSalary" class="form-control" required="required" pInputText NumFor
+                                numberType="4" allowNegative="false" currencyFormat="USD" minDecimalPoint="2" maxDecimalPoint="2" />
+                        </li>
+
+                </ul>
+            </div>
+
+            </div>  
+        </div>
+        <div class="panel-footer">
+            <button class="btn btn-primary" type="submit">Save</button></div>
+    </div>
+</form>
+
+

@@ -1,0 +1,131 @@
+<form [formGroup]="advRuleForm">
+  <fieldset class="fieldset-box borderBlue">
+    <legend class="subject-legend">If ( conditions to be met )</legend>
+    <div class="card-body">
+      <div class="panel-body">
+        <div class="ui-g">
+          <div class="ui-g-nopad ui-g-10" pDroppable="dragDrop" (onDrop)="drop()">
+            <textarea class="texrArea" pInputTextarea autoResize="true" rows="5" placeholder="Place your conditions here..."
+                      fromControlName="expreesion">{{this.advRuleForm.controls['expreesion'].value}}</textarea>
+          </div>
+          <div class="ui-g-2">
+            <button class="btn btn-primary">Validate Formula<i class="pi pi-check"></i></button>
+          </div>
+        </div>
+        <br>
+        <div class="ui-g">
+          <div class="ui-g-4">
+            <p-table [(selection)]="selectedRow" [value]="ElementsList" selectionMode="single"
+                     (onRowSelect)="onRowSelect(selectedRow)">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Elements List</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-Element>
+                <tr [pSelectableRow]="Element">
+                  <td>{{Element.label}}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+          <div class="ui-g-4">
+            <p-table [value]="source" [columns]="colSource">
+              <ng-template pTemplate="header" let columns>
+                <tr>
+                  <th *ngFor="let col of colSource">
+                    {{col.header}}
+                  </th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-rowData let-columns="columns">
+                <tr pDraggable="dragDrop" (onDragStart)="dragStart(rowData)" (onDragEnd)="dragEnd()">
+                  <td *ngFor="let col of columns">
+                    {{rowData[col.field]}}
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+          <div class="ui-g-4 info-panel">
+            <i class="fa fa-info-circle"></i> <p>You can structure your conditions by dragging and dropping items from the life-side elements list to the above area, element values include various form components and controls, arithmatic operators, etc., each having an identifying name and abbreviation.<p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+  <fieldset class="fieldset-box borderBlue">
+    <legend class="subject-legend">Then ( actions to be performed )</legend>
+    <div class="card-body">
+      <div formArrayName="actions">
+        <div *ngFor="let section of getActions(advRuleForm); let i = index">
+          <div [formGroupName]="i">
+            <div class="ui-g">
+              <div class="ui-g-3">
+                <div class="form-group">
+                  <label class="black">Action</label>
+                  <p-dropdown [style]="{'width':'100%'}" [options]="actions" formControlName="action"></p-dropdown>
+                </div>
+              </div>
+              <div class="ui-g-3">
+                <div class="form-group">
+                  <label class="black">Apply on</label>
+                  <div class="radio-header">
+                    <label class="radio-inline black">
+                      <p-radioButton [name]="radioName[i]" value=1 label="Field" formControlName="selectedValue">
+                      </p-radioButton>
+                    </label>
+                    <label class="radio-inline black">
+                      <p-radioButton [name]="radioName[i]" value=2 label="Component" formControlName="selectedValue">
+                      </p-radioButton>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="ui-g-5">
+                <div class="form-group">
+                  <label class="black">Form Element</label>
+                  <p-dropdown [style]="{'width':'100%'}" [options]="conditions1" formControlName="condition1" (onChange)="clearText(i)">
+                  </p-dropdown>
+                </div>
+              </div>
+              <div class="ui-g-1 black">
+                <br />
+                <div *ngIf="(andActionbool[i] ||orActionbool[i]) ; then thenBlock else elseBlock"></div>
+                <ng-template #thenBlock>
+                  <div *ngIf="andActionbool[i] ; then andBlock else orBlock"></div>
+                  <ng-template #andBlock>
+                    <span class="block">
+                      And
+                      <button type="button" class="btn btn-sm iconButton" (click)="removeActions(i)">
+                        <i class="glyphicon glyphicon-trash"></i>
+                      </button>
+                    </span>
+                  </ng-template>
+                  <ng-template #orBlock>
+                    <span class="block">
+                      Or
+                      <button type="button" class="btn btn-sm iconButton" (click)="removeActions(i)">
+                        <i class="glyphicon glyphicon-trash"></i>
+                      </button>
+                    </span>
+                  </ng-template>
+                </ng-template>
+                <ng-template #elseBlock>
+                  <button class="btn btn-sm iconButton" (click)="andActionClick(i)">
+                    <i class="pi pi-plus"></i>
+                    <span class="block">and</span>
+                  </button>
+                  <button type="button" class="btn btn-sm iconButton" (click)="orActionClick(i)">
+                    <i class="pi pi-plus"></i>
+                    <span class="block">or</span>
+                  </button>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+</form>

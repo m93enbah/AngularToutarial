@@ -1,0 +1,16 @@
+.help-block
+{
+    color: red;
+}
+
+
+.Showutton{   
+    display: inline;
+    background-color: red;
+    
+    
+}
+.HideButton{
+   display: none;
+   background-color: yellow;
+}

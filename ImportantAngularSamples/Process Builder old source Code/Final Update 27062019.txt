@@ -1,0 +1,1854 @@
+PACKAGE DBPKG_CLAIM_QUERY1
+ IS
+   TYPE	REF_SELECT	IS REF CURSOR;
+   
+   
+  1-Process Designer html section 
+
+
+<div class="row">
+  <div class="col-md-2">
+    <button type="button" class="list-group-item list-group-item-action fb-collapse-btn fb-text-style"
+            data-toggle="collapse" data-target="#generalsidebarContainer">
+      Common Fields
+    </button>
+    <div id="generalsidebarContainer" class="collapse in">
+    </div>
+  </div>
+
+  <div class="col-md-10">
+    <button type="button" class="list-group-item list-group-item-action fb-collapse-btn fb-text-style">
+      Process Elements
+    </button>
+    <div id="graphContainer" #graphContainer style="height:600px;overflow:scroll;background-color:white">
+
+    </div>
+
+    <button type="button" style="float:right;margin-top:10px;" class="btn btn-primary btn-lg"
+            (click)="SaveUpdateProcessDetails()">
+      {{showProcessSaveOrUpdate == false  ? 'Save' : 'Update'}}
+
+    </button>
+    <button type="button" style="float:right;margin-top:10px;" class="btn btn-primary btn-lg"
+            (click)="BackToList()">
+      Back To List
+    </button>
+  </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" [ngStyle]="{'display':display}">
+  <!-- modal-dialog -->
+  <div class="modal-dialog" role="document">
+    <!-- modal-content -->
+    <div class="modal-content">
+      <!-- modal-header -->
+      <div class="modal-header">
+        <h4 class="modal-title" id="SMSProvider-search-ModalLabel">{{dialogTitle}}</h4>
+        <button type="button" class="close" aria-label="Close" (click)="closeModalDialog()">
+          <span aria-hidden="true">;</span>
+        </button>
+
+        <!-- <h4 class="modal-title">Login</h4> -->
+      </div>
+      <!-- modal-body -->
+      <div class="modal-body">
+
+        <p-tabView>
+          <p-tabPanel header="Properties for Step">
+
+            <form id="modalForm" [formGroup]="Properties">
+              <div class="tab-content">
+                <div class="tab-pane active" id="one">
+                  <div class="row form-row">
+                    <div class="form-group col-md-12">
+                      <label class="control-label col-sm-5 col-xs-6">process Name</label>
+                      <ul class="input-group col-sm-7 col-xs-6">
+                        <li>
+                          <input type="text" class="form-control" formControlName="Name"
+                                 required="required" />
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="row form-row">
+                    <div class="form-group col-md-12">
+                      <label class="control-label col-sm-5 col-xs-6">process Description</label>
+                      <ul class="input-group col-sm-7 col-xs-6">
+                        <li>
+                        <input type="text" class="form-control" formControlName="Desc"
+                               required="required" />
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="row form-row">
+                    <div class="form-group col-md-12">
+                      <label class="control-label col-sm-5 col-xs-6">process Description2</label>
+                      <ul class="input-group col-sm-7 col-xs-6">
+                        <li>
+                          <input type="text" class="form-control" formControlName="Desc2"
+                                 required="required" />
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </p-tabPanel>
+          <p-tabPanel header="Rule Builder Form">
+            Content 2
+          </p-tabPanel>
+          <p-tabPanel header="Notifaction">
+            Content 3
+          </p-tabPanel>
+        </p-tabView>
+
+      </div>
+      <!-- modal-footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="onSubmit()">
+          Save
+          <!--{{showProcessSaveOrUpdate == true  ? 'Save' : 'Update'}}-->
+        </button>
+        <button type="button" class="btn btn-primary" (click)="closeModalDialog()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal" tabindex="-1" role="dialog" [ngStyle]="{'display':display2}">
+  <!-- modal-dialog -->
+  <div class="modal-dialog" role="document">
+    <!-- modal-content -->
+    <div class="modal-content">
+      <!-- modal-header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Edge Properties</h4>
+        <button type="button" class="close" aria-label="Close" (click)="closeModalDialog()">
+          <span aria-hidden="true">;</span>
+        </button>
+
+      </div>
+      <!-- modal-body -->
+      <div class="modal-body">
+        <form [formGroup]="EdgeProperties">
+          <div class="tab-content">
+            <div class="tab-pane active">
+              <div class="row form-row">
+                <div class="form-group col-md-12">
+                  <label class="control-label col-sm-5 col-xs-6">Edge Desc</label>
+                  <ul class="input-group col-sm-7 col-xs-6">
+                    <li>
+                      <input type="text" class="form-control" formControlName="EdgeDesc" />
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <!-- modal-footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="SaveEdge()">
+          Ok
+        </button>
+        <button type="button" class="btn btn-primary" (click)="closeModalDialog()">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<p-toast key="popupScreen"></p-toast>
+
+
+2-process Designer Code Behind
+
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Router, ActivatedRoute, Params } from '@angular/router';
+import { SstProcessService } from '../services/SstProcess.service';
+import { SstProcesses, SstProcessSteps, SstProcessParentSteps, ShapeTypes, EdgeTypes } from '../models/models';
+import { mxgraph } from "mxgraph";
+import { MessageService } from 'primeng/api';
+import { CommonService } from '../services/common.service';
+import { FormGroup, Validators } from '@angular/forms';
+import { forEach } from '@angular/router/src/utils/collection';
+declare var require: any;
+const mx = require('mxgraph')({
+  mxImageBasePath: 'assets/mxgraph/images',
+  mxBasePath: 'assets/mxgraph'
+});
+
+@Component({
+  selector: 'app-process-designer',
+  templateUrl: './process-designer.component.html',
+  styleUrls: ['./process-designer.component.css']
+})
+export class ProcessDesignerComponent implements OnInit {
+
+
+  //For Prepare Publish
+  showProcessSaveOrUpdate: boolean;
+  dialogTitle: any;
+  selectedStep: any;
+  proc: any;
+
+  @ViewChild('graphContainer') container: ElementRef;
+  display: string;
+  Properties: FormGroup;
+  EdgeProperties: FormGroup;
+  display2: string;
+
+
+  constructor(public _router: Router, public route: ActivatedRoute, public cs: CommonService,
+    public procService: SstProcessService, public msgSer: MessageService) {
+    this.route.params.subscribe((params: Params) => {
+      this.cs.processID = parseInt(params.id);
+    })
+  }
+
+  ngOnInit(): void {
+    this.procService.LoadProcessWithDetails(this.cs.processID).subscribe(
+      data => {
+        this.cs.sstProcessSteps = data.data;
+        this.prepareGraph();
+      },
+      err => {
+        console.log(err);
+      }
+    )
+
+    this.createProcessForm();
+  }
+
+
+  prepareGraph() {
+    document.oncontextmenu = () => {
+      return false;
+    }
+
+    var generalsidebar = document.getElementById("generalsidebarContainer");
+
+    //	var predefinedsidebar = document.getElementById("predefinedsidebarContainer");
+
+    // Creates new toolbar without event processing  
+    var toolbar = new mx.mxToolbar(generalsidebar);
+    toolbar.enabled = false;
+
+    // Workaround for Internet Explorer ignoring certain styles
+    if (mx.mxClient.IS_QUIRKS) {
+      document.body.style.overflow = 'hidden';
+      new mx.mxDivResizer(generalsidebar);
+      //	new mx.mxDivResizer(predefinedsidebar);
+      new mx.mxDivResizer(this.container);
+    }
+
+    // Creates the model and the graph inside the container
+    // using the fastest rendering available on the browser
+    var model = new mx.mxGraphModel();
+    this.cs.graph = new mx.mxGraph(this.container.nativeElement, model);
+
+
+    // Returns a shorter label if the cell is collapsed and no
+    // label for expanded groups
+    // this.graph.getLabel = function (cell) {
+    // 	var tmp = mx.mxGraph.prototype.getLabel.apply(this, arguments); // "supercall"
+
+    // 	if (this.isCellLocked(cell)) {
+    // 		// Returns an empty label but makes sure an HTML
+    // 		// element is created for the label (for event
+    // 		// processing wrt the parent label)
+    // 		return "";
+    // 	} else if (this.isCellCollapsed(cell)) {
+    // 		var index = tmp.indexOf("</h1>");
+
+    // 		if (index > 0) {
+    // 			tmp = tmp.substring(0, index + 5);
+    // 			console.log(tmp)
+    // 		}
+    // 	}
+
+    // 	return tmp;
+    // };
+
+    // Disables HTML labels for swimlanes to avoid conflict
+    // for the event processing on the child cells. HTML
+    // labels consume events before underlying cells get the
+    // chance to process those events.
+    //
+    // NOTE: Use of HTML labels is only recommended if the specific
+    // features of such labels are required, such as special label
+    // styles or interactive form fields. Otherwise non-HTML labels
+    // should be used by not overidding the following function.
+    // See also: configureStylesheet.
+    this.cs.graph.isHtmlLabel = function (cell) {
+      return !this.isSwimlane(cell);
+    };
+
+    //we enable dragable inside the mxGraph
+    this.cs.graph.dropEnabled = true;
+    // Enables the connection inside vertex
+    this.cs.graph.setConnectable(true);
+    this.cs.graph.setMultigraph(false);
+    // this important command resolve the problem  when connect vertex to nothing it will not create that edge
+    this.cs.graph.setAllowDanglingEdges(false);
+    //graph.setTooltips(true);
+    new mx.mxRubberband(this.cs.graph);
+
+
+    var manager = new mx.mxSwimlaneManager(this.cs.graph);
+    var layout = new mx.mxStackLayout(this.cs.graph, true);
+    layout.resizeParent = true;
+
+    var layoutMgr = new mx.mxLayoutManager(this.cs.graph);
+    //when make drag the vertex this function is called
+    layoutMgr.getLayout = function (cell) {
+      //This means that all swimlanes inside mxStackLayout set vertically 
+      layout.horizontal = false;
+
+      if (!model.isEdge(cell) && this.graph.getModel().getChildCount(cell) > 0 && cell.style != ShapeTypes[ShapeTypes.swimlane] &&
+        (model.getParent(cell) == model.getRoot() || this.graph.isPool(cell))) {
+        layout.fill = this.graph.isPool(cell);
+        return layout;
+      }
+      return null;
+    };
+
+    this.cs.graph.isPool = (cell) => {
+      //the below command get all the mx Cells (inner swimlanes and all shapes)
+      var model = this.cs.graph.getModel();
+      //the below command get the parent swimlane that contain the inner swimlane which is Pool 1 or Pool 2
+      var parent = model.getParent(cell);
+      //the below command get the Parent Container for all the inner swimlanes which is parent
+      var boss = model.getRoot();
+
+      return parent != null && model.getParent(parent) == model.getRoot();
+    };
+
+    this.cs.parent = this.cs.graph.getDefaultParent();
+
+    //this function is used to add images inside toolbar
+    this.setStyle(this.cs.graph);
+    if (this.cs.sstProcessSteps.length > 0) {
+      this.showProcessSaveOrUpdate = true;
+      this.loadData();
+    }
+    else {
+      this.showProcessSaveOrUpdate = false;
+      this.beginAddShape();
+    }
+
+    this.addSidebarIcon(this.cs.graph, generalsidebar, 'Swimlane', './assets/shapes/swimLane.png', 600, 200, ShapeTypes[ShapeTypes.swimlane]);
+    this.addSidebarIcon(this.cs.graph, generalsidebar, 'Step', './assets/shapes/process.png', 100, 70, ShapeTypes[ShapeTypes.process]);
+    this.addSidebarIcon(this.cs.graph, generalsidebar, 'Start', './assets/shapes/start.png', 50, 50, ShapeTypes[ShapeTypes.start]);
+    this.addSidebarIcon(this.cs.graph, generalsidebar, 'Condition', './assets/shapes/decision.png', 100, 100, ShapeTypes[ShapeTypes.condition]);
+    this.addSidebarIcon(this.cs.graph, generalsidebar, 'End', './assets/shapes/end.png', 50, 50, ShapeTypes[ShapeTypes.end]);
+
+    //The below command is to prevent vertex to go outside from swimlane
+    this.cs.graph.graphHandler.setRemoveCellsFromParent(false);
+    //when make right click on the graph this event will fired
+    this.cs.graph.popupMenuHandler.factoryMethod = (menu, cell, evt) => {
+      this.createPopupMenu(this.cs.graph, menu, cell, evt);
+    };
+    //The below command will assign mouse Domw (left click , right click) , mouse hover (mouse over and mouse out)
+    this.cs.graph.addMouseListener(
+      {
+        mouseDown: (sender, evt) => {
+          this.cs.cell = evt.state.cell;
+          if (this.cs.cell != null) {
+            //to make check if the cell is edge
+            if (this.cs.cell.source != null && this.cs.cell.target != null && this.cs.cell.edge) {
+
+              this.cs.selectedEdge.shapeId = parseInt(this.cs.cell.target.id);
+              this.cs.selectedEdge.processStepId = parseInt(this.cs.cell.source.id);
+              this.cs.selectedEdge.processId = this.cs.processID;
+              if (this.cs.cell.value) {
+                this.cs.selectedEdge.edgeDescription = this.cs.cell.value;
+              } else {
+                this.cs.selectedEdge.edgeDescription = '';
+              }
+              this.cs.graph.stopEditing(false);
+            }
+            else {
+              this.cs.setSelectedCellValue(this.cs.cell);
+              this.cs.graph.stopEditing(false);
+              // this.execute(this.dblClickAction, cell);
+              // evt.consume();
+            }
+          }
+        },
+        mouseMove: (sender, me) => {
+          this.mouseMove(sender, me);
+        },
+        mouseUp: function (sender, me) { },
+      }
+    );
+    //it will check if this location valid to drop vertex
+    mx.mxDragSource.prototype.getDropTarget = (graph, x, y) => {
+      var cell = graph.getCellAt(x, y);
+      if (!graph.isValidDropTarget(cell)) {
+        cell = null;
+      }
+      return cell;
+    };
+
+    //This means that we  allow assign edge to another vertex in swimlane
+    this.cs.graph.setSplitEnabled(true);
+
+    //This method will called when make connect between 2 vertex 
+    this.cs.graph.connectionHandler.addListener(mx.mxEvent.CONNECT, (sender, evt) => {
+      debugger;
+
+      var edge = evt.getProperty('cell');
+      var source = this.cs.graph.getModel().getTerminal(edge, true);
+      var target = this.cs.graph.getModel().getTerminal(edge, false);
+
+
+
+      if (target.parent.id != source.parent.id) {
+        edge.style = EdgeTypes[EdgeTypes.crossover];
+        this.cs.selectedEdge.edgeType = EdgeTypes.crossover;
+      } else {
+        edge.style = EdgeTypes[EdgeTypes.arrow];
+        this.cs.selectedEdge.edgeType = EdgeTypes.arrow;
+      }
+
+
+      //set max edge for start vertex = 1 
+      if (this.cs.getShapeTypeValue(source.style) == ShapeTypes.start) {
+        var EdgeCount = this.cs.graph.getModel().getEdgeCount(source);
+        var maxEdgeCount = 1;
+        if (EdgeCount < maxEdgeCount) {
+          source.setConnectable(true);
+        } else {
+          source.setConnectable(false);
+          this.msgSer.add({ key: 'popupScreen', severity: 'warn', summary: 'Warning', detail: 'Exceed the maximum number of start connection' });
+
+        }
+      } else {
+        //set max edge for condition vertex = 3 
+        if (this.cs.getShapeTypeValue(source.style) == ShapeTypes.condition) {
+          var EdgeCount = this.cs.graph.getModel().getEdgeCount(source);
+          var maxEdgeCount = 3;
+          if (EdgeCount < maxEdgeCount) {
+            source.setConnectable(true);
+          } else {
+            source.setConnectable(false);
+            this.msgSer.add({ key: 'popupScreen', severity: 'warn', summary: 'Warning', detail: 'Exceed the maximum number of condition connection' });
+
+          }
+        }
+      }
+
+
+
+      if (this.cs.sstProcessSteps.find(i => i.stepId == parseInt(source.id)) != null) {
+        this.cs.selectedEdge.shapeId = parseInt(target.id);
+        this.cs.selectedEdge.parentShapeId = parseInt(source.id);
+        this.cs.selectedEdge.processId = this.cs.processID;
+        this.cs.selectedEdge.edgeDescription = "";
+        this.cs.selectedEdge.creationUser = "Admin";
+        this.cs.selectedEdge.creationDate = new Date();
+        if (this.cs.sstProcessSteps.find(i => i.stepId == this.cs.selectedEdge.shapeId) != null) {
+          this.cs.sstProcessSteps.find(i => i.stepId == this.cs.selectedEdge.shapeId).sstProcessParentSteps.push({ ...this.cs.selectedEdge });
+          this.msgSer.add({ key: 'popupScreen', severity: 'success', summary: 'Success', detail: source.value + ' connect to ' + target.value + ' Successfully.' });
+        }
+
+      }
+    });
+
+
+    //(after swapping an edge, the parent will be changed for new target vertex  and will be removed from old target vertex).
+    this.cs.graph.addListener(mx.mxEvent.CELL_CONNECTED, (sender, evt) => {
+
+      //If the connection is occured on previous target vertex then this code executed
+      if (evt.properties.previous != null) {
+
+        var old_source_previous = evt.properties.previous.id;
+        let edgeDesc_old_target = evt.properties.edge;
+
+        this.cs.DeleteSwapedEdge(old_source_previous);
+
+        if (sender.selectionModel.cells != null) {
+          var new_target = evt.properties.terminal.id;
+          var source = sender.selectionModel.cells[0].source.id;
+
+          // let parent = new ParentShape();
+          this.cs.selectedEdge.shapeId = parseInt(new_target);
+          this.cs.selectedEdge.parentShapeId = parseInt(source);
+          this.cs.selectedEdge.processId = this.cs.processID;
+          if (edgeDesc_old_target.value != null) {
+            this.cs.selectedEdge.edgeDescription = edgeDesc_old_target.value;
+          }
+          else {
+            this.cs.selectedEdge.edgeDescription = "";
+          }
+          this.cs.selectedEdge.creationUser = "Admin";
+          this.cs.selectedEdge.creationDate = new Date();
+
+          this.cs.sstProcessSteps.find(i => i.stepId == this.cs.selectedEdge.shapeId).sstProcessParentSteps.push({ ...this.cs.selectedEdge });
+          this.msgSer.add({ key: 'popupScreen', severity: 'success', summary: 'Success', detail: this.cs.selectedEdge.shapeId + ' Reconnect to ' + this.cs.selectedEdge.parentShapeId + ' Successfully.' });
+
+        } else {
+          this.msgSer.add({ key: 'popupScreen', severity: 'error', summary: 'Error', detail: 'Reconnect failed.' });
+        }
+      }
+    });
+
+    //This method will called when make resize cells
+    this.cs.graph.addListener(mx.mxEvent.CELLS_RESIZED,
+      mx.mxUtils.bind(this, (sender, evt) => {
+        //The below check is very important to make sure that the vertex resized is the same in the selectedStep varaible
+        if (this.cs.selectedStep != null && this.cs.selectedStep.stepId == evt.properties.cells[0].id) {
+
+          this.cs.setSelectedCellValue(evt.properties.cells[0]);
+          this.cs.graph.stopEditing(false);
+        }
+      })
+    );
+
+    //This method will called when make move cells
+    this.cs.graph.addListener(mx.mxEvent.CELLS_MOVED,
+      mx.mxUtils.bind(this, (sender, evt) => {
+        //The below check is very important to make sure that the vertex resized is the same in the selectedStep varaible
+        if (this.cs.selectedStep != null && this.cs.selectedStep.stepId == evt.properties.cells[0].id) {
+          this.cs.setSelectedCellValue(evt.properties.cells[0]);
+          this.cs.graph.stopEditing(false);
+        }
+      })
+
+    );
+  }
+
+  loadData() {
+    try {
+      //we need to define local variable to attach the global variable to be accessable inside foreach loop
+      let graph = this.cs.graph;
+      let parent = this.cs.parent;
+      graph.getModel().beginUpdate();
+
+      var root = undefined;
+      var dict = {};
+      var swimLane;
+
+      //we make 2 seperate for loop to make:
+      //1-Insert vertexs inside the graph
+      //2-Insert Edges that connect between the vertexs
+      this.cs.sstProcessSteps.forEach(function (element) {
+        var id = element.stepId;
+        var name = element.name;
+
+        if (element.shapeType == ShapeTypes.swimlane) {
+          swimLane = graph.insertVertex(parent, id, name, element.xPosition, element.yPosition, element.width, element.height, ShapeTypes[ShapeTypes.swimlane].toString());
+          swimLane.setConnectable(false);
+
+        }
+        else {
+
+          if (element.shapeType == ShapeTypes.start) {
+            var graphElement = graph.insertVertex(swimLane, id, name, element.xPosition, element.yPosition, element.width, element.height, ShapeTypes[ShapeTypes.start].toString());
+            graphElement.setConnectable(false);
+           }
+          else if (element.shapeType == ShapeTypes.end) {
+            var graphElement = graph.insertVertex(swimLane, id, name, element.xPosition, element.yPosition, element.width, element.height, ShapeTypes[ShapeTypes.end].toString());
+          }
+          else if (element.shapeType == ShapeTypes.process) {
+            var graphElement = graph.insertVertex(swimLane, id, name, element.xPosition, element.yPosition, element.width, element.height, ShapeTypes[ShapeTypes.process].toString());
+          }
+          else if (element.shapeType == ShapeTypes.condition) {
+            var graphElement = graph.insertVertex(swimLane, id, name, element.xPosition, element.yPosition, element.width, element.height, ShapeTypes[ShapeTypes.condition].toString());
+            graphElement.setConnectable(false);
+          }
+          else {
+            var graphElement = graph.insertVertex(swimLane, id, name, element.xPosition, element.yPosition, element.width, element.height, ShapeTypes[ShapeTypes.process].toString());
+          }
+          dict[id] = graphElement;
+        }
+      });
+
+      var AllCells = this.cs.graph.getModel();
+
+      //This Step will allow Insert Edges that connect between the vertexs
+      this.cs.sstProcessSteps.forEach(function (element) {
+        debugger;
+        var graphElement = AllCells.getCell(element.stepId.toString());
+
+        if (element.sstProcessParentSteps != null) {
+          if (element.sstProcessParentSteps.length > 0) {
+            // run through each parent element
+            element.sstProcessParentSteps.forEach(function (parentObj) {
+              var parentGraphElement = dict[parentObj.parentShapeId];
+
+              // add line between current element and parent
+              if (parentObj.edgeDescription != null) {
+                graph.insertEdge(swimLane, null, parentObj.edgeDescription, parentGraphElement, graphElement, EdgeTypes[parentObj.edgeType]);
+              }
+              else {
+                graph.insertEdge(swimLane, null, '', parentGraphElement, graphElement, EdgeTypes[parentObj.edgeType]);
+              }
+
+            });
+          } else {
+            // set root for layouting
+            root = graphElement;
+          }
+        }
+
+      });
+    }
+    finally {
+      this.cs.graph.getModel().endUpdate();
+      //   new mx.mxHierarchicalLayout(graph).execute(graph.getDefaultParent());
+    }
+  }
+
+  addSidebarIcon(graph, sidebar, label, image, width, height, style) {
+    let funct = (graph, evt, cell) => {
+
+      var model = graph.getModel();
+      graph.stopEditing(true);
+      var pt = graph.getPointForEvent(evt);
+      var graphElement = null;
+
+      var YAxisSwimlane = 0;
+      if (this.cs.sstProcessSteps.length > 0) {
+        YAxisSwimlane = (this.cs.sstProcessSteps.filter(i => i.shapeType == ShapeTypes.swimlane).length) * 200;
+      }
+
+      model.beginUpdate();
+      try {
+        debugger;
+        if (style != ShapeTypes[ShapeTypes.swimlane]) {
+          //we make check if the vertex dragged inisde swimlane only else show error message
+          if (cell != null) {
+            //we will check if the dragged element is start element > 1 ==> we will show error message
+            if (style == ShapeTypes[ShapeTypes.start]) {
+              var count = this.cs.sstProcessSteps.filter(i => i.shapeType == ShapeTypes.start /*&& i.processStepId == cell.id*/).length;
+            }
+            if (count >= 1) {
+              this.msgSer.add({ key: 'popupScreen', severity: 'error', summary: 'Error', detail: 'Cannot add more start step inside the process' });
+              return null;
+            }
+            //we make insert vertex inside the specified swimlane
+            this.cs.selectedStep = this.createInstance(label, style, width, height, cell);
+            this.cs.selectedStep.xPosition = (pt.x - cell.geometry.x);
+            this.cs.selectedStep.yPosition = (pt.y - cell.geometry.y);
+
+            graphElement = graph.insertVertex(cell, null, this.cs.selectedStep.name, this.cs.selectedStep.xPosition, this.cs.selectedStep.yPosition, this.cs.selectedStep.width, this.cs.selectedStep.height, style);
+
+
+            this.cs.selectedStep.stepId = parseInt(graphElement.id);
+            this.cs.selectedStep.processStepId = parseInt(cell.id);
+            graph.setSelectionCells(graphElement);
+            this.cs.selectedStep.width = width;
+            this.cs.selectedStep.height = height;
+            this.msgSer.add({ key: 'popupScreen', severity: 'success', summary: 'Success', detail: ShapeTypes[this.cs.selectedStep.shapeType] + ' Added Successfully.' });
+
+          }
+          else {
+            this.msgSer.add({ key: 'popupScreen', severity: 'error', summary: 'Error', detail: 'Cannot add vertex outside swimlane' });
+            return null;
+          }
+        }
+        else {
+          //it will create swimlane 
+          this.cs.selectedStep = this.createInstance(label, style, width, height, cell);
+
+          this.cs.selectedStep.xPosition = 0;
+          this.cs.selectedStep.yPosition = YAxisSwimlane;
+          graphElement = graph.insertVertex(this.cs.parent, null, this.cs.selectedStep.name, this.cs.selectedStep.xPosition, this.cs.selectedStep.yPosition, this.cs.selectedStep.width, this.cs.selectedStep.height, style);
+          graphElement.setConnectable(false);
+          this.cs.selectedStep.stepId = parseInt(graphElement.id);
+          this.cs.selectedStep.processStepId = null;
+          this.msgSer.add({ key: 'popupScreen', severity: 'success', summary: 'Success', detail: this.cs.selectedStep.shapeType + ' Added Successfully.' });
+        }
+      } finally {
+        model.endUpdate();
+      }
+      graph.setSelectionCell(graphElement);
+      //push copy to array (spread object)
+      this.cs.pushToArray({ ...this.cs.selectedStep });
+
+    };
+
+    // Creates the image which is used as the sidebar icon (drag source)
+    var img = document.createElement("img");
+    img.setAttribute("src", image);
+    img.style.width = "100%";
+    img.style.height = "15%";
+    img.title = "Drag this to the diagram to create a new vertex";
+    sidebar.appendChild(img);
+
+    this.cs.dragElt = document.createElement("div");
+    this.cs.dragElt.style.border = "dashed black 1px";
+    this.cs.dragElt.style.width = "10px";
+    this.cs.dragElt.style.height = "10px";
+
+    // Creates the image which is used as the drag icon (preview)
+    var ds = mx.mxUtils.makeDraggable(
+      img,
+      graph,
+      funct,
+      this.cs.dragElt,
+      0,
+      0,
+      true,
+      true
+    );
+    this.cs.dragElt = null;
+    ds.setGuidesEnabled(true);
+  }
+
+  createInstance(label, style, width, height, cell): SstProcessSteps {
+    let selectedStep = new SstProcessSteps();
+    if (this.cs.getShapeTypeValue(style) != 1) {
+
+      var uniqueID = this.cs.sstProcessSteps.filter(i => i.shapeType == this.cs.getShapeTypeValue(style) && i.processStepId == cell.id).length + 1;
+      var x = this.cs.sstProcessSteps.filter(i => i.shapeType == this.cs.getShapeTypeValue(style) && i.processStepId == cell.id);
+      selectedStep.name = label + uniqueID;
+      selectedStep.shapeType = this.cs.getShapeTypeValue(style);
+      selectedStep.width = width;
+      selectedStep.height = height;
+      selectedStep.processId = this.cs.processID;
+      selectedStep.creationUser = "Admin";
+      selectedStep.creationDate = new Date();
+      return selectedStep;
+
+    } else {
+
+      var uniqueID = this.cs.sstProcessSteps.filter(i => i.shapeType == this.cs.getShapeTypeValue(style)).length + 1;
+
+      selectedStep.name = label + uniqueID;
+      selectedStep.shapeType = this.cs.getShapeTypeValue(style);
+      selectedStep.width = width;
+      selectedStep.height = height;
+      selectedStep.processId = this.cs.processID;
+      selectedStep.creationUser = "Admin";
+      selectedStep.creationDate = new Date();
+      return selectedStep;
+
+    }
+  }
+
+  addPredefinedSidebarIcon(graph, sidebar, label, image) {
+    // Function that is executed when the image is dropped on
+    // the graph. The cell argument points to the cell under
+    // the mousepointer if there is one.
+    var funct = function (graph, evt, cell, x, y) {
+      var parent = graph.getDefaultParent();
+      var model = graph.getModel();
+
+      var v1 = null;
+
+      model.beginUpdate();
+      try {
+        // NOTE: For non-HTML labels the image must be displayed via the style
+        // rather than the label markup, so use 'image=' + image for the style.
+        // as follows: v1 = graph.insertVertex(parent, null, label,
+        // pt.x, pt.y, 120, 120, 'image=' + image);
+        v1 = graph.insertVertex(parent, null, label, x, y, 120, 120);
+        v1.setConnectable(false);
+
+        // Presets the collapsed size
+        v1.geometry.alternateBounds = new mx.mxRectangle(0, 0, 120, 40);
+
+        // Adds the ports at various relative locations
+
+      } finally {
+        model.endUpdate();
+      }
+
+      graph.setSelectionCell(v1);
+    };
+
+    // Creates the image which is used as the sidebar icon (drag source)
+    var img = document.createElement("img");
+    img.setAttribute("src", image);
+    img.style.width = "30px";
+    img.style.height = "30px";
+    img.title = "Drag this to the diagram to create a new vertex";
+    sidebar.appendChild(img);
+
+    var dragElt = document.createElement("div");
+    dragElt.style.border = "dashed black 1px";
+    dragElt.style.width = "120px";
+    dragElt.style.height = "120px";
+
+    // Creates the image which is used as the drag icon (preview)
+    var ds = mx.mxUtils.makeDraggable(
+      img,
+      graph,
+      funct,
+      dragElt,
+      0,
+      0,
+      true,
+      true
+    );
+    ds.setGuidesEnabled(true);
+  }
+
+  beginAddShape() {
+    var initial = this.cs.graph.insertVertex(this.cs.parent, null, 'swimlane1', 0, 0, 800, 200, ShapeTypes[ShapeTypes.swimlane]);
+    initial.setConnectable(false);
+
+    this.cs.selectedStep.stepId = initial.id;
+    this.cs.selectedStep.name = 'swimlane1';
+    this.cs.selectedStep.shapeType = ShapeTypes.swimlane;
+    this.cs.selectedStep.xPosition = 100;
+    this.cs.selectedStep.yPosition = 100;
+    this.cs.selectedStep.width = 1000;
+    this.cs.selectedStep.height = 200;
+    this.cs.selectedStep.processStepId = null;
+    this.cs.selectedStep.processId = this.cs.processID;
+    this.cs.selectedStep.creationUser = "Admin";
+    this.cs.selectedStep.creationDate = new Date();
+    //The below command will focus on the specific mxCell (vertex)
+    this.cs.graph.selectVertices(initial);
+
+    this.cs.pushToArray({ ...this.cs.selectedStep });
+
+  }
+
+  setStyle(graph) {
+    var style = graph.getStylesheet().getDefaultVertexStyle();
+
+    //we set style for the SHAPE_SWIMLANE on the class name called swimlane
+    style = mx.mxUtils.clone(style);
+    style[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_SWIMLANE;
+    style[mx.mxConstants.STYLE_VERTICAL_ALIGN] = 'middle';
+    style[mx.mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = 'rgb(42, 80, 111)';
+    style[mx.mxConstants.STYLE_FILLCOLOR] = 'rgb(42, 80, 111)';
+    style[mx.mxConstants.STYLE_SHADOW] = false;
+    style[mx.mxConstants.STYLE_FONTSIZE] = 14;
+    style[mx.mxConstants.STYLE_FONTSTYLE] = 1;
+    style[mx.mxConstants.STYLE_STARTSIZE] = 22;
+    style[mx.mxConstants.STYLE_HORIZONTAL] = false;
+    style[mx.mxConstants.STYLE_FONTCOLOR] = 'white';
+    style[mx.mxConstants.STYLE_STROKECOLOR] = 'black';
+    style[mx.mxConstants.STYLE_RESIZEABLE] = 1;
+    graph.getStylesheet().putCellStyle(ShapeTypes[ShapeTypes.swimlane], style);
+   
+    style[mx.mxConstants.STYLE_SHADOW] = true;
+    style[mx.mxConstants.STYLE_OPACITY] = '85';
+    // //we set style for the SHAPE_RECT on the class name called process
+    style = mx.mxUtils.clone(style);
+    style[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_RECTANGLE;
+    style[mx.mxConstants.STYLE_FONTSIZE] = 14;
+    style[mx.mxConstants.STYLE_FONTSTYLE] = 1;
+    style[mx.mxConstants.STYLE_ROUNDED] = true;
+    style[mx.mxConstants.STYLE_HORIZONTAL] = true;
+    style[mx.mxConstants.STYLE_VERTICAL_ALIGN] = 'middle';
+    delete style[mx.mxConstants.STYLE_STARTSIZE];
+    style[mx.mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = 'none';
+    style[mx.mxConstants.STYLE_FILLCOLOR] = 'rgb(0, 153, 207)';
+
+    graph.getStylesheet().putCellStyle(ShapeTypes[ShapeTypes.process], style);
+
+
+    // //we set style for the SHAPE_Ellipse on the class name called state
+    style = mx.mxUtils.clone(style);
+    style[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_ELLIPSE;
+    style[mx.mxConstants.STYLE_PERIMETER] = mx.mxPerimeter.EllipsePerimeter;
+    delete style[mx.mxConstants.STYLE_ROUNDED];
+    style[mx.mxConstants.STYLE_FONTSIZE] = 14;
+    style[mx.mxConstants.STYLE_FONTSTYLE] = 1;
+    style[mx.mxConstants.STYLE_FILLCOLOR] = 'rgb(57, 77, 84)';
+
+    graph.getStylesheet().putCellStyle(ShapeTypes[ShapeTypes.start], style);
+
+    //we set style for the SHAPE_RHOMBUS on the class name called condition
+    style = mx.mxUtils.clone(style);
+    style[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_RHOMBUS;
+    style[mx.mxConstants.STYLE_PERIMETER] = mx.mxPerimeter.RhombusPerimeter;
+    style[mx.mxConstants.STYLE_FONTSIZE] = 14;
+    style[mx.mxConstants.STYLE_FONTSTYLE] = 1;
+    style[mx.mxConstants.STYLE_FILLCOLOR] = 'rgb(245, 135, 37)';
+    graph.getStylesheet().putCellStyle(ShapeTypes[ShapeTypes.condition], style);
+
+    //we set style for the SHAPE_DOUBLE_ELLIPSE on the class name called end
+    style = mx.mxUtils.clone(style);
+    style[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_DOUBLE_ELLIPSE;
+    style[mx.mxConstants.STYLE_PERIMETER] = mx.mxPerimeter.EllipsePerimeter;
+    style[mx.mxConstants.STYLE_FONTSIZE] = 14;
+    style[mx.mxConstants.STYLE_FONTSTYLE] = 1;
+    delete style[mx.mxConstants.STYLE_SPACING_RIGHT];
+    style[mx.mxConstants.STYLE_FILLCOLOR] = 'rgb(57, 77, 84)';
+    graph.getStylesheet().putCellStyle(ShapeTypes[ShapeTypes.end], style);
+
+    //we set style of normal arrow line
+    style = graph.getStylesheet().getDefaultEdgeStyle();
+    style[mx.mxConstants.STYLE_EDGE] = mx.mxEdgeStyle.ElbowConnector;
+    style[mx.mxConstants.STYLE_ENDARROW] = mx.mxConstants.ARROW_BLOCK;
+    style[mx.mxConstants.STYLE_ROUNDED] = true;
+    style[mx.mxConstants.STYLE_FONTSIZE] = 14;
+    style[mx.mxConstants.STYLE_FONTSTYLE] = 1;
+    style[mx.mxConstants.STYLE_FONTCOLOR] = 'black';
+    style[mx.mxConstants.STYLE_STROKECOLOR] = 'black';
+    style[mx.mxConstants.STYLE_SPACING_TOP] = 28;
+    style[mx.mxConstants.STYLE_FILLCOLOR] = 'rgb(0, 0, 0)';
+    graph.getStylesheet().putCellStyle(EdgeTypes[EdgeTypes.arrow], style);
+
+    //we set style of Arrow Open on the class called crossover   like ---------
+    style = mx.mxUtils.clone(style);
+    style[mx.mxConstants.STYLE_EDGE] = mx.mxEdgeStyle.BLOCK;
+    style[mx.mxConstants.STYLE_DASHED] = true;
+    style[mx.mxConstants.STYLE_ROUNDED] = false;
+    style[mx.mxConstants.STYLE_ENDARROW] = mx.mxConstants.ARROW_OPEN;
+    style[mx.mxConstants.STYLE_STARTARROW] = mx.mxConstants.ARROW_OVAL;
+    style[mx.mxConstants.STYLE_FONTSIZE] = 14;
+    style[mx.mxConstants.STYLE_FONTSTYLE] = 1;
+    graph.getStylesheet().putCellStyle(EdgeTypes[EdgeTypes.crossover], style);
+
+    // Installs double click on middle control point and
+    // changes style of edges between empty and this value
+    graph.alternateEdgeStyle = 'elbow=vertical';
+  }
+  //this function used to create the entries in the popupmenu
+  createPopupMenu(graph, menu, cell, evt) {
+
+    if (cell != null) {
+
+      if (cell.edge == true) {
+        this.fillEdgeOptions(graph, menu);
+      }
+      else if (cell.vertex == true) {
+        if (cell.style == ShapeTypes[ShapeTypes.process]) {
+          this.fillBasicOptions(graph, menu);
+          this.fillRectOptions(menu);
+        }
+        else if (cell.style == ShapeTypes[ShapeTypes.condition]) {
+          this.fillBasicOptions(graph, menu);
+          this.fillConditionOptions(menu);
+        }
+        else {
+          this.fillBasicOptions(graph, menu);
+          this.fillRectOptions(menu);
+        }
+      }
+    }
+  };
+
+  fillEdgeOptions(graph, menu) {
+    menu.addItem('Edit', null, () => {
+      if (graph.isEnabled()) {
+        this.display2 = 'block';
+        this.EdgeProperties.patchValue({
+          EdgeDesc: this.cs.selectedEdge.edgeDescription
+        });
+        //this.showEdgeProperties(this.cs.graph, this.cs.selectedEdge);
+      }
+    })
+
+    menu.addItem('Delete', null, () => {
+      if (graph.isEnabled()) {
+        this.deleteCells();
+      }
+    })
+  }
+
+  fillBasicOptions(graph, menu) {
+    menu.addItem('Delete', null, () => {
+      if (graph.isEnabled()) {
+        this.deleteCells();
+      }
+    })
+  }
+
+  //this functionis used to begin fill option only for rectangle shapes
+  fillRectOptions(menu) {
+    menu.addItem('Set Properties', null, () => {
+      this.display = 'block';
+      this.Properties.patchValue({
+        Name: this.cs.selectedStep.name,
+      });
+
+      //this.showProperties(this.graph, this.selectedStep);
+    });
+  }
+
+  //this functionis used to begin fill option only for rectangle shapes
+  fillConditionOptions(menu) {
+    menu.addItem('Set Properties', null, () => {
+      //	this.showProperties(this.cs.graph, this.cs.selectedStep);
+      this.display = 'block';
+      this.Properties.patchValue({
+        Name: this.cs.selectedStep.name
+      });
+
+    });
+  }
+
+  //This Method repsonsible for delete vertex and edge
+  deleteCells() {
+    this.cs.graph.escape();
+    if (this.cs.graph.isEnabled()) {
+      this.cs.graph.removeCells();
+
+      if (this.cs.cell.vertex == true) {
+        //we remove everything inside the swimlane
+        if (this.cs.selectedStep.shapeType == ShapeTypes.swimlane) {
+          this.cs.sstProcessSteps = this.cs.sstProcessSteps
+            .filter(i =>
+              i.stepId != this.cs.selectedStep.stepId
+            );
+
+          this.cs.sstProcessSteps = this.cs.sstProcessSteps
+            .filter(i =>
+              i.processStepId != this.cs.selectedStep.stepId
+            );
+        }
+        else {
+          //If the Delete item is process , condition , except swimlane we  remove it plush the parent shape connection
+          this.cs.sstProcessSteps = this.cs.sstProcessSteps.filter(i => i.stepId != this.cs.selectedStep.stepId);
+          let temp = this.cs.sstProcessSteps;
+          temp.forEach(item => {
+            let shapeID = item.stepId;
+            if (item.sstProcessParentSteps.length > 0) {
+              item.sstProcessParentSteps.forEach(parent => {
+                if (parent.parentShapeId == this.cs.selectedStep.stepId) {
+                  let parentID = parent.parentShapeId;
+                  this.cs.sstProcessSteps.find(x => x.stepId == shapeID).sstProcessParentSteps = this.cs.sstProcessSteps.find(x => x.stepId == shapeID).sstProcessParentSteps.filter(i => i.parentShapeId != parentID);
+                }
+              })
+            }
+
+          });
+          this.msgSer.add({ key: 'popupScreen', severity: 'success', summary: 'Success', detail: this.cs.selectedStep.name + ' Deleted Successfully.' });
+        }
+        this.cs.selectedStep = new SstProcessSteps();
+      }
+      else if (this.cs.cell.edge == true) {
+
+        this.cs.DeleteEdge(this.cs.selectedEdge);
+
+
+        //enable connect from source start after delete an edge if EdgeCount < maxEdgeCount
+        if (this.cs.getShapeTypeValue(this.cs.cell.source.style) == ShapeTypes.start) {
+          var EdgeCount = this.cs.graph.getModel().getEdgeCount(this.cs.cell.source);
+          var maxEdgeCount = 1;
+          if (EdgeCount < maxEdgeCount) {
+            this.cs.cell.source.setConnectable(true);
+          }
+        } else {
+          //enable connect from source condition after delete an edge if EdgeCount < maxEdgeCount
+          if (this.cs.getShapeTypeValue(this.cs.cell.source.style) == ShapeTypes.condition) {
+            var EdgeCount = this.cs.graph.getModel().getEdgeCount(this.cs.cell.source);
+            var maxEdgeCount = 3;
+            if (EdgeCount < maxEdgeCount) {
+              this.cs.cell.source.setConnectable(true);
+            }
+          }
+        }
+      }
+    }
+  };
+  //This method is used to detect the state of the hover operation (drag Enter , drage Leave) 
+  //based on the current state which refelect on the selected Step variable
+  mouseMove(sender, me) {
+    if (sender != null && me != null) {
+      if (this.cs.currentState != null && me.getState() == this.cs.currentState) {
+        return;
+      }
+      if (me.state != null) {
+        var tmp = me.state.cell;
+      }
+      if (tmp != this.cs.currentState) {
+        if (this.cs.currentState != null) {
+          this.dragLeave(me.getEvent(), this.cs.currentState);
+        }
+        this.cs.currentState = tmp;
+
+        if (this.cs.currentState != null) {
+          this.dragEnter(me.getEvent(), this.cs.currentState);
+        }
+      }
+    }
+  }
+
+  dragEnter(evt, state) {
+    this.cs.cell = state;
+    if (this.cs.cell != null && this.cs.graph.isEnabled()) {
+      this.cs.setSelectedCellValue(this.cs.cell);
+      this.cs.graph.stopEditing(false);
+    }
+  }
+
+  dragLeave(evt, state) {
+    this.cs.cell = state;
+    if (this.cs.cell != null && this.cs.graph.isEnabled()) {
+      this.cs.graph.stopEditing(false);
+    }
+
+    if (state != null) {
+      this.cs.graph.stopEditing(false);
+    }
+  }
+
+
+
+  Validation(): boolean {
+    debugger;
+    var swimlanes = this.cs.sstProcessSteps.filter(x => x.shapeType == ShapeTypes.swimlane);
+    var test = 0;
+    let flagRelation = <boolean[]>[];
+
+    if (swimlanes.length > 1) {
+      for (var swimlane of swimlanes) {
+        var swimlanesSteps = this.cs.sstProcessSteps.filter(x => x.processStepId == swimlane.stepId);
+        var otherSwimlaneSteps = this.cs.sstProcessSteps.filter(x => x.processStepId != swimlane.stepId);
+
+        console.log("swimlanes " + swimlane.stepId + "swimlanes Steps length = " + swimlanesSteps.length);
+
+        swimlanesSteps.forEach(step => {
+          console.log("step =" + step.stepId + ' it swimlane = ' + step.processStepId);
+
+          step.sstProcessParentSteps.forEach(parent => {
+            console.log("step =" + parent.shapeId + 'it parent = ' + parent.parentShapeId);
+            otherSwimlaneSteps.forEach(otherSwimlaneStep => {
+              if (parent.parentShapeId != step.stepId && parent.parentShapeId == otherSwimlaneStep.stepId) {
+                var index = swimlanes.findIndex((e) => e.stepId == swimlane.stepId);
+                flagRelation[index] = true;
+                console.log(flagRelation[index]);
+                stop();
+              }
+            });
+          });
+
+        });
+
+      }
+    }
+    var valid = false;
+    flagRelation.forEach(x => {
+      if (x == true && flagRelation.length == swimlanes.length) {
+        valid = true;
+      } else {
+        valid = false;
+        return null;
+      }
+    });
+
+    return valid;
+  }
+
+
+  SaveUpdateProcessDetails() {
+    var validOrNot = false;
+    validOrNot = this.Validation();
+
+    var coubt3 = this.cs.sstProcessSteps.filter(x => (x.shapeType == ShapeTypes.end)).length;
+    var count2 = this.cs.sstProcessSteps.filter(x => (x.shapeType == ShapeTypes.start)).length;
+
+    debugger;
+    var swimlanes = this.cs.sstProcessSteps.filter(x => x.shapeType == ShapeTypes.swimlane);
+    for (var item of swimlanes) {
+      var count1 = this.cs.sstProcessSteps.filter(x => x.processStepId == item.stepId);
+      // var count2 = count1.filter(x => (x.shapeType == ShapeTypes.start)).length;
+      // var coubt3 = count1.filter(x => (x.shapeType == ShapeTypes.end)).length;
+      if (count2 == 0 || coubt3 == 0) {
+        this.msgSer.add({ key: 'popupScreen', severity: 'error', summary: 'Error', detail: item.name + ' must contain at least one start and one end at process' });
+        return null;
+      }
+    }
+    var count = this.cs.sstProcessSteps.filter(x => x.sstProcessParentSteps.length == 0 && ((x.shapeType != ShapeTypes.swimlane) && (x.shapeType != ShapeTypes.start))).length;
+    if (count > 0) {
+      this.msgSer.add({ key: 'popupScreen', severity: 'error', summary: 'Error', detail: 'one or more steps not connected' });
+      return null;
+    }
+    else {
+      if (swimlanes.length > 1 && validOrNot == false) {
+
+        this.msgSer.add({ key: 'popupScreen', severity: 'error', summary: 'Error', detail: 'one or more swimlanes are not connected' });
+        return null;
+
+      } else {
+        this.procService.putProcessWidthDetails(this.cs.processID, this.cs.sstProcessSteps).subscribe(
+          data => {
+            if (this.showProcessSaveOrUpdate) {
+              this._router.navigate(["process-builder/process"]);
+            }
+            else {
+              this.msgSer.add({ key: 'popupScreen', severity: 'success', summary: 'Success', detail: 'process steps Added successfully' });
+              this.showProcessSaveOrUpdate = true;
+            }
+          });
+      }
+
+    }
+  }
+  BackToList() {
+    this._router.navigate(["process-builder/process"]);
+  }
+
+
+  createProcessForm() {
+    this.Properties = this.cs.fb.group({
+      Name: ['', [Validators.required]],
+      Desc: ['', [Validators.required]],
+      Desc2: ['', [Validators.required]]
+
+    });
+
+    this.EdgeProperties = this.cs.fb.group({
+
+      EdgeDesc: ['', [Validators.required]]
+
+    });
+  }
+
+  closeModalDialog() {
+    this.display = 'none'; //set none css after close dialog
+    this.display2 = 'none';
+    this.resetForm();
+  }
+
+  resetForm() {
+    this.cs.resetForm(this.Properties);
+    this.cs.resetForm(this.EdgeProperties);
+    this.createProcessForm();
+  }
+
+  onSubmit() {
+    this.mapProcessModel(this.cs.graph);
+    this.closeModalDialog();
+  }
+
+  mapProcessModel(graph) {
+    this.cs.selectedStep.name = this.Properties.value.Name;
+    //push copy to array (spread object)
+    this.cs.pushToArray({ ...this.cs.selectedStep });
+    graph.model.setValue(this.cs.cell, this.cs.selectedStep.name);
+  }
+
+  SaveEdge() {
+    this.mapEdgeModel(this.cs.graph);
+    this.closeModalDialog();
+  }
+
+  mapEdgeModel(graph) {
+    this.cs.selectedEdge.edgeDescription = this.EdgeProperties.value.EdgeDesc;
+    graph.model.setValue(this.cs.cell, this.cs.selectedEdge.edgeDescription);
+    this.cs.updateEdge({ ...this.cs.selectedEdge });
+  }
+
+}
+
+
+3-Models
+
+export enum ShapeTypes {
+  swimlane = 1,
+  start = 2,
+  end = 3,
+  process = 4,
+  condition = 5,
+}
+
+export enum EdgeTypes {
+  arrow = 1,
+  crossover = 2
+}
+
+4-API Controller 
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
+using SharedComponents.Domain.Interfaces.Services;
+using SharedComponents.Domain.Interfaces.Shared;
+using SharedComponents.Domain.Models;
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+namespace SharedComponents.Api.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class SstProcessesController : ControllerBase
+    {
+
+        private readonly IServiceUnitOfWork _serviceUnitOfWork;
+
+        public SstProcessesController(IServiceUnitOfWork serviceUnitOfWork)
+        {
+            _serviceUnitOfWork = serviceUnitOfWork;
+        }
+
+
+        [HttpGet]
+        [Route("GetAll")]
+        public IResponseResult<IEnumerable<SstProcesses>> GetAll()
+        {
+
+            using (_serviceUnitOfWork)
+                return _serviceUnitOfWork.Processes.Value.GetAll();
+
+        }
+
+        [HttpGet]
+        [Route("LoadProcessWithDetails/{id}")]
+        public IActionResult LoadProcessWithDetails(long? id)
+        {
+            var model = _serviceUnitOfWork.Processes.Value.LoadProcessStepsWithParentShapesByProcessID(id);
+            if (model != null)
+            {
+                return Ok(model);
+            }
+            return NotFound();
+        }
+
+        [HttpPut]
+        [Route("UpdateProcessSteps/{procID}")]
+        public IActionResult UpdateProcessWithProcessStepsAndParentObject(long? procID, IEnumerable<SstProcessSteps> procsteps)
+        {
+            var model = _serviceUnitOfWork.Processes.Value.UpdateProcessWithProcessStepsAndParentObject(procID, procsteps);
+            if (model != null)
+            {
+                return Ok(model);
+            }
+            return NotFound();
+        }
+
+        [HttpPost]
+        public IResponseResult<SstProcesses> Post([FromBody] SstProcesses Process)
+        {
+            IResponseResult<SstProcesses> processesResult;
+
+            using (_serviceUnitOfWork)
+            {
+                processesResult = _serviceUnitOfWork.Processes.Value.Add(Process);
+                return processesResult;
+            }
+        }
+
+
+        [HttpPut]
+        public IResponseResult<SstProcesses> Put([FromBody]  SstProcesses process)
+        {
+            using (_serviceUnitOfWork)
+            {
+                return _serviceUnitOfWork.Processes.Value.Update(process);
+            }
+        }
+
+
+        [HttpDelete("{id}")]
+        public IResponseResult<SstProcesses> Delete(long? id)
+        {
+            SstProcesses process = new SstProcesses();
+
+            using (_serviceUnitOfWork)
+            {
+                return _serviceUnitOfWork.Processes.Value.DeleteProcesStepsAndParents(id);
+            }
+        }
+
+
+        [HttpGet("{Id}")]
+        public JsonResult GetId(int Id)
+        {
+            try
+            {
+                var model = _serviceUnitOfWork.ProcessesSystems.Value.Find(x => x.ProcessId == Id);
+                return new JsonResult(model);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(BadRequest(ex.Message));
+            }
+        }
+
+     
+        [HttpPost]
+        [Route("RemoveRange")]
+        public ActionResult RemoveRange(SstProcessSystems[] entity)
+        {
+            try
+            {
+                using (_serviceUnitOfWork)
+                {
+                    _serviceUnitOfWork.ProcessesSystems.Value.RemoveRange(entity);
+                    // _serviceUnitOfWork.Questionnaire.Value.SaveChanges();
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [Route("copyProcess/{id}")]
+        public ActionResult copyProcess(int id)
+        {
+            try
+            {
+                using (_serviceUnitOfWork)
+                {
+                    _serviceUnitOfWork.Processes.Value.copyProcesses(id);
+                }
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+    }
+}
+
+
+5-Service Section 
+
+using SharedComponents.Domain.Common;
+using SharedComponents.Domain.Enums;
+using SharedComponents.Domain.Interfaces.Repositories;
+using SharedComponents.Domain.Interfaces.Services;
+using SharedComponents.Domain.Interfaces.Shared;
+using SharedComponents.Domain.Models;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Text;
+
+namespace SharedComponents.Service.Services
+{
+    public class SstProcessesService : ISstProcessesService
+    {
+
+        private IRepositoryUnitOfWork _repositoryUnitOfWork;
+        public SstProcessesService(IRepositoryUnitOfWork repositoryUnitOfWork)
+        {
+            _repositoryUnitOfWork = repositoryUnitOfWork;
+        }
+        public IResponseResult<SstProcesses> Add(SstProcesses entity)
+        {
+            _repositoryUnitOfWork.Processes.Value.Add(entity);
+            return new ResponseResult<SstProcesses>() { Status = ResultStatus.Success, Data = entity };
+
+        }
+
+        public IResponseResult<IEnumerable<SstProcesses>> AddRange(IEnumerable<SstProcesses> models)
+        {
+            _repositoryUnitOfWork.Processes.Value.AddRange(models);
+            return new ResponseResult<IEnumerable<SstProcesses>>() { Status = ResultStatus.Success, Data = models };
+        }
+
+        public IResponseResult<SstProcesses> Get(long Id, int companyId)
+        {
+            var result = _repositoryUnitOfWork.Processes.Value.Get(Id, companyId);
+            return new ResponseResult<SstProcesses>() { Status = ResultStatus.Success, Data = result };
+
+        }
+
+        public IResponseResult<SstProcesses> Get(long Id)
+        {
+            var result = _repositoryUnitOfWork.Processes.Value.Get(Id);
+            return new ResponseResult<SstProcesses>() { Status = ResultStatus.Success, Data = result };
+        }
+
+        public IResponseResult<IEnumerable<SstProcesses>> GetAll()
+        {
+
+            var result = _repositoryUnitOfWork.Processes.Value.GetAll().ToList();
+            return new ResponseResult<IEnumerable<SstProcesses>>() { Status = ResultStatus.Success, Data = result };
+        }
+
+        public IResponseResult<SstProcesses> Remove(SstProcesses entity)
+        {
+            _repositoryUnitOfWork.Processes.Value.Remove(entity);
+            return new ResponseResult<SstProcesses>() { Status = ResultStatus.Success, Data = entity };
+        }
+
+        public IResponseResult<IEnumerable<SstProcesses>> RemoveRange(IEnumerable<SstProcesses> models)
+        {
+
+             _repositoryUnitOfWork.Processes.Value.RemoveRange(models);
+            return new ResponseResult<IEnumerable<SstProcesses>>() { Status = ResultStatus.Success, Data = models };
+        }
+
+        public IResponseResult<SstProcesses> Update(SstProcesses entity)
+        {
+            _repositoryUnitOfWork.Processes.Value.Update(entity);
+            return new ResponseResult<SstProcesses>() { Status = ResultStatus.Success, Data = entity };
+        }
+        public IQueryable<SstProcesses> Find(Expression<Func<SstProcesses, bool>> predicate, params Expression<Func<SstProcesses, object>>[] navigationProperties)
+        {
+            return _repositoryUnitOfWork.Processes.Value.Find(predicate, navigationProperties);
+        }
+
+        public IResponseResult<IEnumerable<SstProcessSteps>> LoadProcessStepsWithParentShapesByProcessID(long? Id)
+        {
+            var result = _repositoryUnitOfWork.Processes.Value.LoadProcessStepsWithParentShapesByProcessID(Id);
+            return new ResponseResult<IEnumerable<SstProcessSteps>>() { Status = ResultStatus.Success, Data = result };
+        }
+
+
+        public IResponseResult<IEnumerable<SstProcessSteps>>  UpdateProcessWithProcessStepsAndParentObject(long? procID, IEnumerable<SstProcessSteps> procsteps)
+        {
+
+            var parentObjectsResult = _repositoryUnitOfWork.ProcessParentSteps.Value.Find(x => x.ProcessId == procID).ToList();
+            _repositoryUnitOfWork.ProcessParentSteps.Value.RemoveRange(parentObjectsResult);
+
+            var processStepsResult = _repositoryUnitOfWork.ProcessesSteps.Value.Find(x => x.ProcessId == procID).ToList();
+            if (processStepsResult.Count() > 0)
+            {
+
+               foreach (var obj in processStepsResult)
+                {
+                    var exist = procsteps.Where(i => i.StepId == obj.StepId).FirstOrDefault();
+                    if (exist == null)
+                    {
+                        _repositoryUnitOfWork.ProcessesSteps.Value.Remove(obj);
+                    }
+                } 
+                foreach (var item in procsteps)
+                {
+                    var exist = processStepsResult.Where(i => i.StepId == item.StepId).FirstOrDefault();
+                    if (exist != null)
+                    {
+                        exist.ModificationDate = DateTime.Now;
+                        exist.ModificationUser = "Admin";
+                        exist.Name = item.Name;
+                        exist.XPosition = item.XPosition;
+                        exist.YPosition = item.YPosition;
+                        exist.Width = item.Width;
+                        exist.Height = item.Height;
+                        exist.ProcessStepId = item.ProcessStepId;
+                        foreach (var x in item.SstProcessParentSteps)
+                        {
+                            exist.SstProcessParentSteps.Add(x);
+                        }
+                        _repositoryUnitOfWork.ProcessesSteps.Value.Update(exist);
+                    }
+                    else if (exist == null)
+                    {
+                        _repositoryUnitOfWork.ProcessesSteps.Value.Add(item);
+                    }
+                  
+                }
+            }
+            else
+            {
+                foreach (var item in procsteps)
+                {
+                    _repositoryUnitOfWork.ProcessesSteps.Value.Add(item);
+                }
+            }
+            return new ResponseResult<IEnumerable<SstProcessSteps>>() { Status = ResultStatus.Success, Data = procsteps };
+        }
+
+        public IResponseResult<SstProcesses> DeleteProcesStepsAndParents(long? procID)
+        {
+            var process = _repositoryUnitOfWork.Processes.Value.Get(Convert.ToInt64(procID));
+
+            var processSystemsResult = _repositoryUnitOfWork.ProcessesSystems.Value.Find(x => x.ProcessId == procID);
+            _repositoryUnitOfWork.ProcessesSystems.Value.RemoveRange(processSystemsResult);
+
+            var processParentStepsResult = _repositoryUnitOfWork.ProcessParentSteps.Value.Find(x => x.ProcessId == procID);
+            _repositoryUnitOfWork.ProcessParentSteps.Value.RemoveRange(processParentStepsResult);
+
+            var processStepsResult = _repositoryUnitOfWork.ProcessesSteps.Value.Find(x => x.ProcessId == procID);
+            _repositoryUnitOfWork.ProcessesSteps.Value.RemoveRange(processStepsResult);
+
+            _repositoryUnitOfWork.Processes.Value.Remove(process);
+
+            return new ResponseResult<SstProcesses>() { Status = ResultStatus.Success, Data = process };
+        }
+
+        public IResponseResult<SstProcesses> copyProcesses(Int64? procID)
+        {
+            var process = _repositoryUnitOfWork.Processes.Value.Get(Convert.ToInt64(procID));
+            process = (SstProcesses)process.DeepClone();
+            process = _repositoryUnitOfWork.Processes.Value.Add(process);
+
+            process.SstProcessSystems = _repositoryUnitOfWork.ProcessesSystems.Value.LoadProcessSystemsByProcessID(procID);
+            ICollection<SstProcessSystems> procSys = new List<SstProcessSystems>();
+            foreach (var sys in process.SstProcessSystems)
+            {
+                sys.ProcessId = process.Id;
+                procSys.Add(sys);
+            }
+            process.SstProcessSystems = (ICollection<SstProcessSystems>)procSys.DeepClone();
+            _repositoryUnitOfWork.ProcessesSystems.Value.AddRange(process.SstProcessSystems);
+
+            process.SstProcessSteps = _repositoryUnitOfWork.Processes.Value.LoadProcessStepsWithParentShapesByProcessID(Convert.ToInt64(procID)) as ICollection<SstProcessSteps>;
+            ICollection<SstProcessSteps> procSteps = new List<SstProcessSteps>();
+            foreach (var step in process.SstProcessSteps)
+            {
+                step.ProcessId = process.Id;
+                foreach (var parent in step.SstProcessParentSteps)
+                {
+                    parent.ProcessId = process.Id;
+                }
+                procSteps.Add(step);
+            }
+            process.SstProcessSteps = (ICollection<SstProcessSteps>)procSteps.DeepClone();
+            _repositoryUnitOfWork.ProcessesSteps.Value.AddRange(process.SstProcessSteps);
+            return new ResponseResult<SstProcesses>() { Status = ResultStatus.Success, Data = process };
+        }
+    }
+
+
+
+    public static class FastDeepCloner
+    {
+
+        #region Privat Properties
+        public const BindingFlags Binding = BindingFlags.Instance |
+        BindingFlags.NonPublic | BindingFlags.Public;// | BindingFlags.FlattenHierarchy;
+        #endregion
+
+        public static object DeepClone<T>(this T desireObjectToBeCloned)
+        {
+            //we have 2 cases : 1- Array 2-List or ICollection or IEnumerable return always IEnumerable
+            if (desireObjectToBeCloned == null)
+                return null;
+
+            Type _primaryType = desireObjectToBeCloned.GetType();
+      
+            if (typeof(IEnumerable).IsAssignableFrom(desireObjectToBeCloned.GetType()))
+            {
+                //case 01 Deal with the Array
+                var s = desireObjectToBeCloned.GetType().GetMethod("Clone");
+                if (s != null)
+                {
+                    var s1 = desireObjectToBeCloned.GetType().GetMethod("Clone").Invoke(desireObjectToBeCloned, new object[] { });
+                    Array w1 = (Array)s1;
+                    Array arr = Array.CreateInstance(s1.GetType().GetElementType(), w1.Length);
+                    int i = -1;
+                    foreach (var item in w1)
+                    {
+                        i++;
+                        var tObject234 = Activator.CreateInstance(item.GetType());
+                        var props = item.GetType().GetProperties(Binding);
+                        foreach (var prop in props)
+                        {
+                            if (prop.DeclaringType != item.GetType() && prop.PropertyType == typeof(Int64))
+                                continue;
+
+                            if ((prop.PropertyType.IsClass || prop.PropertyType.IsInterface) && prop.PropertyType != typeof(string))
+                            {
+                                prop.SetValue(tObject234, prop.GetValue(item).DeepClone());
+                            }
+                            else
+                            {
+                                prop.SetValue(tObject234, prop.GetValue(item));
+                            }
+                        }
+                        arr.SetValue(tObject234, i);
+                    }
+                    return arr;
+                }
+                //case 02 Deal with the IEnumerable s
+                else
+                {
+
+                    Type objetsType = _primaryType.GetGenericArguments()[0];
+                    IEnumerable multiple = (IList)Activator.CreateInstance((typeof(List<>).MakeGenericType(objetsType)));
+                    IList lst = (IList)Activator.CreateInstance((typeof(List<>).MakeGenericType(objetsType)));
+                    foreach (var item in (IEnumerable)desireObjectToBeCloned)
+                    {
+                        var tObject234 = Activator.CreateInstance(item.GetType());
+                        var props = item.GetType().GetProperties(Binding);
+                        foreach (var prop in props)
+                        {
+                            if (prop.DeclaringType != item.GetType() && prop.PropertyType == typeof(Int64))
+                                continue;
+
+                            if ((prop.PropertyType.IsClass || prop.PropertyType.IsInterface) && prop.PropertyType != typeof(string))
+                            {                          
+                               prop.SetValue(tObject234, prop.GetValue(item).DeepClone());    
+                            }
+                            else
+                            {
+                                prop.SetValue(tObject234, prop.GetValue(item));
+                            }
+                        }
+
+                        lst.Add(tObject234);
+                    }
+                    multiple = lst;
+                    return multiple;
+                }
+            }
+            else
+            {
+                //This below case is for single object
+                var obj = Activator.CreateInstance(desireObjectToBeCloned.GetType());
+                var props = desireObjectToBeCloned.GetType().GetProperties();
+                foreach (var prop in props)
+                {
+                    if (prop.DeclaringType != obj.GetType() && prop.PropertyType == typeof(Int64))
+                        continue;
+
+                    if ((prop.PropertyType.IsClass || prop.PropertyType.IsInterface) && prop.PropertyType != typeof(string))
+                    {
+                        prop.SetValue(obj, prop.GetValue(desireObjectToBeCloned).DeepClone());
+                    }
+                    else
+                    {
+                        prop.SetValue(obj, prop.GetValue(desireObjectToBeCloned));
+                    }
+                }
+                return obj;
+            }
+        }
+    }
+}
+
+
+6-SstProcessSetps and SstProcessParentObject is put only
+
+
+7-SstProcessRepository 
+
+using DOMAIN.Context;
+using Microsoft.EntityFrameworkCore;
+using SharedComponents.Domain.Interfaces.Repositories;
+using SharedComponents.Domain.Models;
+using SharedComponents.Repository.Common;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace SharedComponents.Repository.Repositories
+{
+  public  class SstProcessesRepository : Repository<SstProcesses>, ISstProcessesRepository
+    {
+        private SharedComponentsDBContext _context;
+        public SstProcessesRepository(SharedComponentsDBContext context) : base(context)
+        {
+            _context = context;
+        }
+        public IEnumerable<SstProcessSteps> LoadProcessStepsWithParentShapesByProcessID(long? Id)
+        {
+
+            var model = (from m in _context.SstProcessSteps
+                         where m.ProcessId == Id
+                         orderby m.ProcessStepId ascending , m.StepId  ascending
+                         group m by new { m.ProcessStepId } into g
+
+                         select new
+                         {
+                             keys1 = g.ToList()
+                         }).ToList();
+            var length = model.Count;
+            var procSteps = new List<SstProcessSteps>();
+
+            if (length > 0)
+            {
+                var procStep = new SstProcessSteps();
+
+                foreach (var shape in model[0].keys1)
+                {
+                    procStep = shape;
+                    if (procStep.SstProcessParentSteps == null)
+                    {
+                        procStep.SstProcessParentSteps = new List<SstProcessParentSteps>();
+                    }
+                    procSteps.Add(procStep);
+
+                    for (int k = 0; k < length; k++)
+                    {
+                        var count = model[k].keys1.Where(x => x.ProcessStepId == shape.StepId).ToList().Count();
+                        if (count > 0)
+                        {
+                            foreach (var shape02 in model[k].keys1)
+                            {
+                                procStep = shape02;
+                                procStep.SstProcessParentSteps = this.GetParentShapesByStepID(procStep.Id);
+                                if (procStep.SstProcessParentSteps == null)
+                                {
+                                    procStep.SstProcessParentSteps = new List<SstProcessParentSteps>();
+                                }
+                                procSteps.Add(procStep);
+                            }
+                        }
+
+                    }
+
+
+                }
+            }
+            return procSteps.ToList();
+
+        }
+
+        public IEnumerable<SstProcessSteps>  LoadProcessStepsByProcessID(long? Id)
+        {
+           
+
+            var model = (from m in _context.SstProcessSteps
+                         where m.ProcessId == Id
+                         orderby m.ProcessStepId ascending, m.StepId ascending
+                         group m by new { m.ProcessStepId } into g
+
+                         select new
+                         {
+                             keys1 = g.ToList()
+                         }).AsNoTracking().ToList();
+            var length = model.Count;
+            var procSteps = new List<SstProcessSteps>();
+
+            if (length > 0)
+            {
+                var procStep = new SstProcessSteps();
+
+                foreach (var shape in model[0].keys1)
+                {
+                    procStep = shape;
+                    if (procStep.SstProcessParentSteps == null)
+                    {
+                        procStep.SstProcessParentSteps = new List<SstProcessParentSteps>();
+                    }
+                    procSteps.Add(procStep);
+
+                    for (int k = 0; k < length; k++)
+                    {
+                        var count = model[k].keys1.Where(x => x.ProcessStepId == shape.StepId).ToList().Count();
+                        if (count > 0)
+                        {
+                            foreach (var shape02 in model[k].keys1)
+                            {
+                                procStep = shape02;
+                                procSteps.Add(procStep);
+                            }
+                        }
+                                               
+                    }
+                }
+            }
+            return procSteps.ToList();
+        }
+
+        public ICollection<SstProcessParentSteps> GetParentShapesByStepID(long? Id)
+        {
+            var parentShapes = _context.SstProcessParentSteps.AsNoTracking().Where(i => i.ProcessStepId == Id);
+            return parentShapes.ToList();
+        }
+    }
+}         
+
+
+
+End;

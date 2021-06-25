@@ -1,0 +1,86 @@
+.card {
+  margin-bottom: 15px;
+  background-color: #f3f3f38a;
+  border: 2px solid #cacaca;
+  min-height: 80px;
+  width: 100%;
+}
+.card:hover{
+  top:-15px;
+  box-shadow:10px 12px 16px rgba(0,0,0,0.2);
+  cursor:pointer;
+  transform:translate(5px,5px);
+  }
+.number {
+  border: 5px solid #fafafa;
+  color: black;
+  border-radius: 50%;
+  display: inline-block;
+  width: 63px;
+  text-align: center;
+  line-height: 60px;
+  margin: 5px;
+}
+.card-content{
+  margin:15px;
+  width:80%;
+  min-height:inherit;
+  display:inline-block;
+}
+.card-content-header {
+  margin: 0;
+  padding: 0;
+  color: #42a5f3;
+  font-weight: bold;
+  display: inherit;
+  font-size: 17px;
+}
+.card-content-text {
+  margin: 0;
+  padding: 0;
+  color: black;
+  display:inherit
+}
+#one {
+  background-color: #ffc0cbd1;
+}
+#two {
+  background-color: #bddfef;
+}
+#three {
+  background-color: #0cea0c85;
+}
+.arrow-right {
+  width: 0;
+  height: 0;
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+  border-left: 20px solid gray;
+  display:none;
+}
+.ui-g-1 .ui-g-5{
+  padding:0;
+}
+.display{
+  display:block;
+}
+.position1 {
+  position: absolute;
+  top: 88px;
+}
+.position2 {
+  position: absolute;
+  top: 216px;
+}
+.position3 {
+  position: absolute;
+  top: 345px;
+}
+.line {
+  margin-bottom: 5px;
+  border-bottom: 1px solid #d0c0c0;
+  padding-bottom: 5px;
+}
+.container-fuld {
+  background-color:white;
+}

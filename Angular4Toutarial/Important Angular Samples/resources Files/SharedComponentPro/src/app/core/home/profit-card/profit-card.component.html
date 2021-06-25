@@ -1,0 +1,14 @@
+<nb-flip-card [showToggleButton]="false" [flipped]="flipped">
+  <nb-card-front>
+    <nb-card size="xsmall">
+      <i class="fa fa-arrow-right" aria-hidden="true" (click)="toggleView()"></i>
+      <shc-front-side></shc-front-side>
+    </nb-card>
+  </nb-card-front>
+  <nb-card-back>
+    <nb-card size="xsmall">
+      <i  class="fa fa-arrow-right" aria-hidden="true" (click)="toggleView()"></i>
+      <shc-back-side></shc-back-side>
+    </nb-card>
+  </nb-card-back>
+</nb-flip-card>

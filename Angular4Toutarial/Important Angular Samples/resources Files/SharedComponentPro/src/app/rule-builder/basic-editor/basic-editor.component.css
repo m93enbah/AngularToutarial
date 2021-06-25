@@ -1,0 +1,41 @@
+.block {
+  display: block;
+}
+
+.iconButton {
+  font-size: 10px;
+  background: transparent;
+}
+
+.fullWidth {
+  width: 100% !important;
+  height: 32px !important;
+}
+ .ui-dropdown-clearable {
+  width: 100% !important;
+  height: 28px !important;
+}
+
+.black {
+  color: #000;
+  padding-left: 10px !important;
+  margin-top: 8px;
+}
+
+.borderBlue {
+  border: solid 1px #337ab7 !important;
+  margin-top: 8px;
+}
+
+.radio-header {
+  width: 100%;
+  padding-top: 11px !important;
+  border: 1px solid #d6d6d6;
+}
+
+  .radio-header .radio-inline {
+    margin-top: -10px;
+  }
+.glyphicon-trash {
+  color: #f30808;
+}

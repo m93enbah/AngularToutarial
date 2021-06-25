@@ -1,0 +1,19 @@
+<div class="form-group editor-control" [ngClass]="{'col-md-4': control.width ==1 ,'col-md-8': control.width==2, 'col-md-12':control.width==3 }">
+
+  <form [formGroup]="form">
+    <div class="prime-form-control">
+      <span class="ui-float-label">
+        <div class="ui-g-4" *ngFor="let opt of control.options;">
+
+          <p-radioButton name="group1" [value]="opt.value" [label]="opt.label" [appDisable]="control.disabled"
+                         [required]="control.required" [formControlName]="control.key" class="form-control-ng">
+          </p-radioButton>
+        </div>
+
+
+        <label [attr.for]="control.key" class="component-label">{{control.name}}</label>
+
+      </span>
+    </div>
+  </form>
+</div>

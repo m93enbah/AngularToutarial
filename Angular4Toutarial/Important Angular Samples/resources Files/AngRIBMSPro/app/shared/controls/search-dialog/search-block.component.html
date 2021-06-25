@@ -1,0 +1,91 @@
+<div class="row">
+  <div class="col-md-12 form-group">
+    <!--<div class="box box-blue box-solid">-->
+      <!--<div class="box-header with-border">
+        <h3 class="box-title">
+          <span>{{dialogTitle}} </span>
+        </h3>
+        <div class="box-tools pull-right">
+          <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+        </div>
+      </div>-->
+      <div class="box-body">
+        <form id="modalForm" (ngSubmit)="onSubmit()" [formGroup]="form">
+          <div class="row">
+            <div class="col-md-12 form-group">
+              <div class="box box-blue box-solid">
+                <div class="box-header with-border">
+                  <h3 class="box-title">
+                    <span>{{dialogTitle}} </span>
+                    <span>{{searchTitle}}</span>
+                  </h3>
+                  <div class="box-tools pull-right">
+                    <a class="btn btn-box-tool" href="javascript:void(0);" (click)="resetForm()">
+                      <i class="fa fa-plus-square" aria-hidden="true"></i>
+                    </a>
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                  </div>
+                </div>
+                <div class="box-body">
+                  <div class="row form-row">
+                    <div *ngFor="let control of controls" class="form-group col-md-4">
+                      <ribms-dynamic-control [control]="control" [form]="form" (emitSuggest)="GetSuggestVal($event)"></ribms-dynamic-control>
+                    </div>
+
+                  </div>
+                </div>
+                <div class="box-footer">
+                  <div class="form-row">
+                    <button class="btn btn-primary btn-xs" style="float: right;" type="submit" [disabled]="!form.valid">Search</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="box box-blue box-solid">
+                <div class="box-header with-border">
+                  <h3 class="box-title">
+                    <span>{{resultTitle}}</span>
+                  </h3>
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" (click)="IncreaseDecrease(tdInstallments,30);"><i class="fa fa-plus-square-o"></i></button>
+                    <button type="button" class="btn btn-box-tool" (click)="IncreaseDecrease(tdInstallments,-30);"><i class="fa fa-minus-square-o"></i></button>
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                  </div>
+                </div>
+                <div class="box-body">
+                  <div class="dataTables_wrapper">
+                    <div class="row">
+                      <div class="col-sm-12 table-responsive">
+                        <div id="tdInstallments">
+                          <!--<div class="row form-row">
+                        <div class="col-md-12  form-group">-->
+                          <!--<div class="block-wrapper">-->
+                          <ribms-datatable [showCheckBox]="showCheckBox" [showSelectionColumn]="showSelectionColumn" [title]="gridHeader" (OnSelectedRow)="OnSelectedRow($event)" [cols]="cols"
+                                           [rows]="rows"></ribms-datatable>
+                          <!--</div>-->
+                          <!--</div>
+                        </div>-->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="box-footer">
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="box-footer">
+        <!--        <div *ngIf="payLoad" class="form-row">
+           <strong>Saved the following values</strong><br>{{payLoad}}
+         </div> -->
+      </div>
+      <!--</div>-->
+    </div>
+  </div>

@@ -1,0 +1,9 @@
+{
+    "version": 3,
+    "mappings": "",
+    "sources": [
+        "../../app/components/recipes/recipes.component.scss"
+    ],
+    "names": [],
+    "file": "recipes.component.css"
+}

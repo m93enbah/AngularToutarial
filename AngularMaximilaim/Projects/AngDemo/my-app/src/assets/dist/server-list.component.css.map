@@ -1,0 +1,9 @@
+{
+    "version": 3,
+    "mappings": "AAAA,AAAA,OAAO,CAAA;EACL,KAAK,EAAE,GAAG;CACX;;AACD,AAAA,UAAU,CACV;EACE,KAAK,EAAC,IAAI;CACX",
+    "sources": [
+        "../../app/components/servers/server-list/server-list.component.scss"
+    ],
+    "names": [],
+    "file": "server-list.component.css"
+}

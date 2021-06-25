@@ -1,0 +1,57 @@
+$mainBg: #607d8b;
+
+.wrapper {
+  .main-header {
+    background: $mainBg;
+    .logo{
+        .logo-upload label{
+            background: lighten($mainBg, 10)!important;
+        }
+        .logo-upload label:hover{
+            background: #fff!important;
+            color: lighten($mainBg, 10)!important;
+        }
+    }
+  }
+  .main-sidebar {
+    .ui-panelmenu .ui-panelmenu-header>a:hover,
+    .ui-panelmenu .ui-state-active .ui-panelmenu-header-link {
+      background-color: darken($mainBg, 15);
+      color: #fff;
+    }
+    .ui-panelmenu .ui-panelmenu-content {
+      background-color: darken($mainBg, 20);
+      .ui-menuitem-link {
+        color: #fff
+      }
+      .ui-menuitem-link:hover {
+        background-color: darken($mainBg, 30);
+        .ui-panelmenu-icon,
+        .ui-menuitem-icon,
+        .ui-menuitem-text
+         {
+          color: #fff
+        }
+      }
+    }
+  }
+  .mat-table thead,
+  .ngx-datatable.material .datatable-header {
+    background: darken($mainBg, 25);
+  }
+  .mat-header-cell,
+  .mat-sort-header-arrow,
+  .ngx-datatable.material .datatable-header .datatable-header-cell {
+    color: #fff
+  }
+  .tools-button{
+    background-color: $mainBg!important
+  }
+  .tools-button:hover{
+    background-color: transparent!important;
+    color: $mainBg!important
+  }
+}
+::-webkit-scrollbar-thumb {
+    background: lighten($mainBg, 10);
+}

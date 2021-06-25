@@ -1,0 +1,11 @@
+.fa-arrow-up, .fa-arrow-down {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 1.5rem;
+  cursor: pointer;
+}
+i.fa-arrow-up::before, i.fa-arrow-down::before {
+  color: black;
+  font-weight: bold;
+}

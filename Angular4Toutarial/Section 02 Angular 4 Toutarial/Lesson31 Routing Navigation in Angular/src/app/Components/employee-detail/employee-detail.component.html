@@ -1,0 +1,33 @@
+
+<table *ngIf="empService.selectedEmployee">
+  <thead>
+      <tr>
+          <th colspan="5">
+              Employee Details
+          </th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Employee Code</td>
+          <td>{{empService.selectedEmployee.ID}}</td>
+      </tr>
+      <tr>
+          <td>Full Name</td>
+          <td>{{empService.selectedEmployee.Fname}} {{empService.selectedEmployee.Lname}}</td>
+      </tr>
+      <tr>
+          <td>Gender</td>
+          <td>{{empService.selectedEmployee.gender}}</td>
+      </tr>
+      <tr>
+          <td>Annual Salary</td>
+          <td>{{empService.selectedEmployee.Salary}}</td>
+      </tr>
+      
+  </tbody>
+</table>
+<div *ngIf="!employee">
+  {{statusMessage}}
+</div>
+<input type="button" class="btn btn-primary" value="Back To The Employees List" (click)="BackToEmployee()"/>

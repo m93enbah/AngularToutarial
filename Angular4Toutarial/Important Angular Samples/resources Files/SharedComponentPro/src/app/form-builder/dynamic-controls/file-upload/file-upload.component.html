@@ -1,0 +1,17 @@
+<div class="form-group editor-control" [ngClass]="{'col-md-3': control.width ==1 ,'col-md-6': control.width==2, 'col-md-9':control.width==3,'col-md-12':control.width==4 }">
+  <div [formGroup]="form" class="prime-form-control">
+
+    <span class="ui-float-label">
+      <p-fileUpload name="demo[]" url="./upload.php" (onUpload)="onUpload($event)" [multiple]="control.multiple"
+                    [accept]="control.fileType" maxFileSize="1000000" (change)="onFileChanged($event)" [disabled]="control.disabled"
+                    (onSelect)="onFileSelect($event)" (onRemove)="onRemoveFile($event)" (onClear)="clearFiles($event)" class="form-control-ng"
+                    showCancelButton="true"></p-fileUpload>
+
+      <label [attr.for]="control.key" class="component-label">{{control.name}}</label>
+    </span>
+
+
+
+  </div>
+
+</div>

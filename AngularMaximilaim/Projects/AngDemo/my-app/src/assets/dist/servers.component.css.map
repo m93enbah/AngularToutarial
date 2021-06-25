@@ -1,0 +1,9 @@
+{
+    "version": 3,
+    "mappings": "AAAA,AAAA,KAAK,CACL;EACE,KAAK,EAAE,GAAG;CACX",
+    "sources": [
+        "../../app/components/servers/servers.component.scss"
+    ],
+    "names": [],
+    "file": "servers.component.css"
+}

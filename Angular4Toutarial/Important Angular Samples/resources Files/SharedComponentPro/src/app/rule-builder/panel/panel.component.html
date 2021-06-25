@@ -1,0 +1,40 @@
+<div class="panel panel-primary container-panel">
+  <div class="panel-heading fb-editor-header">
+    <button class="upper-btn-container fb-collapse-btn btn-sm collapseButton" data-parent="#accordion" [attr.data-target]="'#Controls' + temp " data-toggle="collapse" type="button"></button>
+    <button class="btn btn-primary btn-sm upper-btn-container float-right" (click)="delete(index)"><i class="glyphicon glyphicon-trash"></i></button>
+    <span>
+      <input #focus type="text" [(ngModel)]="headerName" [disabled]="disableHeader" autofocus 
+             [ngClass]="{'headerActive': showCursor, 'headerInactive': !showCursor }"  >
+    </span>
+    <Button class="btn btn-primary btn-sm upper-btn-container float-right" (click)="editHeader('focus')">
+      <i class="glyphicon glyphicon-pencil"></i>
+    </Button>
+    <span class="upper-btn-container float-right">
+      <label class="swtich">
+        <input type="checkbox" [(ngModel)]="checked" />
+        <span class="slider"></span>
+      </label>
+    </span>
+  </div>
+  <div class="panel-body collapse in" [id]="'Controls' + temp">
+    <div class="line">
+      <label class="radio-inline">
+        <p-radioButton [name]="temp" value=1 label="Basic Editor" [(ngModel)]="selectedValue" (onClick)="rdSelected()">
+        </p-radioButton>
+      </label>
+      <label class="radio-inline">
+        <p-radioButton [name]="temp" value=2 label="Advanced Editor" [(ngModel)]="selectedValue" (onClick)="rdSelected()">
+        </p-radioButton>
+      </label>
+    </div>
+    <form [formGroup]="basicRuleForm" (ngSubmit)="onSave()">
+      <div *ngIf="seleted; then thenBlock else elseBlock"></div>
+      <ng-template #thenBlock>
+        <app-basic-editor></app-basic-editor>
+      </ng-template>
+      <ng-template #elseBlock>
+        <app-adv-editor></app-adv-editor>
+      </ng-template>
+    </form>
+  </div>
+</div>

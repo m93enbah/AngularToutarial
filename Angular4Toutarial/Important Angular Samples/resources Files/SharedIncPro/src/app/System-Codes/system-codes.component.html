@@ -1,0 +1,217 @@
+<!--First Card Start-->
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <form id="SearchCodeForm" [formGroup]="SearchCodeForm">
+        <div class="card-header">
+          <h6 class="card-title">Codes Search</h6>
+        </div>
+        <div class="card-body">
+          <div class="row form-row">
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input">Insurance System</label>
+                <p-dropdown [options]="InsuranceSystemList" formControlName="insuranceSystem"></p-dropdown>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input">Module</label>
+                <p-dropdown [options]="ModuleList" formControlName="module"></p-dropdown>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input">Major Code</label>
+                <p-autoComplete [size]="30" [minLength]="1" field="label" [suggestions]="filterdMajorCode" (completeMethod)="filterMajorCode($event)"
+                                dataKey="value" formControlName="majorCode" [dropdown]="true">
+                </p-autoComplete>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input">Minor Code</label>
+                <p-autoComplete [size]="30" [minLength]="1" field="label" dataKey="value" [suggestions]="filterdMinorCode" (completeMethod)="filterMinorCode($event)"
+                                formControlName="minorCode" [dropdown]="true">
+                </p-autoComplete>
+              </div>
+            </div> 
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input">Parent Code</label>
+                <p-autoComplete [size]="30" [minLength]="1" field="label" dataKey="value" formControlName="parentCode" [suggestions]="filteredParentCode" (completeMethod)="filterParentCode($event)" [dropdown]="true">
+                </p-autoComplete>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input">Domain List</label>
+                <p-autoComplete [size]="30" [minLength]="1" field="label" dataKey="value" formControlName="domain" [suggestions]="filteredDomain"
+                                (completeMethod)="filterdomain($event)" [dropdown]="true">
+                </p-autoComplete>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="card-footer">
+          <div class="buttons-group">
+            <button pButton type="button" label="Search" (click)="onSearch()"></button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+  <!--First Card End-->
+  <!--Second Card Start-->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="card-title">Major Codes</h6>
+          <div class="card-tools">
+            <div class="buttons-group">
+              <button pButton type="submit" icon="pi pi-trash" pTooltip="Remove" tooltipPosition="top" (click)="deleteMajorCode()"></button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row form-row">
+            <div class="col-md-12 form-group">
+              <css-datatable [cols]="majorcols" (OnRowClicked)="OnRowClicked($event)" (OnCheckboxSelected)="OnCheckboxSelected($event)"
+                             [showCheckBox]="true" [mouseHover]="true" [title]="gridHeader" [rows]="majorRows"></css-datatable>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--Second Card End-->
+  <!--Third Card Start-->
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="card-title">Minor Codes</h6>
+          <div class="card-tools">
+            <div class="buttons-group">
+              <button pButton type="submit" icon="pi pi-file" pTooltip="Add" tooltipPosition="top" (click)="resetMinor()"></button>
+              <button pButton type="submit" icon="pi pi-trash" pTooltip="Remove" tooltipPosition="top" (click)="deleteMinor()"></button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row form-row">
+            <div class="col-md-12 form-group">
+              <css-datatable [cols]="minorcols" [showCheckBox]="true" (OnCheckboxSelected)="OnCheckboxMinorSelected($event)"  (OnRowClicked)="OnMinorRowClicked($event)" [mouseHover]="true" [title]="gridHeader" [rows]="minorRows"></css-datatable>
+                            
+                             
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Third Card End-->
+  <!--Fourth Card Start-->
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <form id="EntryCodeForm" [formGroup]="EntryCodeForm">
+          <div class="card-header">
+            <h6 class="card-title">Codes Entry</h6>
+          </div>
+          <div class="card-body">
+            <div class="row form-row">
+              <div class="col-md-3 form-group">
+                <div class="prime-form-control">
+                  <label for="float-input">Insurance System</label>
+                  <p-dropdown autoWidth="false" [options]="EntryInsuranceSystemList"
+                              formControlName="EntryinsuranceSystem">
+                  </p-dropdown>
+                </div>
+              </div>
+
+              <div class="col-md-3 form-group">
+                <div class="prime-form-control">
+                  <label for="float-input">Module</label>
+                  <p-dropdown autoWidth="false" [options]="EntryModuleList"
+                              formControlName="Entrymodule">
+                  </p-dropdown>
+                </div>
+              </div>
+
+              <div class="col-md-3 form-group">
+                <div class="prime-form-control">
+                  <label for="float-input">Major Code</label>
+                  <p-autoComplete [size]="30" [minLength]="1" field="label" [suggestions]="EntryfilterMajorCode" (completeMethod)="EntryfilteredMajorCode($event)"
+                                  dataKey="value" formControlName="majorCodeEntry" [dropdown]="true">
+                  </p-autoComplete>
+                </div>
+              </div>
+
+
+              <div class="col-md-3 form-group">
+                <div class="prime-form-control">
+                  <label for="float-input">Name</label>
+                  <!--<p-autoComplete [size]="30" [minLength]="1" field="label" dataKey="value"  formControlName="name">
+                  </p-autoComplete>-->
+                  <input type="text" formControlName="name" class="ui-inputtext ui-corner-all"/>
+                </div>
+              </div>
+
+              <div class="col-md-3 form-group">
+                <div class="prime-form-control">
+                  <label for="float-input">Name2</label>
+                  <!--<p-autoComplete [size]="30" [minLength]="1" field="label" dataKey="value"  formControlName="name2">
+                  </p-autoComplete>-->
+                  <input type="text" formControlName="name2" class="ui-inputtext ui-corner-all">
+                </div>
+              </div>
+
+
+              <div class="col-md-3 form-group">
+                <div class="prime-form-control">
+                  <label for="float-input">Parent Code</label>
+                  <p-autoComplete [size]="30" [minLength]="1" field="label" dataKey="value" formControlName="parentCodeEntry" [suggestions]="EntryfilteredParentCode" (completeMethod)="EntryfilterParentCode($event)" [dropdown]="true">
+                  </p-autoComplete>
+                </div>
+              </div>
+
+              <div class="col-md-3 form-group">
+                <div class="prime-form-control">
+                  <label for="float-input">Domain List</label>
+                  <p-autoComplete [size]="30" [minLength]="1" field="label" dataKey="value" formControlName="domain" [suggestions]="EntryfilteredDomain" (completeMethod)="EntryfilterDomain($event)" [dropdown]="true">
+                  </p-autoComplete>
+                </div>
+              </div>
+
+            </div>
+
+
+          </div>
+
+
+          <div class="card-footer">
+            <div class="buttons-group">
+              <button pButton type="submit"  (click)="saveUpdate()"> {{showSaveUpdate === false ? 'Save' : 'Update'}}</button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+  <!--Fourth Card End-->

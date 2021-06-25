@@ -1,0 +1,58 @@
+
+<div class="box-blue">
+  <p-dataTable [value]="rows" [paginator]="true" (onRowClick)="onRowClicked($event)" (onRowSelect)="onRowSelected($event)"
+               (onRowUnselect)="onRowUnSelected($event)" (onHeaderCheckboxToggle)="onHeaderCheckboxToggle($event)" [rows]="5" [(selection)]="selectedRows"
+               dataKey="Id" [editable]="true" [rowHover]="mouseHover">
+    <p-column *ngIf="showCheckBox" [style]="{'width':'38px'}" selectionMode="multiple"></p-column>
+    <p-column *ngFor="let col of cols; let colIndex = index" [field]="col.field" [header]="col.header" [hidden]="col.hidden" [editable]="col.editable">
+      <div *ngIf="col.editable">
+        <ng-template let-col let-item="rowData" pTemplate="editor">
+          <textarea style="background-color:gainsboro;width:100%" [(ngModel)]="item[col.field]"></textarea>
+        </ng-template>
+      </div>
+      <div *ngIf="col.showStatusIcon">
+        <ng-template let-col let-item="rowData" pTemplate="expander">
+          <span *ngIf="item[col.field]" class="fa fa-check"></span>
+          <span *ngIf="!item[col.field]" class="fa fa-close"></span>
+        </ng-template>
+      </div>
+      <div *ngIf="col.dateColumn">
+        <ng-template let-item="rowData" pTemplate="body">
+          {{item[col.field] | date:dateFormat }}
+        </ng-template>
+      </div>
+      <div *ngIf="col.percentColumn">
+        <ng-template let-item="rowData" pTemplate="body">
+          {{item[col.field] | numeric:percentNumberType:percentFormat }}
+        </ng-template>
+      </div>
+      <div *ngIf="col.commandCol">
+        <ng-template let-item="rowData" pTemplate="expander">
+          <a style="color: #3c8dbc" (click)="onLinkSelected(item, col, colIndex)">
+            {{ col.commandName }}
+          </a>
+        </ng-template>
+      </div>
+      <div *ngIf="col.editablePercentCol">
+        <ng-template let-item="rowData" pTemplate="expander">
+          <input type="text" class="form-control" [required]="col.requiredCol" name="model" #model="ngModel" [(ngModel)]="item[col.field]"
+                  NumericFormat numberType="3" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false"/>
+          <span *ngIf="col.requiredCol" class="ng-validation-icon"></span>
+        </ng-template>
+      </div>
+      <div *ngIf="col.editableDateCol">
+        <ng-template let-item="rowData" pTemplate="expander">
+          <p-calendar showIcon="true" DateFormat [dateFormat]="calenderDateFormat" class="form-control-ng" [required]="col.requiredCol"
+                      [(ngModel)]="item[col.field]"></p-calendar>
+        </ng-template>
+      </div>
+    </p-column>
+    <p-column *ngIf="showSelectionColumn" [style]="{'width':'38px'}">
+      <ng-template let-item="rowData" pTemplate="body">
+        <button class="btn btn-primary btn-xs" type="button" pbutton (click)="selectRow(item)" data-dismiss="modal">
+          <span class="glyphicon glyphicon-edit"></span>
+        </button>
+      </ng-template>
+    </p-column>
+  </p-dataTable>
+</div>

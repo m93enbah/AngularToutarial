@@ -1,0 +1,23 @@
+.ui-table .ui-table-thead > tr > th, .ui-table .ui-table-tfoot > tr > td {
+  /* background-color:#337ab7; */
+  border-color: #d9d9d9;
+  color: #186ba0;
+}
+
+.ui-table .ui-table-tbody > tr {
+  background-color: #ffffff;
+  color: #186ba0;
+}
+
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
+  font-family: "Roboto", "Trebuchet MS", Arial, Helvetica, sans-serif;
+  font-size: 1em;
+  /* color: #186ba0; */
+ 
+}
+
+.ui-table .ui-table-tbody > tr {
+  background-color: #ffffff;
+  color: #337ab7;
+  text-align: center;
+}

@@ -1,0 +1,387 @@
+<ribms-search-dialog [show]="show" (onSearch)="onClaimSearch($event)" (onSelectedRow)="onSelectedClaimRow($event)" [cols]="claimCols" [rows]="claimRows" [showCheckBox]="true"
+                     [dialogTitle]="dialogTitle" [searchTitle]="searchTitle" [resultTitle]="resultTitle" [controls]="controls" (emitSuggest)="getSuggestVal($event)"></ribms-search-dialog>
+
+<div class="row">
+  <div class="col-md-12">
+    <form id="FacClaimForm" [formGroup]="facClaimForm">
+      <div class="box box-blue box-solid">
+        <div class="box-header with-border">
+          <h3 class="box-title">
+            <span>Facultative Claim Processing</span>
+          </h3>
+          <div class="box-tools pull-right">
+            <a class="btn btn-box-tool" href="" data-toggle="modal" (click)="showModel()" data-target=".search-modal-lg">
+              <i class="fa fa-search" aria-hidden="true"></i>
+            </a>
+            <a class="btn btn-box-tool" href="javascript:void(0);" (click)="deleteFacClaim()">
+              <i class="fa fa-trash" aria-hidden="true"></i>
+            </a>
+            <a class="btn btn-box-tool" href="javascript:void(0);" (click)="resetClaimForm()">
+              <i class="fa fa-plus-square" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+        <div class="box-body">
+          <div id="divCollapse">
+            <div class="row form-row" dragula="sortable">
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Claim Inward</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <p-autoComplete formControlName="claimInward" [suggestions]="inwardClaimSuggestions" (completeMethod)="fillClaimInwardSuggest($event)" [forceSelection]="true"
+                                    [size]="30" [minLength]="1" field="label" dataKey="value" class="form-control-ng" [dropdown]="true" required="required">
+                    </p-autoComplete>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Claim Control</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <p-dropdown [options]="claimControlList" class="form-control-ng" formControlName="claimControl" required="required">
+                    </p-dropdown>
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Source Claim Reference</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" class="form-control" formControlName="sourceClaimReference" required="required" />
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="row form-row" dragula="sortable">
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Our Claim Reference</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" class="form-control" formControlName="ourClaimReference" required="required" />
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Date Of Loss</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <p-calendar class="form-control-ng" showIcon="true" utc="true" required="required" formControlName="dateOfLoss" dateFormat="{{ calenderDateFormat }}"></p-calendar>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Claim Currency</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                      <ribms-currency [CurrencyState]="true"  [currencyObj]="clmCur" #clmChldCur></ribms-currency>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="row form-row" dragula="sortable">
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Claim Settling Currency</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                      <ribms-currency [CurrencyState]="true"  [currencyObj]="clmSetCur" #clmChldSetCur></ribms-currency>
+                   </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Claim Amount</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" class="form-control" formControlName="claimAmount" required="required" pInputText
+                            NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true"/>
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Date of 1st Advice</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <p-calendar class="form-control-ng" showIcon="true" utc="true" required="required" formControlName="dateFirstAdvice" dateFormat="{{ calenderDateFormat }}"></p-calendar>
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+
+            </div>
+
+            <div class="row form-row" dragula="sortable">
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Claim Reverse Amount</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" class="form-control" formControlName="claimReverseAmount" required="required" pInputText
+                            NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true"/>
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Date of 1st Reserve</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <p-calendar class="form-control-ng" showIcon="true" utc="true" required="required" formControlName="dateFirstReserve" dateFormat="{{ calenderDateFormat }}"></p-calendar>
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Loss Location</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+
+                    <p-dropdown [options]="countriesLst" formControlName="lossLocation" class="form-control-ng" filter="true" required="required">
+                    </p-dropdown>
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+
+            </div>
+
+            <div class="row form-row" dragula="sortable">
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Loss Adjuster</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" class="form-control" formControlName="lossAdjuster" pInputText
+                           NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Claim Description</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" class="form-control" formControlName="claimDescription" required="required" />
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Subrogation/Recovery</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="checkbox" class="icheckbox_minimal-blue" formControlName="subRegionRecovery"  />
+                  </li>
+                </ul>
+              </div>
+
+            </div>
+
+            <div class="row form-row" dragula="sortable">
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Date Closed</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <p-calendar class="form-control-ng" showIcon="true" utc="true" formControlName="dateClosed" dateFormat="{{ calenderDateFormat }}"></p-calendar>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Claim Handler</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" class="form-control" formControlName="claimHandler" />
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="row form-row" dragula="sortable">
+              <div class="form-group col-md-12">
+                <label class="control-label col-sm-2 col-xs-12">Comments</label>
+                <ul class="input-group col-sm-10 col-xs-12">
+                  <li>
+                    <input type="text" class="form-control" formControlName="comments" required="required" />
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="row form-row" dragula="sortable">
+              <div class="form-group col-md-12">
+                <label class="control-label col-sm-2 col-xs-12">Attachments</label>
+                <ul class="input-group col-sm-10 col-xs-12">
+                  <li>
+                    <ribms-file-upload #fileUploader name="files" multiple="multiple" customUpload="true" (uploadHandler)="uploadHandler($event)" mode="advanced" [colsAttachments]="colsAttachments"
+                                       [rowsAttachments]="rowsAttachments" (OnCheckboxSelectedAttachments)="OnCheckboxSelectedAttachments($event)" (OnDeleteAttachments)="deleteFacClaimAttachments()"></ribms-file-upload>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="box-footer">
+          <div class="form-group text-center">
+            <button class="btn btn-primary btn-xs" style="float: right;" [disabled]="!facClaimForm.valid" (click)="saveFacClaim()">
+              {{showClaimSaveUpdate === false ? 'Save' : 'Update'}}
+            </button>
+            <button class="btn btn-primary btn-xs" style="float: right;" [disabled]="!btnPolicyDetailsState && this.claim != null" (click)="showClaimDetails()">
+              Policy Details
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+  </div>
+
+  <div class="col-md-12">
+    <form id="FacClaimDetailForm" [formGroup]="facClaimDetailForm">
+      <div class="box box-blue box-solid">
+        <div class="box-header with-border">
+          <h3 class="box-title">
+            <span>Reserve/Settlements Summary</span>
+          </h3>
+          <div class="box-tools pull-right">
+            <a class="btn btn-box-tool" href="javascript:void(0);" (click)="deleteFacClaimDetail()">
+              <i class="fa fa-trash" aria-hidden="true"></i>
+            </a>
+            <a class="btn btn-box-tool" href="javascript:void(0);" (click)="resetClaimDetailForm()">
+              <i class="fa fa-plus-square" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+        <div class="box-body">
+          <div id="divCollapse">
+            <div class="row form-row" dragula="sortable">
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Reinsurer/Ins.Company</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <p-autoComplete formControlName="reinsurer"  [suggestions]="reinsurerLst" (completeMethod)="fillReinsurer($event)" [forceSelection]="true"
+                                    [size]="30" [minLength]="1" field="FacCompanyName" dataKey="Id" class="form-control-ng" [dropdown]="true" required="required">
+                    </p-autoComplete>
+
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Date of 1st Advice</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <p-calendar class="form-control-ng" showIcon="true" utc="true" required="required" formControlName="dateOfFirstAdvise" dateFormat="{{ calenderDateFormat }}"></p-calendar>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Signed Line %</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" min="1" max="100" class="form-control" formControlName="signedLine" required="required" pInputText
+                           NumericFormat numberType="3" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false"/>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="row form-row" dragula="sortable">
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Claim Amount (For Share)</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" class="form-control" formControlName="claimAmountForShare" required="required" pInputText
+                           NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Reserve Amount (For Share)</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" class="form-control" formControlName="reserveAmountForShare" required="required" pInputText
+                           NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true"/>
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Paid Proportion</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" class="form-control" formControlName="paidPropotion" required="required" pInputText
+                           NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="row form-row" dragula="sortable">
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Outstanding Amount (For Share)</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <input type="text" class="form-control" formControlName="outStandingAmount" required="required" pInputText
+                            NumericFormat numberType="2" minDecimalPoint="2" maxDecimalPoint="2" allowNegative="false" currencyFormat="true" />
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+              <div class="form-group col-md-4">
+                <label class="control-label col-sm-5 col-xs-12">Date of Last Payment</label>
+                <ul class="input-group col-sm-7 col-xs-12">
+                  <li>
+                    <p-calendar class="form-control-ng" showIcon="true" utc="true" required="required" formControlName="dateOfLastPayment" dateFormat="{{ calenderDateFormat }}"></p-calendar>
+                    <span class="ng-validation-icon"></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="row form-row" dragula="sortable">
+              <div class="form-group col-md-12">
+                <label class="control-label col-sm-2 col-xs-12">Comments</label>
+                <ul class="input-group col-sm-10 col-xs-12">
+                  <li>
+                    <input type="text" class="form-control" formControlName="comments" required="required" />
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div class="box-footer">
+          <div class="form-group text-center">
+            <button class="btn btn-primary btn-xs" style="float: right;" [disabled]="!facClaimDetailForm.valid" (click)="saveFacClaimDetail()">
+              {{showClaimDetailSaveUpdate === false   ? 'Save' : 'Update'}}
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="col-md-12">
+    <div class="box box-blue box-solid">
+      <div class="box-header with-border">
+        <h3 class="box-title">
+          <span>{{gridHeader}}</span>
+        </h3>
+        <div class="box-tools pull-right">
+          <button type="button" class="btn btn-box-tool" (click)="IncreaseDecrease(tdInstallments,30);"><i class="fa fa-plus-square-o"></i></button>
+          <button type="button" class="btn btn-box-tool" (click)="IncreaseDecrease(tdInstallments,-30);"><i class="fa fa-minus-square-o"></i></button>
+          <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+        </div>
+      </div>
+      <div class="box-body">
+        <div class="row form-row">
+          <div class="form-group col-md-12">
+            <ribms-datatable (OnRowClicked)="onRowClicked($event)" (onCheckboxSelected)="onCheckboxSelected($event)" (onRowSelected)="onRowSelected($event)"
+                             [cols]="cols" [showCheckBox]="true" [mouseHover]="true" [title]="gridHeader" [rows]="clmDetailsRows"></ribms-datatable>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

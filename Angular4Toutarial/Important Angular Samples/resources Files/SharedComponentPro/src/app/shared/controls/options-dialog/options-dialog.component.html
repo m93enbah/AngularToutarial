@@ -1,0 +1,49 @@
+<p-dialog header="Options Details" [(visible)]="displayDialog" [responsive]="true" showEffect="fade"
+  [modal]="true">
+
+  <div class="box-body">
+    <div class="row form-row">
+      <div class="form-group col-md-12" id="divProducts">
+        <shc-datatable [cols]="cols" [rows]="rows" [dataKey]="'label'" [style]="{ width: '550px' }" showCheckBox="true"
+          mouseHover="true" [selectedRows]="selectedRows" (OnCheckboxSelected)="getSelectedRows($event)"></shc-datatable>
+      </div>
+    </div>
+  </div>
+
+  <p-footer>
+    <div class="row form-row ">
+
+      <div class="col-md-12 ">
+
+
+        <button class="btn btn-primary btn-sm pull-right btn-space" type="button" pbutton (click)="saveRow()">
+          <span class="fa fa-save"> </span>
+        </button>
+
+
+
+        <button [@swing]="swing" class="btn btn-primary btn-sm pull-right btn-space" type="button" pbutton (click)="deleteRow()">
+          <span class="fa fa-trash"> </span>
+        </button>
+
+        <button [@rubberBand]="rubberBand" class="btn btn-primary btn-sm pull-right btn-space" type="button" pbutton
+          (click)="addNewRow()">
+          <span class="fa fa-plus"></span>
+        </button>
+
+
+
+      </div>
+
+
+
+
+
+
+
+    </div>
+  </p-footer>
+
+
+
+</p-dialog>

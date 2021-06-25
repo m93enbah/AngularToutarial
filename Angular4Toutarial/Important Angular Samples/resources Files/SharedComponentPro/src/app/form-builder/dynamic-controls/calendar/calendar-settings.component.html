@@ -1,0 +1,106 @@
+<div class=" panel panel-default">
+  <form class="panel-body" name="addEditForm" [formGroup]="form">
+
+    <!-- Order -->
+    <div class="form-row">
+      <label class="settings-label">Order</label>
+      <input type="number" class="form-control input-sm" name="order" placeholder="Order" [value]="control.order" formControlName="order" readonly>
+    </div>
+
+    <!-- key -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Key</label>
+      <input type="text" class="form-control input-sm" name="key" placeholder="Key" [value]="control.key" formControlName="key"  >
+    </div>
+
+    <!-- Labels Text -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Label's Text</label>
+      <input type="text" class="form-control input-sm" name="label" placeholder="Text" [value]="control.name" formControlName="name">
+    </div>
+
+    <!-- PlaceHolder -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Placeholder</label>
+      <input type="text" class="form-control input-sm" name="placeholder" placeholder="Placeholder" [value]="control.placeholder" formControlName="placeholder">
+    </div>
+
+    <!-- defaultDate -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Default Date</label>
+      <p-calendar name="defaultDate" formControlName="defaultDate" placeholder="dd/mm/yy" inputFormat="dd/mm/yy" [showIcon]="true">
+      </p-calendar>
+    </div>
+
+    <!-- Selection Mode -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Selection Mode</label>
+      <select id="selectionMode" formControlName="selectionMode" name="selectionMode" class="form-control input-sm settings-dropdown-height">
+        <option *ngFor="let key of keys" [value]="selectionType[key]">{{ key }}</option>
+      </select>
+    </div>
+
+    <!-- dateFormat -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Date Format</label>
+      <input type="text" class="form-control input-sm" name="dateFormat" placeholder="Date Format" [value]="control.dateFormat" formControlName="dateFormat" required>
+    </div>
+
+    <!-- MinDate -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Minimum Date</label>
+      <p-calendar name="minDate" formControlName="minDate" placeholder="dd/mm/yy" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
+    </div>
+
+    <!-- MaxDate -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Maximum Date</label>
+      <p-calendar name="maxDate" formControlName="maxDate" placeholder="dd/mm/yy" [showIcon]="true" dateFormat="dd/mm/yy"></p-calendar>
+    </div>
+
+    <!-- Width -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Width</label>
+      <p-selectButton class="form-control-ng" [options]="widthOptions" formControlName="width"></p-selectButton>
+    </div>
+
+    <!-- showTime -->
+    <div class="form-row settings-checkbox-row">
+      <p-triStateCheckbox #showTime label="Show Time" name="showTime" class="settings-label" formControlName="showTime"></p-triStateCheckbox>
+    </div>
+
+    <!-- if showTime is checked-->
+    <div *ngIf=" form.get('showTime').value">
+      <!-- hourFormat -->
+      <div class="form-row settings-row">
+        <label class="settings-label">Hour Format</label>
+        <input type="text" class="form-control input-sm" name="hourFormat" placeholder="Hour Format" formControlName="hourFormat" [value]="control.hourFormat" required>
+      </div>
+
+      <!-- timeOnly -->
+      <div class="form-row settings-checkbox-row">
+        <p-triStateCheckbox label="Time Only" name="timeOnly" class="settings-label" formControlName="timeOnly"></p-triStateCheckbox>
+      </div>
+    </div>
+
+    <!-- showButtonBar -->
+    <div class="form-row settings-checkbox-row">
+      <p-triStateCheckbox label="Button Bar" name="showButtonBar" class="settings-label" formControlName="showButtonBar"></p-triStateCheckbox>
+    </div>
+
+    <!-- Disabled -->
+    <div class="form-row settings-checkbox-row">
+      <p-triStateCheckbox label="Disabled" class="settings-label" formControlName="disabled"></p-triStateCheckbox>
+    </div>
+
+    <!-- Required -->
+    <div class="form-row settings-checkbox-row">
+      <p-triStateCheckbox label="Required" class="settings-label" formControlName="required"></p-triStateCheckbox>
+    </div>
+  </form>
+
+  <!-- Save Button -->
+  <div class="form-row box-footer settings-row">
+    <button class="btn btn-primary fb-button" [disabled]="!form.valid" (click)="save()">Save</button>
+  </div>
+</div>

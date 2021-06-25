@@ -1,0 +1,28 @@
+<div class="container-fluid">
+  <div class="ui-g">
+    <div class="ui-g-4">
+      <h3>Configure field rules</h3>
+    </div>
+    <div class="ui-g-2 ui-g-offset-6">
+      <button type="button" class="btn btn-primary" (click)="newRule()">
+        New Rule <i class="pi pi-plus font"></i>
+      </button>
+    </div>
+  </div>
+  <div class="ui-g"> <div class="ui-g-12">Configure rules to manipulate fields' and components' behaviour based on specified conditions:</div></div>
+  <div class="ui-g">
+    <div class="ui-g-12">
+      <p-autoComplete [(ngModel)]="searchItem" [suggestions]="filtered" (completeMethod)="search($event)" [field]="name"
+                      size="100" placeholder="Search here"></p-autoComplete>
+    </div>
+  </div>
+  <br>
+  <div id="accordion">
+    <app-panel></app-panel>
+    <div #panelContainer></div>
+  </div>
+  <br>
+  <div class="ui-g">
+    <div class="ui-g-1 ui-g-offset-11"><button type="button" class="btn btn-primary">save</button></div>
+  </div>
+</div>

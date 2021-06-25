@@ -1,0 +1,89 @@
+<form [formGroup]="basicRuleForm">
+  <p-fieldset legend="">
+    <div>
+      Any of the following conditions are met
+    </div>
+    <br>
+    <div formArrayName="conditions">
+      <div *ngFor="let condition of getConditions(basicRuleForm); let i = index">
+        <div [formGroupName]="i">
+          <div formArrayName="ands">
+            <div *ngFor="let and of getands(condition); let j = index">
+              <div [formGroupName]="j">
+                <div class="ui-g">
+                  <div class="ui-g-4">
+                    <p-dropdown [options]="conditions1" formControlName="condition1" (onChange)="clearText(i)">
+                    </p-dropdown>
+                  </div>
+                  <div class="ui-g-4">
+                    <p-dropdown [options]="conditions2" formControlName="condition2" (onChange)="clearText(i)">
+                    </p-dropdown>
+                  </div>
+                  <div class="ui-g-4">
+                    <input type="text" size="60" pInputText formControlName="name">
+                  </div>
+                  <div style="display: inline-block">
+                    <button style="font-size:10px;background: transparent" type="button" class="btn btn-sm">
+                      <i class="pi pi-plus" (click)="addAnd(i)"></i>
+                      <span style="display: block">and</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ui-g-12" style="text-align:center">
+            <button style="font-size:10px;background: transparent" type="button" class="btn btn-sm"
+                    (click)="addCondition()">
+              <i class="pi pi-plus"></i>
+              <span style="display: block">or</span>
+            </button>
+          </div>
+          <br>
+        </div>
+      </div>
+    </div>
+    <br>
+    <p-fieldset legend="Preform the following actions">
+      <div formArrayName="actions">
+        <div *ngFor="let section of getActions(basicRuleForm); let i = index">
+          <div [formGroupName]="i">
+            <div class="ui-g">
+              <div class="ui-g-auto">
+                <p-dropdown [options]="actions" formControlName="action"></p-dropdown>
+              </div>
+              <div class="ui-g-auto">
+                <label class="radio-inline">
+                  <p-radioButton [name]="radioName[i]" value=1 label="Filed Rules" formControlName="selectedValue">
+                  </p-radioButton>
+                </label>
+                <label class="radio-inline">
+                  <p-radioButton [name]="radioName[i]" value=2 label="Component Rules" formControlName="selectedValue">
+                  </p-radioButton>
+                </label>
+              </div>
+              <div class="ui-g-auto">
+                <p-dropdown [options]="conditions1" formControlName="condition1" (onChange)="clearText(i)">
+                </p-dropdown>
+              </div>
+              <div class="ui-g-auto">
+                <span class="ui-float-label">
+                  <input type="text" pInputText formControlName="actionName">
+                  <label> Questions/Actions </label>
+                </span>
+              </div>
+              <span>
+                <button style="font-size:10px; background: transparent" type="button" class="btn btn-light"
+                        (click)="addAction()">
+                  <i class="pi pi-plus"></i>
+                  <span style="display: block">and</span>
+                </button>
+              </span>
+            </div>
+            <br>
+          </div>
+        </div>
+      </div>
+    </p-fieldset>
+  </p-fieldset>
+</form>

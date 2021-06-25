@@ -1,0 +1,40 @@
+
+<div class="row user-section">
+  <div class="col-md-4 user-info-col">
+    <div class="row">
+      <div class="col-md-3">
+
+        <img class="profile-img" src="{{profileInfo.img}}" alt="profile">
+      </div>
+      <div class="col-md-9">
+        <h3>{{profileInfo.name}}</h3>
+        <h4>{{profileInfo.sirname}}</h4>
+        <h5>Username: {{profileInfo.username}} </h5>
+        <h5>Last Access: {{profileInfo.lastAccess | date: 'dd-mm-yyyy HH:mm:ss a'}} </h5>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 user-date-time">
+    <h5 class="progressbar">My Widgets</h5>
+    <p-progressBar class="widgetBar" [value]="100" [showValue]="false"></p-progressBar>
+    <h5 class="progressbar">My Dashboards</h5>
+    <p-progressBar class="dashboardBar" [value]="75" [showValue]="false"></p-progressBar>
+    <h5 class="progressbar">My Notifications</h5>
+    <p-progressBar class="notificationBar" [value]="55" [showValue]="false"></p-progressBar>
+  </div>
+
+  <div class="col-md-4 user-social">
+    <div class="col-xs-10">
+      <h5>Phone No.: {{profileInfo.phoneNumber}} </h5>
+      <h5>Mobile No.: {{profileInfo.mobileNumber}} </h5>
+      <h5>Email: {{profileInfo.email}} </h5>
+    </div>
+    <div class="col-xs-2 icon-section">
+      <a routerLink="/profileSettings"><i class="fa fa-cog fa-lg settings-icon" pTooltip="Profile Settings" tooltipPosition="top" aria-hidden="true"></i></a>
+    </div>
+  </div>
+
+</div>
+
+

@@ -1,0 +1,66 @@
+.user-section {
+  border: 1px solid #2A506F;
+  color: #2A506F;
+  padding: 10px;
+  margin-bottom: 10px;
+  font: 1em Arial;
+}
+
+  .user-section .col-md-4 {
+    border-right: 1px solid #2A506F;
+    height: 110px;
+  }
+
+  .user-section .user-social {
+    border-right: none;
+  }
+
+
+h3 {
+  margin: 0 0 0 0;
+}
+
+
+.profile-img {
+  width: 80px;
+  height: 96px;
+  vertical-align: middle;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+
+
+:host ::ng-deep .ui-progressbar {
+  height: 10px;
+  
+
+}
+.progressbar {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+:host ::ng-deep .dashboardBar .ui-progressbar.ui-progressbar-determinate .ui-progressbar-value {
+  background: rgb(251,121,47) !important;
+}
+
+:host ::ng-deep .widgetBar .ui-progressbar.ui-progressbar-determinate .ui-progressbar-value {
+  background: rgb(42, 167, 216) !important;
+}
+
+:host ::ng-deep .notificationBar .ui-progressbar.ui-progressbar-determinate .ui-progressbar-value {
+  background: #2A506F !important;
+}
+.settings-icon {
+  float: right;
+  color: #2A506F;
+}
+
+  .settings-icon .icon-section {
+    min-height: inherit;
+  }
+
+.tooltip {
+  display: none !important;
+}

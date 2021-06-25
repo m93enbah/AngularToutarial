@@ -1,0 +1,241 @@
+html {
+  background: #00a5df;
+  background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJod�EiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+  background: -moz-linear-gradient(top,#00a5df 0%,#0070a6 100%);
+  background: -webkit-gradient(linear,left top,left bottom,color-stop(0%,#00a5df),color-stop(100%,#0070a6));
+  background: -webkit-linear-gradient(top,#00a5df 0%,#0070a6 100%);
+  background: -o-linear-gradient(top,#00a5df 0%,#0070a6 100%);
+  background: -ms-linear-gradient(top,#00a5df 0%,#0070a6 100%);
+  background: linear-gradient(to bottom,#00a5df 0%,#0070a6 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00a5df',endColorstr='#0070a6',GradientType=0);
+}
+
+body, html, .main {
+  min-height: 100%;
+  height: auto;
+  background: #00a5df;
+}
+
+.main {
+  padding: 80px 0;
+}
+
+.login-box label {
+  font-weight: 700
+}
+
+.login-page, .register-page, body {
+  background: none !important;
+}
+
+.login-box-body {
+  background: #fff;
+  padding: 20px
+}
+
+.login-logo {
+  font-size: 35px;
+  font-family: arial;
+  font-weight: bold;
+  color: #00a7e1;
+  margin-left: 0;
+  white-space: nowrap;
+  margin-bottom: 25px
+}
+
+  .login-logo b {
+    color: #faa74a;
+    margin-left: 5px;
+  }
+
+  .login-logo sup {
+    font-size: 60%;
+  }
+
+.login-box-msg {
+  text-align: left;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.version {
+  font-size: 12px;
+  color: #666;
+  font-weight: normal;
+}
+
+@media(max-width:480px) {
+  .version {
+    display: block
+  }
+}
+
+
+
+@media (min-width: 992px) {
+  .login-box {
+    width: 745px;
+    margin: 0 auto;
+  }
+
+  .login-logo {
+    text-align: left;
+  }
+
+  .login-box-bg {
+    /*background: #fff url(../images/img_login.png) no-repeat right center;*/
+    background-size: contain;
+    border-radius: 5px;
+  }   
+
+  .login-box-body {
+    width: 300px;
+    background: none;
+    min-height: 463px;
+  }
+}
+
+@media(max-width: 991px) {
+  .login-box {
+    width: 360px;
+    margin: auto;
+  }
+}
+
+select.form-control {
+  padding-left: 5px;
+}
+
+form.input-control {
+  padding-left: 11px;
+}
+
+small {
+  color: #c9d3d8;
+  float: right;
+  margin-right: 15px;
+  padding-top: 5px;
+}
+
+  small a {
+    color: #7fdeff;
+  }
+
+
+/*Lock Screen*/
+
+.lockscreen-wrapper {
+  border-radius: 5px;
+}
+
+
+.lockscreen-logo, .lockscreen-logo b {
+  color: #fff
+}
+
+.lockscreen-image {
+  left: -10px;
+  top: -14px;
+  background: #fff;
+  box-shadow: 0 0 1px;
+}
+
+  .lockscreen-image > img {
+    object-fit: contain;
+    width: 50px;
+    height: 50px;
+  }
+
+.lockscreen .lockscreen-name {
+  font-size: 16px;
+  color: #d2d6de
+}
+
+
+.lockscreen-wrapper .help-block {
+  color: #fff
+}
+
+
+.lockscreen-wrapper .lockscreen-user {
+  padding-bottom: 10px
+}
+
+  .lockscreen-wrapper .lockscreen-user a {
+    color: #d2d6de
+  }
+
+
+.lockscreen-credentials .input-group .btn:focus {
+  border: 0;
+  outline: 0;
+  box-shadow: 0 0;
+}
+
+
+.lockscreen-credentials .btn {
+  margin-bottom: 0
+}
+
+.lockscreen-wrapper small {
+  text-align: center;
+  position: absolute;
+  bottom: 20%;
+  left: 0;
+  right: 0;
+  margin: auto
+}
+
+
+
+@media (max-width: 480px) {
+  .lockscreen-wrapper {
+    max-width: 300px
+  }
+
+  .lockscreen-item {
+    width: 250px
+  }
+
+  .login-box {
+    width: 90%
+  }
+}
+
+.form-group.has-feedback {
+  margin-bottom: 15px
+}
+
+  .form-group.has-feedback .form-control {
+    font-size: 14px;
+    height: 34px;
+    padding: 6px 12px;
+  }
+
+  .form-group.has-feedback input.form-control {
+    padding-right: 42.5px;
+  }
+
+
+/* Login Required */
+
+.login-req {
+  position: absolute
+}
+
+
+/*Scroll*/
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  width: 8px\9
+}
+
+::-webkit-scrollbar-track {
+  background: #e1ecf1
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0082B9;
+  ms-scrollbar-3dlight-color: #00f
+}

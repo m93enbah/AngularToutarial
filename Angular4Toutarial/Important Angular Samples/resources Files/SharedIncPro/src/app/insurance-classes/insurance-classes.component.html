@@ -1,0 +1,361 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+        <form [formGroup]="InsuranceSystemfrm">
+          <div class="card-header">
+            <h6 class="card-title">Insurance Classes Search</h6>
+            <div class="card-tools">
+              <div class="buttons-group">
+                <button pButton type="reset" icon="pi pi-refresh" pTooltip="Reset"
+                        tooltipPosition="top"></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+
+            <div class="row form-row" dragula="sortable">
+              <div class="col-md-3 form-group">
+                <div class="prime-form-control">
+                  <label for="float-input" Editable="lblPaymentCycleResource">Insurance Systems</label>
+                  <p-dropdown [options]="InsuranceSystemList" formControlName="SystemId" [panelStyle]="{minWidth:'20em'}">
+                  </p-dropdown>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="card-title">Insurance Classes</h6>
+        <div class="card-tools">
+          <div class="buttons-group">
+            <button pButton type="submit" icon="pi pi-file" pTooltip="Add" tooltipPosition="top"></button>
+            <button pButton type="submit" icon="pi pi-trash" pTooltip="Remove" tooltipPosition="top" (click)="DeleteInsClasses()"></button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row form-row">
+          <div class="col-md-12 form-group">
+            <css-datatable (OnRowClicked)="OnClassRowClicked($event)" (OnCheckboxSelected)="OnInsClassCheckboxSelected($event)"
+                           [cols]="insuranceclassescols" [showCheckBox]="true"
+                           [mouseHover]="true" [title]="gridHeader" [rows]="insuranceclassesrows"></css-datatable>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="card-title">Sub Line Of Business</h6>
+        <div class="card-tools">
+          <div class="buttons-group">
+            <button pButton type="submit" icon="pi pi-file" pTooltip="Add" tooltipPosition="top"></button>
+            <button pButton type="submit" icon="pi pi-trash" pTooltip="Remove" tooltipPosition="top"></button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row form-row">
+          <div class="col-md-12 form-group">
+            <css-datatable (OnRowClicked)="OnSubLobRowClicked($event)" [cols]="subLobCols" [showCheckBox]="true"
+                           [mouseHover]="true" [title]="gridHeader" [rows]="subLobRows"></css-datatable>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" *ngIf="!ShowSUBLOBEntry">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="card-title">Insurance Class Entry </h6>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="InsuranceClassfrm">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="prime-form-control">
+                <label>Insurance Systems</label><br />
+                <p-dropdown  autoWidth="false" [options]="InsuranceSystemList"
+                            formControlName="insuranceSystem" required="required">
+                </p-dropdown>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="prime-form-control">
+                <label>Class Code</label><br />
+                <input type="number" formControlName="classCode" class="form-control" required="required" />
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="prime-form-control">
+                <label>Name</label><br />
+                <input type="text" formControlName="name" class="form-control" required="required" />
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="prime-form-control">
+                <label>Name2</label><br />
+                <input type="text" formControlName="name2" class="form-control" />
+              </div>
+            </div>
+
+
+            <div class="col-md-3">
+              <div class="prime-form-control">
+                <label>Line of Business </label>
+                <p-dropdown  autoWidth="false" [options]="LOBList"
+                            formControlName="lineOfBusiness" required="required">
+                </p-dropdown>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="buttons-group">
+              <button pbutton [disabled]="!InsuranceClassfrm.valid" (click)="saveInsuranceClass()">
+                {{showSaveUpdate === false ? 'Save' : 'Update'}}
+              </button>
+            </div>
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="row" *ngIf="ShowSUBLOBEntry">
+    
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="card-title">Sub Line of Business Entry </h6>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="PolicyTypeForm">
+          <div class="row form-row" dragula="sortable">
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label>Class Name</label>
+                <p-dropdown [options]="InsuranceClassEntryList" formControlName="insuranceClassEntry" disabled="disabled"></p-dropdown>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label>Code</label>
+                <input type="number" formControlName="SUBLOBCode" class="form-control" required="required" />
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label>Name</label>
+                <input type="text" formControlName="SUBLOBname" class="form-control" required="required" />
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label>Name2</label>
+                <input type="text" formControlName="SUBLOBname2" class="form-control" />
+              </div>
+            </div>
+
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label>Line of Business </label>
+                <p-dropdown autoWidth="false" [options]="LOBList"
+                            formControlName="SUBlineOfBusiness">
+                </p-dropdown>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label>Unearned Calc Type</label>
+                <p-dropdown autoWidth="false" [options]="UnearnedCalcTypeList"
+                            formControlName="UnearnedCalcType">
+                </p-dropdown>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label>Effective Date</label>
+                <p-calendar showIcon="true" utc="false" formControlName="EffectiveDate" dateFormat="{{ calenderDateFormat }}"></p-calendar>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label>Expiry Date</label>
+                <p-calendar showIcon="true" utc="false" formControlName="ExpiryDate" dateFormat="{{ calenderDateFormat }}"></p-calendar>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label>Treaty Type</label>
+                <p-dropdown autoWidth="false" [options]="TreatyTypeList"
+                            formControlName="TreatyType">
+                </p-dropdown>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label>Earned %</label><br />
+                <input type="text" formControlName="EarnedPerc" class="form-control" />
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label>Rate Basis</label>
+                <p-dropdown autoWidth="false" [options]="RateBasisList"
+                            formControlName="RateBasis" required="required">
+                </p-dropdown>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <div class="col-md-12 prime-form-control">
+                  <label>Rate Type / Per</label>
+                </div>
+                <div class="col-xs-6" style="padding:0">
+                  <p-dropdown autoWidth="false" [options]="RateTypeList"
+                              formControlName="RateType" required="required">
+                  </p-dropdown>
+                </div>
+                <div class="col-xs-6" style="padding:0">
+                  <p-dropdown autoWidth="false" [options]="RatePerList"
+                              formControlName="RatePer" required="required">
+                  </p-dropdown>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label>Age Decrease</label>
+                <input type="text" formControlName="AgeDecrease" class="form-control" />
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <div class="col-md-12 prime-form-control">
+                  <label>Min / Max PO Age</label>
+                </div>
+                <div class="col-xs-6" style="padding:0">
+                  <input type="text" formControlName="MinPOAge" class="form-control" />
+                </div>
+                <div class="col-xs-6" style="padding:0">
+                  <input type="text" formControlName="MaxPOAge" class="form-control" />
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <div class="col-md-12 prime-form-control">
+                  <label>Min / Max Insured Age</label>
+                </div>
+                <div class="col-xs-6" style="padding:0">
+                  <input type="text" formControlName="MinInsuredAge" class="form-control" />
+                </div>
+                <div class="col-xs-6" style="padding:0">
+                  <input type="text" formControlName="MaxInsuredAge" class="form-control" />
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <div class="col-md-12 prime-form-control">
+                  <label>Min / Max Term</label>
+                </div>
+                <div class="col-xs-6" style="padding:0">
+                  <input type="text" formControlName="MinTerm" class="form-control" />
+                </div>
+                <div class="col-xs-6" style="padding:0">
+                  <input type="text" formControlName="MaxTerm" class="form-control" />
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label>Basic Cover</label>
+                <p-dropdown autoWidth="false" [options]="BasicCoverList"
+                            formControlName="BasicCover" required="required">
+                </p-dropdown>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label>Target Gender</label>
+                <p-dropdown autoWidth="false" [options]="TargerGenderList"
+                            formControlName="TargerGender" required="required">
+                </p-dropdown>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <div class="col-md-12 prime-form-control">
+                  <label>Term / Maturity Age</label>
+                </div>
+                <div class="col-xs-6" style="padding:0">
+                  <p-dropdown autoWidth="false" [options]="TermBasisList"
+                              formControlName="TermBasis" required="required">
+                  </p-dropdown>
+                </div>
+                <div class="col-xs-6" style="padding:0">
+                  <input type="text" formControlName="MaturityAge" class="form-control" required="required"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <br />
+                <input type="checkbox" formControlName="AccepyLongTerm" />
+                <label>Accept Long Term</label>
+              </div>
+            </div>
+
+          </div>
+          <div class="card-footer">
+            <div class="buttons-group">
+              <button pbutton [disabled]="!PolicyTypeForm.valid" (click)="saveSUBLOB()">
+                {{showSUBLOBSaveUpdate === false ? 'Save' : 'Update'}}
+              </button>
+            </div>
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+  </div>

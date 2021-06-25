@@ -1,0 +1,162 @@
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
+    integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
+<style type="text/css">
+    body div.mxPopupMenu {
+        -webkit-box-shadow: 3px 3px 6px #C0C0C0;
+        -moz-box-shadow: 3px 3px 6px #C0C0C0;
+        box-shadow: 3px 3px 6px #C0C0C0;
+        background: white;
+        position: absolute;
+        border: 3px solid #e7e7e7;
+        padding: 3px;
+    }
+
+    body table.mxPopupMenu {
+        border-collapse: collapse;
+        margin: 0px;
+    }
+
+    body tr.mxPopupMenuItem {
+        color: black;
+        cursor: default;
+    }
+
+    body td.mxPopupMenuItem {
+        padding: 6px 60px 6px 30px;
+        font-family: Arial;
+        font-size: 10pt;
+    }
+
+    body td.mxPopupMenuIcon {
+        background-color: white;
+        padding: 0px;
+    }
+
+    body tr.mxPopupMenuItemHover {
+        background-color: #eeeeee;
+        color: black;
+    }
+
+    table.mxPopupMenu hr {
+        border-top: solid 1px #cccccc;
+    }
+
+    table.mxPopupMenu tr {
+        font-size: 4pt;
+    }
+
+    div.mxWindow {
+        height: auto !important;
+    }
+
+    div.mxWindow table.mxWindow {
+        height: auto !important;
+    }
+
+    div.mxWindowPane .properties {
+        width: 100%;
+    }
+
+    td.mxWindowPane td {
+        padding: 5px;
+    }
+
+    td.mxWindowPane input,
+    td.mxWindowPane select,
+    td.mxWindowPane textarea {
+        width: 100%
+    }
+
+    td.mxWindowPane button {
+        float: right;
+        background: #ccc;
+        box-shadow: 0 0;
+        border: 1px solid #ccc;
+        padding: 5px 10px;
+        border-radius: 5px;
+
+    }
+
+    td.mxWindowPane button~button {
+        margin-right: 5px;
+    }
+</style>
+
+<!-- Creates a container for the toolboox -->
+<!-- <div id="sidebarContainer" style="background-color:blue;position:absolute;overflow: hidden;padding: 2px;left: 0px;top: 26px;width: 40px;bottom: 0px;z-index:1;">
+</div>
+<div #graphContainer id="graphContainer" style="overflow:hidden;background:url('../assets/img01.png');height:1000px;">
+</div> -->
+<div style="background-color:rgba(0,0,0,.05);">
+<div class="row" >
+    <div class="col-md-2">
+        <div class="accordion" id="accordion">
+            <div class="card z-depth-0 bordered">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <button type="button" class="btn btn-light" data-toggle="collapse" data-target="#collapseOne"
+                            aria-expanded="true" aria-controls="collapseOne" style="font-size: 10pt;font-weight: bold;" >
+                            General Process Elements
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body">
+                        <div id="generalsidebarContainer" style="overflow:hidden;width:100%;height:25%;">
+                            <!--  background-image:url('../assets/shapes/sidebar_bg.gif'); style="overflow:hidden;width:400px;height:500px;" -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card z-depth-0 bordered">
+            <div class="card-header" id="headingTwo">
+                <h5 class="mb-0">
+                    <button type="button" class="btn btn-light collapsed" data-toggle="collapse"
+                        data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"  style="font-size: 10pt;font-weight: bold;" >
+                        Predefined Process Elements
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                <div class="card-body">
+                    <div id="predefinedsidebarContainer" style="overflow:hidden;width:100%;height:25%;">
+                        <!--  background-image:url('../assets/shapes/sidebar_bg.gif'); -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-10">
+        <div class="accordion" id="accordion2">
+            <div class="card z-depth-0 bordered">
+                <div class="card-header" id="heading3">
+                    <h5 class="mb-0">
+                        <button type="button" class="btn btn-light" data-toggle="collapse" data-target="#collapse3"
+                            aria-expanded="true" aria-controls="collapse3"  style="font-size: 10pt;font-weight: bold;" >
+                            Process Elements
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapse3" class="collapse show" aria-labelledby="heading3" data-parent="#accordion2">
+                    <div class="card-body">
+                        <div #graphContainer id="graphContainer"
+                            style="overflow:scroll;width:100%;height:400px;background-image:url('../assets/shapes/grid.gif');cursor:default;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+
+Selected Step : {{selectedStep | json}}
+
+<br />
+Steps : {{proc | json}}
+</div>
+<p-toast key="popupScreen"></p-toast>

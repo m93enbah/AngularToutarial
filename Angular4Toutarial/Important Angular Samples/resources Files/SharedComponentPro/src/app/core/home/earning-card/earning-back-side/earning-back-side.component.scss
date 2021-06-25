@@ -1,0 +1,33 @@
+@import 'node_modules/@theme/styles/themes';
+@import '~@nebular/theme/styles/global/breakpoints';
+
+@include nb-install-component() {
+  nb-card-header {
+    flex-direction: row;
+    font-size: 2rem;
+  }
+
+  nb-card-body {
+    padding-left: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-right: 0px;
+  }
+
+  shc-earning-pie-chart {
+    flex: 1;
+    height: 200px;
+    width: inherit;
+    margin-top: 5px;
+    margin-left: 25%;
+    
+    
+  }
+  
+  .echart {
+    position: absolute;
+    width: calc(50% - #{nb-theme(card-padding)});
+    height: calc(100% - 2 * #{nb-theme(card-padding)});
+  }
+  
+}

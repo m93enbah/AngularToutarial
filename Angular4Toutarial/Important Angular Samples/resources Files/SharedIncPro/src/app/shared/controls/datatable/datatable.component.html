@@ -1,0 +1,62 @@
+
+<p-dataTable [value]="rows" [paginator]="true" (onRowClick)="onRowClicked($event)" (onRowSelect)="onRowSelected($event)"
+             (onRowUnselect)="onRowUnSelected($event)" (onHeaderCheckboxToggle)="onHeaderCheckboxToggle($event)" [rows]="5" [(selection)]="selectedRows"
+             dataKey="Id" [editable]="true" [rowHover]="mouseHover" selectionMode="single">
+
+  <p-column *ngIf="showCheckBox" [style]="{'width':'38px'}" selectionMode="multiple"></p-column>
+  <p-column *ngFor="let col of cols" [field]="col.field" [header]="col.header" [hidden]="col.hidden" [editable]="col.editable">
+    <div *ngIf="col.editable">
+      <ng-template let-col let-item="rowData" pTemplate="editor">
+        <textarea style="background-color:gainsboro;width:100%" [(ngModel)]="item[col.field]"></textarea>
+      </ng-template>
+    </div>
+    <div *ngIf="col.showStatusIcon">
+      <ng-template let-col let-item="rowData" pTemplate="expander">
+        <span *ngIf="item[col.field]" class="fa fa-check"></span>
+        <span *ngIf="!item[col.field]" class="fa fa-close"></span>
+      </ng-template>
+    </div>
+    <div *ngIf="col.dateColumn">
+      <ng-template let-item="rowData" pTemplate="body">
+        <div class="col-md-12 form-group">
+          <div class="prime-form-control">
+            {{item[col.field] | date:dateFormat }}
+          </div>
+        </div>
+      </ng-template>
+    </div>
+    <div *ngIf='col.type=="checkbox"'>
+      <ng-template let-item="rowData" pTemplate="body">
+        <mat-checkbox class="prime-checkbox" name="group1" [checked]="item[col.field]"
+                      (change)="RowCheckboxSelected(col.field,$event)" inputId="ny" [disabled]="col.disable"></mat-checkbox>
+      </ng-template>
+    </div>
+    <div *ngIf='col.type=="input-number"'>
+      <ng-template let-item="rowData" pTemplate="body">
+        <div class="col-md-12 form-group">
+          <div class="prime-form-control">
+            <input id="float-input" type="number" pInputText [(ngModel)]="item[col.field]"
+                   name="PaymentShare" class="ui-inputtext ui-corner-all" required>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+    <div *ngIf='col.type=="input-dropdown"'>
+      <ng-template let-item="rowData" pTemplate="body">
+        <div class="col-md-12 form-group">
+          <div class="prime-form-control">
+            <p-dropdown [options]="item[col.option]" [required]="col.required"
+                        [(ngModel)]="item[col.field]" name="CycleUnit"></p-dropdown>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+  </p-column>
+  <p-column *ngIf="showSelectionColumn" [style]="{'width':'38px'}">
+    <ng-template let-item="rowData" pTemplate="expander">
+      <button class="btn btn-primary btn-xs" type="button" pbutton (click)="selectRow(item)" data-dismiss="modal">
+        <span class="glyphicon glyphicon-edit"></span>
+      </button>
+    </ng-template>
+  </p-column>
+</p-dataTable>

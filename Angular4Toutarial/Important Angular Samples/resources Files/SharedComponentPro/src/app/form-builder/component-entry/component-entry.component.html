@@ -1,0 +1,97 @@
+<div class=" panel panel-default no-margin-bottom ">
+  <DIV CLASS="form-group">
+    <form class="panel-body prime-form-control" [formGroup]="componetEntryForm">
+
+      <div class="form-row">
+        <div class="col-md-6">
+          <span class="ui-float-label">
+
+            <input type="text" class="ui-inputtext ui-corner-all" formControlName="name" required />
+            <label class="component-label">Name</label>
+          </span>
+        </div>
+
+        <div class="col-md-6">
+          <span class="ui-float-label">
+
+            <input type="text" class="ui-inputtext ui-corner-all" formControlName="name2" />
+            <label class="component-label">Name2</label>
+          </span>
+        </div>
+      </div>
+
+
+      <div class="form-row">
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <div class="prime-form-control">
+              <span class="ui-float-label">
+                <p-dropdown [options]="options" class="form-control-ng" formControlName="layoutType">
+                </p-dropdown>
+                <label class="component-label">Layout Type</label>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <div class="prime-form-control">
+              <span class="ui-float-label">
+
+                <div class="input-group">
+                  <span class="input-group-addon">
+                    <i [ngClass]="componetEntryForm.get('icon').value"></i>
+                  </span>
+                  <input type="text" name="icon" class="ui-inputtext ui-corner-all" formControlName="icon"
+                    [iconPicker]="iconcss" [ipPosition]="'bottom'" [ipWidth]="'250px'"
+                    [ipPlaceHolder]="'Choose an icon'" [ipFallbackIcon]="fallbackIcon"
+                    (iconPickerSelect)="onIconPickerSelect($event)" />
+                </div>
+
+
+                <label class="component-label">Icon</label>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <div class="prime-form-control">
+              <span class="ui-float-label">
+
+                <textarea formControlName="notes"
+                  class="component-textArea textArea-noResize ui-inputtext fb-text-area ui-corner-all"></textarea>
+                <label class="component-label">Note</label>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <div class="prime-form-control">
+              <span class="ui-float-label">
+                <!-- <div style="margin-top: 15px;"> -->
+                <p-triStateCheckbox label="Global" [style]="{'font-weight': 'bold;'}" class="settings-Label custom"
+                  formControlName="formType">
+                </p-triStateCheckbox>
+
+                <!-- </div> -->
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </DIV>
+
+  <div class="box-footer">
+    <button class="btn btn-primary fb-button" [disabled]="!componetEntryForm.valid"
+      (click)="saveComponent();">{{ComponentId >0  ?  'Update' :'Save'   }}</button>
+  </div>
+
+</div>

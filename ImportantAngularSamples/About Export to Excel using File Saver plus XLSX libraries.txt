@@ -1,0 +1,32 @@
+Dear Ahmad
+
+There are links about export to excel in angular 4 (in client side) which provide high performance in using RAM
+
+Note :-
+1-	we will using the both library XLSX and file saver in order to apply export to excel in angular in client side 
+2-	(tested in sample project and it worked successfully)
+
+2-In this way we have the filtered rows in the variable table Rows which used to pass in to export to Excel , so we don’t need to go to server 
+To get data plus the response will be fast 
+
+(all details will be provide in the below description below)
+
+1-using file saver 
+
+About file saver in angular NPM
+https://www.npmjs.com/package/file-saver
+
+======================================================================================
+
+2-using XLSX 
+
+About XLSX library in angular NPM
+https://www.npmjs.com/package/xlsx
+
+
+3-Exporting Excel file in Angular (steps in details) 
+https://medium.com/@madhavmahesh/exporting-an-excel-file-in-angular-927756ac9857
+
+
+4-Demo Sample about using file saver library with XLSX library in angular 4
+https://stackblitz.com/edit/angular6-export-xlsx?file=src%2Fapp%2Fapp.component.ts

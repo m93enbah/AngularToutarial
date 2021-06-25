@@ -1,0 +1,41 @@
+:host ::ng-deep .ui-card {
+  overflow-y: auto;
+}
+:host ::ng-deep .ui-card .info, .danger {
+  padding-left: 14px;
+  padding-right: 14px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  background: linear-gradient(155deg, rgb(251, 186, 82) 40%, rgb(251,121,47));
+  min-height: 150px;
+}
+
+:host ::ng-deep .ui-card-body {
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  color: white;
+}
+:host ::ng-deep .ui-card .primary {
+  padding-left: 14px;
+  padding-right: 14px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  background: linear-gradient(155deg, rgb(42, 167, 216) 40%, rgb(0,145,201), rgb(0,91,136));
+  min-height: 150px;
+}
+.title {
+font-size:18px;
+font-weight:400;
+}
+
+td {
+  padding-right: 1em;
+}
+
+:host ::ng-deep td:first-child {
+  margin-bottom: 10px;
+  font-weight: 400;
+  font-size: 18px;
+}

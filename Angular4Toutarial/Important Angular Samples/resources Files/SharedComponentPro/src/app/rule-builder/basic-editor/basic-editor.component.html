@@ -1,0 +1,144 @@
+<form [formGroup]="basicRuleForm">
+  <fieldset class="fieldset-box borderBlue">
+    <legend class="subject-legend">If ( conditions to be met )</legend>
+    <div class="card-body">
+      <div formArrayName="conditions">
+        <div *ngFor="let condition of getConditions(basicRuleForm); let i = index">
+          <div [formGroupName]="i">
+            <div class="ui-g">
+              <div class="ui-g-3">
+                <div class="form-group fullWidth">
+                  <label class="black">Form Element</label>
+                    <p-dropdown [style]="{'width':'100%'}" [options]="conditions1" formControlName="condition1">
+                    </p-dropdown>
+                </div>
+              </div>
+              <div class="ui-g-3">
+                <div class="form-group">
+                  <label class="black">Operator</label>
+                  <p-dropdown [style]="{'width':'100%'}" [options]="conditions2" formControlName="condition2">
+                  </p-dropdown>
+                </div>
+              </div>
+              <div class="ui-g-5">
+                <div class="form-group">
+                  <label class="black">Value</label>
+                  <input class="fullWidth" type="text" pInputText formControlName="name">
+                </div>
+              </div>
+              <div class="ui-g-1 black">
+                <br />
+                <div *ngIf="(andbool[i] ||orbool[i]) ; then thenBlock else elseBlock"></div>
+                <ng-template #thenBlock>
+                  <div *ngIf="andbool[i] ; then andBlock else orBlock"></div>
+                  <ng-template #andBlock>
+                    <span class="block">
+                      And
+                      <button type="button" class="btn btn-sm iconButton" (click)="removeCondition(i)">
+                        <i class="glyphicon glyphicon-trash"></i>
+                      </button>
+                    </span>
+                  </ng-template>
+                  <ng-template #orBlock>
+                    <span class="block">
+                      Or
+                      <button type="button" class="btn btn-sm iconButton" (click)="removeCondition(i)">
+                        <i class="glyphicon glyphicon-trash"></i>
+                      </button>
+                    </span>
+                  </ng-template>
+                </ng-template>
+                <ng-template #elseBlock>
+                  <button class="btn btn-sm iconButton" (click)="andClick(i)">
+                    <i class="pi pi-plus"></i>
+                    <span class="block">and</span>
+                  </button>
+                  <button type="button" class="btn btn-sm iconButton" (click)="orClick(i)">
+                    <i class="pi pi-plus"></i>
+                    <span class="block">or</span>
+                  </button>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="fieldset-box borderBlue">
+    <legend class="subject-legend">Then ( actions to be performed )</legend>
+    <div class="card-body">
+      <div formArrayName="actions">
+        <div *ngFor="let section of getActions(basicRuleForm); let i = index">
+          <div [formGroupName]="i">
+            <div class="ui-g">
+              <div class="ui-g-3">
+                <div class="form-group">
+                  <label class="black">Action</label>
+                  <p-dropdown [style]="{'width':'100%'}" [options]="actions" formControlName="action"></p-dropdown>
+                </div>
+              </div>
+              <div class="ui-g-3">
+             
+                <div class="form-group">
+                  <label class="black">Apply on</label>
+                  <div class="radio-header">
+                    <label class="radio-inline black">
+                      <p-radioButton [name]="radioName[i]" value=1 label="Field" formControlName="selectedValue">
+                      </p-radioButton>
+                    </label>
+                    <label class="radio-inline black">
+                      <p-radioButton [name]="radioName[i]" value=2 label="Component" formControlName="selectedValue">
+                      </p-radioButton>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="ui-g-5">
+                <div class="form-group">
+                  <label class="black">Form Element</label>
+                  <p-dropdown [style]="{'width':'100%'}" [options]="conditions1" formControlName="condition1">
+                  </p-dropdown>
+                </div>
+              </div>
+              <div class="ui-g-1 black">
+                <br />
+                <div *ngIf="(andActionbool[i] ||orActionbool[i]) ; then thenBlock else elseBlock"></div>
+                <ng-template #thenBlock>
+                  <div *ngIf="andActionbool[i] ; then andBlock else orBlock"></div>
+                  <ng-template #andBlock>
+                    <span class="block">
+                      And
+                      <button type="button" class="btn btn-sm iconButton" (click)="removeActions(i)">
+                        <i class="glyphicon glyphicon-trash"></i>
+                      </button>
+                    </span>
+                  </ng-template>
+                  <ng-template #orBlock>
+                    <span class="block">
+                      Or
+                      <button type="button" class="btn btn-sm iconButton" (click)="removeActions(i)">
+                        <i class="glyphicon glyphicon-trash"></i>
+                      </button>
+                    </span>
+                  </ng-template>
+                </ng-template>
+                <ng-template #elseBlock>
+                  <button class="btn btn-sm iconButton" (click)="andActionClick(i)">
+                    <i class="pi pi-plus"></i>
+                    <span class="block">and</span>
+                  </button>
+                  <button type="button" class="btn btn-sm iconButton" (click)="orActionClick(i)">
+                    <i class="pi pi-plus"></i>
+                    <span class="block">or</span>
+                  </button>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+</form>

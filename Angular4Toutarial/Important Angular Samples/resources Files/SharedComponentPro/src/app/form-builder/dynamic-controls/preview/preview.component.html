@@ -1,0 +1,31 @@
+<div id="preview">
+  <div class="row row-margin">
+    <form id="previewForm" [formGroup]="form">
+      <div >
+        <div class="form-row" *ngFor="let container of formContent; let i= index">
+          <div *ngIf="container.containerType == 1">
+            <div class="col-md-12">
+              <div *ngFor="let control of container.formControls">
+                <shc-dynamic-control [form]="form" [control]="control"></shc-dynamic-control>
+              </div>
+            </div>
+        
+          </div>
+          <div *ngIf="container.containerType == 2">
+            <div class="col-md-12">
+              <fieldset class="fieldset-box">
+                <legend class="subject-legend">{{container.containerHeader}}</legend>
+
+                <div *ngFor="let control of container.formControls">
+                  <shc-dynamic-control [form]="form" [control]="control"></shc-dynamic-control>
+                </div>
+
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+

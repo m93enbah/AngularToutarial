@@ -1,0 +1,197 @@
+<div class="row">
+
+  <br />
+  <!-- #region Left (Common fields/Elements) -->
+
+  <div class="controls-div col-md-2">
+    <div class="clearfix">
+      <fieldset>
+        <legend class="fb-header-text">
+          Fields & Components
+        </legend>
+      </fieldset>
+      <div class="form-row">
+        <!-- Controls -->
+        <div *ngIf="!showSettings" @fadeInOut>
+
+          <!--  Common Controls/Fields -->
+          <button type="button" class="list-group-item list-group-item-action fb-collapse-btn fb-text-style" data-toggle="collapse" data-target="#Controls">Common Fields</button>
+          <div id="Controls" class="collapse in">
+            <div>
+              <div class="list-group-item fb-search-group-item">
+                <div class="search-container ">
+                  <input type="text" placeholder="Search.." class="fb-search-input" name="search" #commonFieldsSearchInput />
+                  <button type="submit" (click)="searchControls(commonFieldsSearchInput.value, searchType.Controls)"><i class="fa fa-search"></i></button>
+                </div>
+              </div>
+              <div class="list-group-item" pDraggable="controls" (onDragEnd)="dragEnd($event)" (onDragStart)="dragStart($event,control)"
+                   *ngFor="let control of filteredControls "><i class="margin-right {{control.icon}}"></i>{{control.name}}</div>
+            </div>
+          </div>
+          <!--Predefined Components -->
+          <button type="button" class="list-group-item list-group-item-action fb-collapse-btn fb-text-style" data-toggle="collapse" data-target="#PreDefComponents">Predefined Components</button>
+          <div id="PreDefComponents" class="collapse">
+            <div>
+              <div class="list-group-item fb-search-group-item">
+                <div class="search-container">
+                  <input type="text" placeholder="Search.." class="fb-search-input" name="search" #predefSearchInput />
+                  <button type="submit" (click)="searchControls(predefSearchInput.value, searchType.Predefined)"><i class="fa fa-search"></i></button>
+                </div>
+              </div>
+              <div class="list-group-item" pDraggable="controls" (onDragEnd)="dragEnd($event)" (onDragStart)="componentdragStart($event,control)"
+                   *ngFor="let control of filteredGlobalComponents "><i class="margin-right {{control.icon}}"></i>{{control.name}}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Properties/Settings-->
+        <div *ngIf="showSettings" @fadeInOut>
+          <div class="form-row">
+            <p-messages [(value)]="msgs" key='settings' [closable]='false'  @fadeInOut ></p-messages>
+            <shc-settings-editor (saveSettings)="saveSettings($event)" (exitSettings)=exitSettings($event) [control]="selectedControl"></shc-settings-editor>
+
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- #endregion -->
+
+
+
+  <div class="col-md-8" pDroppable="controls" [ngClass]="{'ui-highlight-car':draggedControl}" (onDrop)="drop($event)">
+    <fieldset>
+      <legend class="fb-header-text">Design your workspace at ease by building your library first! </legend>
+    </fieldset>
+
+    <p> Drag the fields from the left and drop them into the below area to customize the fields and components (collection / block of fields)</p>
+    <div class="fb-editor-fieldSet">
+
+      <div class="panel-heading fb-editor-header">
+        <span class="fb-properties-header">Editor</span> <span class="fb-properties-header" *ngIf="selectedComponent.componentId > 0" > - {{selectedComponent.name}}</span>
+
+        <button class="btn btn-primary btn-sm upper-btn-container float-right" title="Delete" (click)="deleteComponent()"><span class="glyphicon glyphicon-trash"></span></button>
+        <button class="btn btn-primary btn-sm upper-btn-container float-right" title="Erase" (click)="clearComponents()"><span class="glyphicon glyphicon-erase"></span></button>
+        <button class="btn btn-primary btn-sm upper-btn-container float-right" title="Component entry" (click)="displayEntryComp()"><span class="glyphicon glyphicon-tasks"></span></button>
+      </div>
+
+      <!-- Editor -->
+      <div id="Editor" class="fb-editor-div">
+        <div *ngFor="let container of formContainers; let i= index">
+          <div [formGroup]="form">
+            <div class="panel panel-primary container-panel">
+              <div class="panel-heading panel-heading-padding">
+
+
+                <input type='text' *ngIf="container.containerType == 2" class="editable-header" (blur)="endEditContainerHeader($event,i)"
+                       value="{{container.containerHeader}}" [ngStyle]="{display: i != selectedContainerIndex  ? 'none' : 'inline'}">
+
+                <span class="header-span" *ngIf="container.containerType == 2" [ngStyle]="{display: i == selectedContainerIndex ? 'none' : 'inline'}">
+                  {{container.containerHeader}}
+                </span>
+
+                <span class="header-span" *ngIf="container.containerType == 1">
+                  Row (
+                  {{container.formControls.length}} controls)
+                </span>
+
+                <span class="header-span" *ngIf="container.containerType == 2">
+                  : Panel Container (
+                  {{container.formControls.length}} controls)
+                </span>
+
+                <button class="btn btn-primary btn-sm upper-btn-container float-right" (click)="removeContainer(i)"><span class="glyphicon glyphicon-trash"></span></button>
+                <button class="btn btn-primary btn-sm upper-btn-container float-right" (click)="setSelectedContainer(i)"><span class="glyphicon glyphicon-pencil"></span>                </button>
+              </div>
+
+              <div class="panel-body" [ngStyle]="{display: i != selectedContainerIndex ? 'none' : 'block'}" [ngClass]="{'edit-mode': selectedContainerIndex == i}">
+                <div *ngFor="let control of container.formControls" style="padding-right: 0">
+                  <shc-dynamic-control-editor [control]="control" (remove)="remove($event)" (viewSettings)="viewSettings($event)" [form]="form"></shc-dynamic-control-editor>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="box-footer">
+        <button class="btn btn-primary fb-button" (click)="saveComponentContent()">Save</button>
+        <button class="btn btn-primary fb-button" (click)="displayPreview()">Preview</button>
+      </div>
+    </div>
+
+  </div>
+
+
+
+
+  <!-- Right (Added fields/Elements) -->
+  <div class="controls-div col-md-2">
+    <div class="clearfix">
+      <div class="form-row">
+        <fieldset>
+          <legend class="fb-header-text">
+            Your Library
+          </legend>
+        </fieldset>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <button type="button" class="list-group-item list-group-item-action fb-collapse-btn fb-text-style" data-toggle="collapse" data-target="#UserComponents">Added Fields/Elements</button>
+          <div id="UserComponents" class="collapse in">
+            <div>
+              <div class="list-group-item fb-search-group-item">
+                <div class="search-container">
+                  <input type="text" placeholder="Search.." class="fb-search-input" name="search" #userFieldsSearchInput />
+                  <button type="submit" (click)="searchControls(userFieldsSearchInput.value, searchType.LibraryField)"><i class="fa fa-search"></i></button>
+                </div>
+              </div>
+              <div class="list-group-item" pDraggable="controls" (onDragEnd)="dragEnd($event)" (onDragStart)="componentdragStart($event,control)"
+                   *ngFor="let control of filteredlibraryFields"><i class="margin-right {{control.icon}}"></i>{{control.name}}</div>
+            </div>
+          </div>
+          <!-- -Defined Components-->
+          <button type="button" class="list-group-item list-group-item-action fb-collapse-btn fb-text-style" data-toggle="collapse" data-target="#DefinedComponents">Defined Components</button>
+          <div id="DefinedComponents" class="collapse">
+            <div class="list-group">
+              <div class="list-group-item fb-search-group-item">
+                <div class="search-container ">
+                  <input type="text" placeholder="Search.." class="fb-search-input" name="search" #userdefSearchInput />
+                  <button type="submit" (click)="searchControls(userdefSearchInput.value, searchType.LibraryComponent)"><i class="fa fa-search"></i></button>
+                </div>
+              </div>
+              <div class="list-group-item" pDraggable="controls" (onDragEnd)="dragEnd($event)" (onDragStart)="componentdragStart($event,control)"
+                   *ngFor="let control of filteredlibraryComponents"><i class="margin-right {{control.icon}}"></i>{{control.name}}</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+<!-- Prefrences popup -->
+<p-dialog header="Component Preview" styleClass="ui-dialog-preview" [(visible)]="previewDialog" [responsive]="true" showEffect="fade" [modal]="true">
+  <shc-preview [formContent]="formContainers" [form]="form"></shc-preview>
+</p-dialog>
+
+
+
+<!-- Prefrences popup -->
+<p-dialog header="Component Entry" styleClass="ui-dialog-preview" [(visible)]="showCompEntryDialog" [responsive]="true" showEffect="fade"
+          [modal]="true">
+  <shc-component-entry (saveCompleted)="saveComponentCompleted($event)" [ComponentId]="selectedComponent.componentId"></shc-component-entry>
+</p-dialog>
+
+<!-- Notifications Toast for all form Builder -->
+<p-toast [style]="{marginTop: '80px'}" styleClass="custom-ng" position="top-right"
+         [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" sticky="'true'"></p-toast>
+
+
+<p-confirmDialog></p-confirmDialog>

@@ -1,0 +1,18 @@
+
+.ng-valid.required {
+  background-color:lightgreen ;
+}
+
+ .ng-invalid:not(form) {
+  color: rgb(172, 81, 81);
+}
+
+.ng-invalid.required {
+  background-color: rgb(172, 81, 81);
+}
+.ui-state-disabled,.ui-widget:disabled {
+  background-color:yellow;
+}
+.disabled{
+  background-color:yellow;
+}

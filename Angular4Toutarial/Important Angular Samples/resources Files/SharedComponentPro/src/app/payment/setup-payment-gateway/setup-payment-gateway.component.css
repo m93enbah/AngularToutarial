@@ -1,0 +1,26 @@
+.content{
+  width:100%;
+  margin:5px;
+}
+.element {
+  border-bottom: 1px solid #d0c0c0;
+  margin: 10px;
+  height: 100px;
+  width: 90%;
+}
+.vertical-align {
+  position: relative;
+  top: 20px;
+}
+.button {
+  background-color: transparent;
+  border: 1px solid gray;
+  color: gray;
+  margin-top:10px;
+}
+.button:hover {
+   color: white;
+   background-color: gray;
+}
+
+

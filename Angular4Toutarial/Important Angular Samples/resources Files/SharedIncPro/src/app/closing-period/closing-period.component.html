@@ -1,0 +1,170 @@
+<!--Form-->
+<!--First Card Section Start Search Form-->
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <form [formGroup]="closingFormSearch">
+        <div class="card-header">
+          <h6 class="card-title">Closing Period Search</h6>
+
+          <div class="card-tools">
+            <div class="buttons-group pull-right">
+              <button pButton type="submit" icon="pi pi-refresh" pTooltip="Reset" tooltipPosition="top" (click)="onReset()"></button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable="">Insurance System</label>
+              <p-dropdown [options]="InsSystemSearchList" formControlName="insuranceSystemSearch"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable="">Insurance Class</label>
+              <p-dropdown [options]="InsuranceClassSearchList" formControlName="insuranceClassSearch"></p-dropdown>
+              </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable="">Sub Line of Business</label>
+              <p-dropdown [options]="SubLineofBusiness" formControlName="subLineOfBusinessSearch"></p-dropdown>
+               </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable="">Module</label>
+              <p-dropdown [options]="ModuleSearchList" formControlName="moduleSearch"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable="">Branch</label>
+              <p-dropdown title="Branch" [options]="branches" formControlName="branchSearch"></p-dropdown>
+            </div>
+          </div>
+
+
+          <div class="card-footer">
+            <div class="buttons-group">
+              <button pButton type="submit" (click)="FindClosingPeriod()" label="Search"></button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!--First Card Section END -->
+
+
+<!--Second Card Section Start List-->
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="card-title">Closing Period List</h6>
+        <div class="card-tools">
+
+          <div class="buttons-group pull-right">
+            <button pButton type="submit" icon="pi pi-file" pTooltip="Add" tooltipPosition="top" (click)="onResetEntry()"></button>
+            <button pButton type="submit" icon="pi pi-trash" pTooltip="Remove" tooltipPosition="top" (click)="onRemove()"></button>
+          </div>
+        </div>
+      </div>
+     
+        <div class="card-body">
+          <div class="row form-row">
+            <div class="col-md-12 form-group">
+              <css-datatable title="Closing Period List" [cols]="cols" [rows]="ClosingPeriodDetailsRows" [showCheckBox]="true"
+              (OnCheckboxSelected)="OnCheckboxSelected($event)" [mouseHover]="true"
+                             (OnRowClicked)="OnRowClickedEdit($event)" selectionMode="multiple"></css-datatable>       
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+<!--Second Card Section End-->
+
+
+<!--Third Card Section Start Entry Form-->
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <form [formGroup]="closingFormEntry">
+        <div class="card-header">
+          <h6 class="card-title">
+            Closing Period Entry
+          </h6>
+        </div>
+        <div class="card-body">
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable>Insurance System</label>
+              <p-dropdown [options]="InsSystemEntryList" formControlName="insuranceSystemEntry"  required></p-dropdown>
+
+            </div>
+          </div>
+
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable>Insurance Class</label>
+              <p-dropdown [options]="InsuranceClassEntryList" formControlName="insuranceClassEntry"  required></p-dropdown>
+
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable>Sub Line of Business</label>
+              <p-dropdown [options]="SubLineofBusinessEntryList" formControlName="policyTypeEntry"></p-dropdown>
+             </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable>Module</label>
+              <p-dropdown [options]="ModuleEntryList" formControlName="moduleCodeEntry"  required></p-dropdown>
+
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable>Branch</label>
+              <p-dropdown [options]="branches" formControlName="branchIdEntry"></p-dropdown>
+
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group">
+            <div class="prime-form-control">
+              <label for="float-input" Editable>Closing Date</label>
+              <p-calendar showIcon="true" required="required" formControlName="closingDateEntry" dateFormat="{{  DATE_FMT }}" ></p-calendar>
+
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="buttons-group">
+              <button pButton type="submit"  (click)="SaveClosingPeriod()">
+                {{showSaveUpdate === false ? 'Save' : 'Update'}}
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+<!--Third Card Section End-->

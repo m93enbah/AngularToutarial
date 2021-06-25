@@ -1,0 +1,54 @@
+<div class=" panel panel-default">
+  <form class="panel-body" name="addEditForm" [formGroup]="form">
+    <!-- order -->
+    <div class="form-row">
+      <label class="settings-label">Order</label>
+      <input type="number" class="form-control input-sm" name="order" placeholder="Order" [value]="control.order" formControlName="order" readonly>
+    </div>
+
+    <!-- Key -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Key</label>
+      <input type="text" class="form-control input-sm" name="key" placeholder="Key" formControlName="key"  >
+    </div>
+
+    <!-- Label -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Label's Text</label>
+      <input type="text" class="form-control input-sm" name="name" placeholder="Text" formControlName="name">
+    </div>
+
+    <!-- fileType -->
+    <div class="form-row settings-row">
+      <label class="settings-label">File Type</label>
+      <input type="text" class="form-control input-sm" name="fileType" placeholder="File Type" formControlName="fileType">
+    </div>
+
+    <!-- Width/Size -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Width</label>
+      <p-selectButton class="form-control-ng" [options]="widthOptions" formControlName="width"></p-selectButton>
+    </div>
+
+    <!-- multiple -->
+    <div class="form-row settings-checkbox-row">
+      <p-triStateCheckbox label="Multiple" class="settings-label" formControlName="multiple"></p-triStateCheckbox>
+    </div>
+
+    <!-- required -->
+    <div class="form-row settings-checkbox-row">
+      <p-triStateCheckbox label="Required" class="settings-label" formControlName="required"></p-triStateCheckbox>
+    </div>
+
+    <!-- Disabled -->
+    <div class="form-row settings-checkbox-row">
+      <p-triStateCheckbox label="Disabled" class="settings-label" formControlName="disabled"></p-triStateCheckbox>
+    </div>
+
+
+  </form>
+  <!-- Save Button -->
+  <div class="form-row box-footer settings-row">
+    <button class="btn btn-primary fb-button" (click)="save($event)">Save</button>
+  </div>
+</div>

@@ -1,0 +1,49 @@
+<div class="container-fluid">
+  <div>
+    <h3 class="header">Customer Portal Integrations</h3>
+    <hr class="divider" />
+  </div>
+  <div class="ui-g">
+    <div class="ui-g-3">
+      <p-card class="integration" (click)="updateView(0)">
+        <div class="card-content">
+          <div id="C" class="ui-g-2 alpha"> C </div>
+          <div class="ui-g-10">
+            <div class="card-body">Configurations</div>
+          </div>
+        </div>
+      </p-card>
+
+      <p-card class="integration" (click)="updateView(1)">
+        <div class="card-content">
+          <div id="M" class="ui-g-2 alpha"> M </div>
+          <div class="ui-g-10">
+            <div class="card-body">Mapping</div>
+          </div>
+        </div>
+      </p-card>
+
+      <p-card class="integration" (click)="updateView(2)">
+        <div class="card-content">
+          <div id="A" class="ui-g-2 alpha"> A </div>
+          <div class="ui-g-10">
+            <div class="card-body">Activity</div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+    <div class="ui-g-1">
+      <div class="arrow-right position1" [ngClass]="{'display': selected[0]}"></div>
+      <div class="arrow-right position2" [ngClass]="{'display': selected[1]}"></div>
+      <div class="arrow-right position3" [ngClass]="{'display': selected[2]}"></div>
+    </div>
+    <div class="ui-g-8">
+      <div [ngSwitch]="content">
+        <div *ngSwitchCase="0"><shc-configuration></shc-configuration></div>
+        <div *ngSwitchCase="1"><shc-mapping></shc-mapping></div>
+        <div *ngSwitchCase="2"><shc-activity></shc-activity></div>
+      </div>
+      
+    </div>
+  </div>
+</div>

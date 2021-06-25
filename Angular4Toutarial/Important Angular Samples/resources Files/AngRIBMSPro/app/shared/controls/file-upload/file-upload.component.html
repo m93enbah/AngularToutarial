@@ -1,0 +1,32 @@
+<a id="viewFile" (click)="showAttachmentFiles()" data-toggle="modal" data-target=".attachment-modal-lg">View Files</a>
+<p-fileUpload #fileUploader [name]="files" [multiple]="multiple" [customUpload]="customUpload" (uploadHandler)="UploadHandler($event)" [mode]="mode"></p-fileUpload>
+
+
+
+<div *ngIf="show" class="modal fade attachment-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="box-header with-border">
+        <h3 class="box-title"> Attachments </h3>
+        <div class="box-tools pull-right">
+          <a class="btn btn-box-tool" href="javascript:void(0);" (click)="onDeleteAttachments()">
+            <i class="fa fa-trash" aria-hidden="true"></i>
+          </a>
+          <a class="btn btn-box-tool" data-dismiss="modal" aria-label="Close">
+            <i aria-hidden="true">&times;</i>
+          </a>
+        </div>
+      </div>
+      <div class="box-body">
+        <div class="row">
+          <div class="col-md-12 form-group">
+            <div class="block-wrapper">
+              <ribms-datatable [title]="gridHeaderAttachments" [cols]="colsAttachments" [rows]="rowsAttachments" showCheckBox="true"
+                               (OnLinkSelected)="OnLinkSelected($event)" (OnCheckboxSelected)="OnCheckboxSelected($event)"></ribms-datatable>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

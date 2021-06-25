@@ -1,0 +1,84 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <form [formGroup]="QuestionnaireSearchfrm">
+        <div class="card-header">
+          <h6 class="card-title">Questionnaire Search</h6>
+          <div class="card-tools">
+            <div class="buttons-group">
+              <button pButton type="button" icon="pi pi-refresh" pTooltip="Reset"
+                      tooltipPosition="top" (click)="ResetPaymentCycleSearchForm()"></button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <div class="row form-row" dragula="sortable">
+
+
+            <div class="col-md-3 form-group" #PaymentCycle>
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblQuestionnaireNameResource">Questionnaire Name</label>
+                <input id="float-input" type="text" #paymentCycleInput pInputText formControlName="Name" class="ui-inputtext ui-corner-all">
+              <!--<css-context-menu [global]="false" [target]="PaymentCycle"></css-context-menu>-->
+              </div>
+            </div>
+
+            <div class="col-md-3 form-group">
+              <div class="prime-form-control">
+                <label for="float-input" Editable="lblQuestionnaireName2Resource">Questionnaire Name2</label>
+                <input id="float-input" type="text" #paymentCycleInput pInputText formControlName="Name2" class="ui-inputtext ui-corner-all">
+              </div>
+
+
+              </div>
+
+              <div class="col-md-3 form-group" #InsuranceSystems>
+                <div class="prime-form-control">
+                  <label for="float-input" Editable="lblInsuranceSystemsResource">Insurance Systems</label>
+                  <p-multiSelect [options]="InsuranceSystem" formControlName="SystemId"
+                                 [panelStyle]="{minWidth:'12em'}">
+                  </p-multiSelect>
+                  <!--<css-context-menu [global]="false" [target]="InsuranceSystems"></css-context-menu>-->
+                </div>
+              </div>
+              <div class="col-md-6 form-group">
+                <div class="buttons-group pull-right">
+                  <button pButton type="button" label="Search" (click)=" SubmitPaymentCycleForm()"></button>
+                </div>
+              </div>
+            </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!--Questionnaure list-->
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="card-title">Questionnaire List</h6>
+        <div class="card-tools">
+          <div class="buttons-group">
+            <button pButton type="submit" icon="pi pi-file" pTooltip="Add" tooltipPosition="top"
+                    (click)="ResetDocumentGroupsEntryForm()"></button>
+            <button pButton type="button" icon="pi pi-trash" pTooltip="Remove" tooltipPosition="top"
+                    (click)="RemoveDocumentGroups()"></button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row form-row">
+          <div class="col-md-12 form-group">
+
+          
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

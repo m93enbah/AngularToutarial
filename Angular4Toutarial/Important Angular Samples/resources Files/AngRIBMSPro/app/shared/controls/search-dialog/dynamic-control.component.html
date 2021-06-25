@@ -1,0 +1,23 @@
+<div [formGroup]="form">
+
+        <label [attr.for]="control.key" class="control-label col-sm-5 col-xs-12">{{control.label}}</label>
+        <ul class="input-group col-sm-7 col-xs-12">
+          <li>
+            <div [ngSwitch]="control.controlType">
+              <input [id]="control.key" *ngSwitchCase="'textbox'" [attr.required]="control.required ? 'required' : null" [formControlName]="control.key" [type]="control.type" class="form-control" pInputText>
+              <span *ngSwitchCase="'textbox'" class="ng-validation-icon"></span>
+
+              <p-dropdown class="form-control-ng" [id]="control.key" [attr.required]="control.required ? 'required' : null" *ngSwitchCase="'dropdown'" [formControlName]="control.key" [options]="control.options" autoWidth="false"></p-dropdown>
+              <p-calendar class="form-control-ng" [id]="control.key" [attr.required]="control.required ? 'required' : null" *ngSwitchCase="'calendar'" [formControlName]="control.key" showIcon="true" utc="true"></p-calendar>
+
+
+              <p-autoComplete class="form-control-ng" [formControlName]="control.key" [id]="control.key" [attr.required]="control.required ? 'required' : null" *ngSwitchCase="'autoComplete'" [suggestions]="Suggestions" (completeMethod)="autoComplete($event)" [forceSelection]="true"
+                  [size]="30" [minLength]="1" field="label" dataKey="value" [dropdown]="true">
+              </p-autoComplete>
+
+            </div> 
+          </li>
+        </ul>
+    
+  <!-- <div class="errorMessage" *ngIf="!isValid">{{control.label}} is required</div> -->
+</div>

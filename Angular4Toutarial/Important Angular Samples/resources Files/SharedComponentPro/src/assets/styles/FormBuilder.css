@@ -1,0 +1,282 @@
+
+
+
+/*#region Settings Components */
+.settings-label {
+  margin-right: 0;
+  font-size: 12px;
+  color: black;
+}
+
+.settings-row {
+  height: 42px;
+  margin-top: 3.5%;
+}
+
+.settings-checkbox-row {
+  margin-top: 3.5%;
+  font-size: 12px;
+}
+
+.settings-dropdown-height {
+  height: 22px !important;
+}
+/*#endregion */
+
+/* #region Control Components */
+/*TextArea*/
+.component-textarea {
+  display: block;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+  .component-textarea.ng-invalid {
+    background-color: #FBE3E4;
+  }
+
+.textarea-noresize {
+  resize: none;
+}
+
+.component-label {
+  margin-right: 0;
+  font-size: 12px;
+  color: black;
+  font-weight: bold;
+}
+/*#endregion */
+
+
+/*#region Dynamic Control Editor  */
+
+.editor-btn {
+  float: right;
+  margin: 2px;
+  padding: 1px 2px 1px 2px;
+}
+
+.editor-btn-div {
+  margin-bottom: 5px;
+  display: block;
+}
+
+.editor-div {
+  border: 2px dashed #ddd;
+  height: auto;
+  display: block;
+  position: relative;
+  padding: 0;
+}
+
+  .editor-div .editor-control {
+    width: 100%;
+    position: relative;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+
+/*#endregion */
+
+
+/*#region Form-builder Component */
+.container-div {
+  border: 1px solid #ddd;
+  display: block;
+  position: relative;
+  padding: 5px 5px 5px 5px;
+}
+
+.edit-mode {
+  min-height: 150px;
+  overflow: auto;
+}
+
+.options-div {
+  border: 1px solid #ddd;
+  padding: 7px;
+}
+
+.upper-btn-container {
+  padding: 1px 2px 1px 3px;
+  background-color: transparent;
+}
+
+.container-panel {
+  margin-bottom: 7px;
+}
+
+.editable-header {
+  color: black;
+  height: 22px;
+  padding-left: 4px;
+  padding-right: 4px;
+  font-size: 11px;
+}
+
+.panel-heading-padding {
+  padding: 5px 5px;
+}
+
+.header-span {
+  font-size: 11px;
+}
+
+.float-right {
+  float: right;
+}
+
+.margin-right {
+  margin-right: 10px;
+}
+
+.fb-header-text {
+  font-size: 16px;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.fb-collapse-btn {
+  font-size: 12px;
+  font-weight: 600;
+  background: #f2f2f2;
+}
+
+  .fb-collapse-btn:after {
+    font-family: "Glyphicons Halflings";
+    content: "\e114";
+    float: right;
+    color: gray;
+  }
+
+  .fb-collapse-btn.collapsed:after {
+    content: "\e080";
+  }
+
+.fb-settings-header {
+  font-size: 12px;
+}
+
+.fb-search-group-item {
+  height: 27px;
+  padding: 0px 5px;
+  border-bottom-width: 8px;
+  border-radius: 5px;
+  border-bottom-color: #f2f2f2;
+}
+
+.search-container button {
+  background: inherit;
+  border: none;
+  border: none;
+  cursor: pointer;
+  width: 15%;
+}
+
+.fb-search-input {
+  border: none;
+  background: inherit;
+  display: inline !important;
+  width: 85%;
+}
+
+.fb-editor-fieldSet {
+  background-color: #f2f2f2;
+  border-width: 1px;
+  border-style: dotted;
+  border-color: threedface;
+}
+
+.fb-editor-div {
+  margin: 10px 7px 10px 7px;
+}
+
+.fb-editor-header {
+  background-color: #337ab7;
+  color: white;
+  padding: 5px 5px;
+}
+
+.fb-editor-header-buttons {
+  background-color: #005b88;
+  border-color: #005b88;
+}
+
+.fb-button {
+  float: right;
+  margin: 2px;
+}
+
+.fb-text-style {
+  font-size: 12px;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.fb-properties-header {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.close-btn-icon {
+  padding: 1px;
+  color: grey;
+}
+
+.fb-properties-div {
+  height: 39px;
+  background: #f2f2f2;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.fb-properties-close-btn {
+  background: inherit;
+  color: inherit;
+  font: inherit;
+  float: right;
+  border: inherit;
+}
+/*#endregion */
+ 
+/*#region Component-Entry*/
+.no-margin-bottom {
+  margin-bottom: 0 !important;
+}
+/*#endregion */
+ 
+
+/*label {
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: 0px;
+  font-weight: bold;
+}*/
+
+/*.compEntry-row {
+  margin-top: 3px;
+}*/
+
+/*.icon-margin {
+  margin-right: 7px;
+}*/
+
+/*.ui-widget-content
+{
+  padding: 0 !important;
+}*/
+
+/*.CustomStyle {
+  padding: 3px;
+}*/
+

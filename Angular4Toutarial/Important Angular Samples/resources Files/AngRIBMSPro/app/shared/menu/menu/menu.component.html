@@ -1,0 +1,110 @@
+
+    <li *ngFor="let app of userMenus" class="menu-main treeview">
+        <a href="{{'#'+ app.Id}}" class="" data-parent="#mainMenu">
+            <i class="fa fa-home"></i>
+            <span>{{app.Name}}</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+            </span>
+        </a>
+        <ul id="{{app.Id}}" class="treeview-menu" aria-expanded="true">
+            <li id="{{'panel-'+ app.Id}}" *ngFor="let module of app.Pages" class="treeview">
+                <a href="{{'#'+ module.Id}}">
+                    <i class="fa fa-circle-o"></i>
+                    <span class="title">{{module.Name}}</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+    
+                <ul id="{{module.Id}}" class="treeview-menu">
+                    <li id="{{'panel-'+ module.Id}}" *ngFor="let page of module.Pages">
+                        <a id="{{page.Id}}" class="MenuPage" name="{{page.Name}}"  (click)="routeTo(page.Url, page.Application)">
+                            <i class="fa fa-circle-o"></i>
+                            <span class="title">{{page.Name}}</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+
+
+  <!--<li class="panel panel-default dropdown">
+      <a data-toggle="collapse" href="#20000" class="" aria-expanded="true" data-parent="#mainMenu">
+          <span class="icon-grid"></span>
+          <span class="title">Reinsurance BMS</span>
+      </a>
+      <div id="20000" class="panel-collapse collapse in" aria-expanded="true" style="">
+          <div class="panel-body">
+              <ul class="nav navbar-nav panel-group" id="panel-20000">
+
+                  <li  class="panel panel-default dropdown">
+                      <a data-toggle="collapse" href="#20001" class="collapsed" aria-expanded="false" data-parent="#panel-20000">
+                          <span class="icon icon-equalizer4"></span>
+                          <span class="title">Proportional Treaty</span>
+                      </a>
+                      <div id="20001" class="panel-collapse collapse" aria-expanded="false">
+                          <div class="panel-body">
+                              <ul class="nav navbar-nav panel-group" id="panel-20001">
+                                  <li>
+                                      <a id="20005" class="MenuPage" name="Treaty Program" href="/ReinsuranceBMS.QA/Treaty"><span class="icon-cog4"></span><span class="title">Treaty Program</span></a>
+                                  </li>
+
+                              </ul>
+                          </div>
+                      </div>
+                  </li>
+                  <li class="panel panel-default dropdown">
+                      <a data-toggle="collapse" href="#20002" class="collapsed" aria-expanded="false" data-parent="#panel-20000">
+                          <span class="icon icon-certificate"></span>
+                          <span class="title">Non Proportional Treaty</span>
+                      </a>
+                      <div id="20002" class="panel-collapse collapse" aria-expanded="false">
+                          <div class="panel-body">
+                              <ul class="nav navbar-nav panel-group" id="panel-20002">
+                                  <li>
+                                      <a id="20006" class="MenuPage" name="Treaty Program" href="/ReinsuranceBMS.QA/XTreaty"><span class="icon-cog4"></span><span class="title">Treaty Program</span></a>
+                                  </li>
+
+                              </ul>
+                          </div>
+                      </div>
+                  </li>
+                  <li class="panel panel-default dropdown">
+                      <a data-toggle="collapse" href="#20003" class="collapsed" aria-expanded="false" data-parent="#panel-20000">
+                          <span class="icon icon-price-tag2"></span>
+                          <span class="title">Facultative</span>
+                      </a>
+                      <div id="20003" class="panel-collapse collapse" aria-expanded="false">
+                          <div class="panel-body">
+                              <ul class="nav navbar-nav panel-group" id="panel-20003">
+                                  <li>
+                                      <a id="20008" class="MenuPage" name="Facultative Processing" href="/ReinsuranceBMS.QA/Facultative"><span class="icon-barcode2"></span><span class="title">Facultative Processing</span></a>
+                                  </li>
+
+                              </ul>
+                          </div>
+                      </div>
+                  </li>
+                  <li class="panel panel-default dropdown">
+                      <a data-toggle="collapse" href="#20004" class="collapsed" aria-expanded="false" data-parent="#panel-20000">
+                          <span class="icon icon-paste4"></span>
+                          <span class="title">Reinsurance Tools</span>
+                      </a>
+                      <div id="20004" class="panel-collapse collapse" aria-expanded="false">
+                          <div class="panel-body">
+                              <ul class="nav navbar-nav panel-group" id="panel-20004">
+                                  <li>
+                                      <a id="20009" class="MenuPage" name="Reinsurance Tools" href="/ReinsuranceBMS.QA/ReinsuranceTools"><span class="icon-paste4"></span><span class="title">Reinsurance Tools</span></a>
+                                  </li>
+
+                              </ul>
+                          </div>
+                      </div>
+                  </li>
+              </ul>
+          </div>
+      </div>
+  </li>-->
+

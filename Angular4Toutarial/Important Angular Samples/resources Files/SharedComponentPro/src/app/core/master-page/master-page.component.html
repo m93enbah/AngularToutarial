@@ -1,0 +1,89 @@
+<div class="wrapper" [class.is-mobile]="mobileQuery.matches">
+  <mat-toolbar color="primary" class="main-header" mwlResizable [validateResize]="validate" [enableGhostResize]="true"
+               (resizeEnd)="onResizeToolbar($event,null)" [resizeEdges]="{bottom:true,right:false,top:true, left:false}" [ngStyle]="toolsbarStyle">
+    <a class="system-logo" routerLink="/">
+      <img [src]="logoSrc || '../../assets/images/Eska-boat-logo.png'" class="logo-img-light" />
+      <img [src]="logoSrc || '../../assets/images/Eska-boat-logo-dark.png'" class="logo-img-dark" />
+      <b>ESKA<sup>®</sup> Cloud</b>
+    </a>
+    <div class="navbar-header">
+      <button mat-icon-button type="button" (click)="snav.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+    </div>
+    <ribms-mega-menu></ribms-mega-menu>
+
+    <ribms-navbar (bookmarkChange)="onBookmarkChange()"></ribms-navbar>
+  </mat-toolbar>
+
+  <mat-sidenav-container class="content-wrapper" #contentWrapper>
+    <mat-sidenav #snav [ngStyle]="{'background-color':(sideColor)?sideColor:null}" [mode]="mobileQuery.matches ? 'over' : 'side'"
+                 [fixedInViewport]="mobileQuery.matches" fixedTopGap="101" [opened]="true">
+      <mat-nav-list>
+        <ribms-sidebar></ribms-sidebar>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content [ngStyle]="sideNavStyle() ">
+      <div class="bootmarks">
+        <div class="row">
+          <div class="col-md-10 col-sm-8">
+            <ul class="bootmarks-menu">
+              <li *ngFor="let item of bookmarkMenu"><a routerLink="/{{item.PAGE_URL}}">{{item.MENU_NAME}}</a></li>
+            </ul>
+          </div>
+          <div class="col-md-2 col-sm-4">
+            <div class="top-search">
+              <form role="search">
+                <input type="text" placeholder="Search here" class="form-control" />
+                <button class="fa fa-search" type="submit"></button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- this had class="custom-content" -->
+      
+        <div class="content">
+          <!--<closing-period></closing-period>-->
+          <router-outlet></router-outlet>
+
+        </div>
+      
+        <!-- <app-to-do-list [taskList]="taskData" (updateTask)="showTasks($event)"></app-to-do-list> -->
+        <!-- <app-tools-sidebar></app-tools-sidebar> -->
+        <footer class="main-footer">
+          <span #copyright class="copyright">
+            <img src="../../assets/images/eska_boat.png" class="img-responsive" pTooltip="Powered by ESKADENIA ® Software.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                          A product &amp; market-oriented organisation that assists enterprises &amp; promotes businesses by use of highly effective IT strategies solutions &amp; tools."
+                 [appendTo]="copyright" tooltipPosition="top" />
+            <a href="www.eskadenia.com" class="copyright" target="_blank">ESKADENIA Software </a> <i class="fa fa-copyright"></i>
+            All rights reserved.
+          </span>
+
+          <eco-fab-speed-dial class="speed-dial" #myFab (mouseenter)="myFab.open=true" (mouseleave)="myFab.open=false">
+            <eco-fab-speed-dial-trigger>
+              <button mat-fab color="primary">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+            </eco-fab-speed-dial-trigger>
+            <eco-fab-speed-dial-actions>
+              <button mat-mini-fab color="primary">
+                <mat-icon>add</mat-icon>
+              </button>
+              <button mat-mini-fab color="primary">
+                <mat-icon>edite</mat-icon>
+              </button>
+              <button mat-mini-fab (click)="openToDo('action3')" color="primary">
+                <mat-icon>list</mat-icon>
+              </button>
+
+
+
+            </eco-fab-speed-dial-actions>
+          </eco-fab-speed-dial>
+          <ribms-to-do-list [taskList]="taskData" (updateTask)="showTasks($event)"></ribms-to-do-list>
+        </footer>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

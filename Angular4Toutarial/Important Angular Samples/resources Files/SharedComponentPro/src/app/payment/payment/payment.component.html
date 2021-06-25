@@ -1,0 +1,41 @@
+<div class="container-fuld">
+  <div class="ui-g">
+    <div class="ui-g-6">
+      <div class="card" (click)="selectContent(0)">
+        <div class="number" id="one">1</div>
+        <div class="card-content">
+          <span class="card-content-header">Setup Payment Gateway</span>
+          <span class="card-content-text">Setup supported payment getaways to configure easy effcient online payments.</span>
+        </div>
+      </div>
+      <div class="card" (click)="selectContent(1)">
+        <span class="number" id="two">2</span>
+        <span class="card-content">
+          <span class="card-content-header">Configure Payment Methods</span>
+          <span class="card-content-text">Configure payment amounts and frequency to get paid when and how you want.</span>
+        </span>
+      </div>
+      <div class="card" (click)="selectContent(2)">
+        <span class="number" id="three">3</span>
+        <span class="card-content">
+          <span class="card-content-header">Manage Notifications</span>
+          <span class="card-content-text">Use email notifications to automatically alert customers on certain event.</span>
+        </span>
+      </div>
+     
+    </div>
+    <div class="ui-g-1">
+      <div class="arrow-right position1" [ngClass]="{'display': selected[0]}"></div>
+      <div class="arrow-right position2" [ngClass]="{'display': selected[1]}"></div>
+      <div class="arrow-right position3" [ngClass]="{'display': selected[2]}"></div>
+    </div>
+    <div class="ui-g-5">
+      <div class="line"></div>
+      <div [ngSwitch]="content">
+        <div *ngSwitchCase="0"><app-setup-payment-gateway (paymentEvent)="recivePaymentType($event)"></app-setup-payment-gateway></div>
+        <div *ngSwitchCase="1"><app-payment-method [paymentType]="paymetnType"></app-payment-method></div>
+        <div *ngSwitchCase="2"><app-manage-notification [paymentType]="paymetnType"></app-manage-notification></div>
+      </div>
+    </div>
+  </div>
+</div>

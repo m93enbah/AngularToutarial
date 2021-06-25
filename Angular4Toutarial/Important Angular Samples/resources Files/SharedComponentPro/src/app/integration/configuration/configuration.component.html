@@ -1,0 +1,217 @@
+<div *ngIf="isConfig; else home">
+  <p-tabView>
+    <p-tabPanel header="New Connection">
+      <p-fieldset legend="Connect to a Data Source">
+        <div class="dataSourceType">
+          <label>Data Source Type</label>
+          <p-radioButton id="database" name="dataSource" value="database" label="Database" [(ngModel)]="dataSource"></p-radioButton>
+          <p-radioButton name="dataSource" value="api" label="API" [(ngModel)]="dataSource"></p-radioButton>
+        </div>
+        <div *ngIf="dataSource=='database';else api">
+          <div *ngIf="isDBCard;else dbForm">
+            <div class="ui-g-12">
+              <div class="ui-g-6">
+
+                <p-card (click)="showDatabaseForm(0)">
+                  <div class="ui-g">
+                    <div class="ui-g-8"><span id="oracle-card-head">Oracle</span> </div>
+                    <div class="ui-g-4">
+                      <img class="database-card-image" src="../../../assets/images/dblogo/Oracle.jpg" alt="Oracle" />
+                    </div>
+                  </div>
+                </p-card>
+
+                <p-card (click)="showDatabaseForm(1)">
+                  <div class="ui-g">
+                    <div class="ui-g-8"><span id="mongodb-card-head">MongoDb Beta</span> </div>
+                    <div class="ui-g-4">
+                      <img class="database-card-image" src="../../../assets/images/dblogo/mongodb.jpg" alt="MongoDb" />
+                    </div>
+                  </div>
+                </p-card>
+
+              </div>
+              <div class="ui-g-6">
+
+                <p-card (click)="showDatabaseForm(2)">
+                  <div class="ui-g">
+                    <div class="ui-g-8"><span id="mysql-card-head">MySql Enterprise Edition</span> </div>
+                    <div class="ui-g-4">
+                      <img class="database-card-image" src="../../../assets/images/dblogo/MySql.png" alt="MySql" />
+                    </div>
+                  </div>
+                </p-card>
+
+                <p-card (click)="showDatabaseForm(3)">
+                  <div class="ui-g">
+                    <div class="ui-g-8"><span id="postgresql-card-head">PostgreSQL</span> </div>
+                    <div class="ui-g-4">
+                      <img class="database-card-image" src="../../../assets/images/dblogo/postgresql.png" alt="PostgreSQL" />
+                    </div>
+                  </div>
+
+                </p-card>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <ng-template #dbForm>
+          
+            <form [formGroup]="databaseForm">
+              <div class="ui-g api-grid">
+                <div class="ui-g-10">
+                  <!-- Data Source -->
+                  <div class="ui-inputgroup">
+                    <div class="ui-g-4">
+                      <label for="dataSource">Data Source</label>
+                    </div>
+                    <div class="ui-g-5">
+                      <input formControlName="dataSource" type="text" id="dataSource" pInputText placeholder="Data Source" />
+                    </div>
+                  </div>
+                  <!-- title -->
+                  <div class="ui-inputgroup">
+                    <div class="ui-g-4">
+                      <label for="title">Title</label>
+                    </div>
+                    <div class="ui-g-5">
+                      <input formControlName="title" type="text" id="title" pInputText placeholder="Title" />
+                    </div>
+                  </div>
+                  <!-- host name -->
+                  <div class="ui-inputgroup">
+                    <div class="ui-g-4">
+                      <label for="hostname">Host Name</label>
+                    </div>
+                    <div class="ui-g-5">
+                      <input formControlName="hostname" type="text" id="hostname" pInputText placeholder="Host Name" />
+                    </div>
+                  </div>
+                  <!-- port -->
+                  <div class="ui-inputgroup">
+                    <div class="ui-g-4">
+                      <label for="port">Port</label>
+                    </div>
+                    <div class="ui-g-5">
+                      <input formControlName="port" type="text" id="port" pInputText placeholder="Port" />
+                    </div>
+                  </div>
+                  <!-- Service Name -->
+                  <div class="ui-inputgroup">
+                    <div class="ui-g-4">
+                      <label for="serviceName">Service Name</label>
+                    </div>
+                    <div class="ui-g-5">
+                      <input formControlName="serviceName" type="text" id="serviceName" pInputText placeholder="Service Name" />
+                    </div>
+                  </div>
+                  <!-- Username -->
+                  <div class="ui-inputgroup">
+                    <div class="ui-g-4">
+                      <label for="username">Username</label>
+                    </div>
+                    <div class="ui-g-5">
+                      <input formControlName="username" type="text" id="username" pInputText placeholder="Username" />
+                    </div>
+                  </div>
+                  <!-- Password -->
+                  <div class="ui-inputgroup">
+                    <div class="ui-g-4">
+                      <label for="password">Password</label>
+                    </div>
+                    <div class="ui-g-5">
+                      <input formControlName="password" type="password" id="password" pInputText placeholder="Password" />
+                    </div>
+                  </div>
+                  <button pButton label="save" class="ui-button-raised save-btn" (click)="onDBFormSubmit(databaseForm.value)" type="submit"></button>
+                  <button pButton label="back" class="ui-button-raised back-btn" (click)="backToCard()" type="submit"></button>
+                </div>
+              </div>
+            </form>
+        </ng-template>
+
+        <ng-template #api>
+          <form [formGroup]="apiForm">
+            <div class="ui-g api-grid">
+              <div class="ui-g-10">
+                <!-- Data Source -->
+                <div class="ui-inputgroup">
+                  <div class="ui-g-4">
+                    <label for="dataSource">Data Source</label>
+                  </div>
+                  <div class="ui-g-5">
+                    <input formControlName="dataSource" type="text" id="dataSource" pInputText placeholder="Data Source" />
+                  </div>
+                </div>
+                <!-- URL -->
+                <div class="ui-inputgroup">
+                  <div class="ui-g-4">
+                    <label for="url">URL</label>
+                  </div>
+                  <div class="ui-g-5">
+                    <input formControlName="url" type="text" id="url" pInputText placeholder="URL" />
+                  </div>
+                </div>
+                <!-- Type -->
+                <div class="ui-inputgroup">
+                  <div class="ui-g-4">
+                    <label for="type">Type</label>
+                  </div>
+                  <div class="ui-g-5">
+                    <p-dropdown [options]="apiTypes" placeholder="Select Type" formControlName="type"></p-dropdown>
+                  </div>
+                </div>
+                <!-- Auth -->
+                <div class="ui-inputgroup">
+                  <div class="ui-g-4">
+                    <label for="auth">Authentication</label>
+                  </div>
+                  <div class="ui-g-5">
+                    <p-dropdown [options]="authTypes" placeholder="Select Authentication" formControlName="authentication"></p-dropdown>
+                  </div>
+                </div>
+                <!-- API Name -->
+                <div class="ui-inputgroup">
+                  <div class="ui-g-4">
+                    <label for="apiName">API Name</label>
+                  </div>
+                  <div class="ui-g-5">
+                    <input formControlName="apiName" type="text" id="apiName" pInputText placeholder="API Name" />
+                  </div>
+                </div>
+                <!-- Module -->
+                <div class="ui-inputgroup">
+                  <div class="ui-g-4">
+                    <label for="module">Module</label>
+                  </div>
+                  <div class="ui-g-5">
+                    <p-dropdown [options]="" placeholder="Select Module" formControlName="module"></p-dropdown>
+                  </div>
+                </div>
+                <button pButton label="save" class="ui-button-raised save-btn" (click)="onAPIFromSubmit(apiForm.value)" type="submit"></button>
+              </div>
+
+            </div>
+          </form>
+        </ng-template>
+      </p-fieldset>
+    </p-tabPanel>
+    <p-tabPanel header="Related Lists">
+
+    </p-tabPanel>
+  </p-tabView>
+</div>
+
+<ng-template #home>
+  <div>
+    <img class="home-image" src="../../../assets/images/Integration-Home.png" alt="Alternate Text" />
+    <p class="home-content">Manage integration configurations to handle requests and actions</p>
+    <button (click)="showConfig()" pButton type="button" label="Integrate" class="ui-button-raised home-button"></button>
+  </div>
+</ng-template>
+
+
+
+
+

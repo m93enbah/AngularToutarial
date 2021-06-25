@@ -1,0 +1,57 @@
+
+<div id="chart_wrap" class="chart_wrap_shape"></div>
+
+<div class="row" id="productEntryTab" [style.display]="!hideProductEntryTab ? 'block':'none'">
+  <form [formGroup]="productEntryForm">
+    <div class="col-md-12">
+      <mat-card class="box">
+        <mat-card-header>
+          <mat-card-title>Product Entry</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="prime-form-control">
+                <label>Product Code</label><br />
+                <input type="text" formControlName="productCode" class="form-control" required="required" />
+                <span class="ng-validation-icon"></span>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="prime-form-control">
+                <label>Product Name</label><br />
+                <input type="text" formControlName="productName" class="form-control" required="required" />
+                <span class="ng-validation-icon"></span>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="prime-form-control">
+                <label>Product Name2</label><br />
+                <input type="text" formControlName="productName2" class="form-control" required="required" />
+                <span class="ng-validation-icon"></span>
+              </div>
+            </div>
+
+          </div>
+        </mat-card-content>
+        <mat-card-actions class="text-right">
+          <div class="buttons-group">
+            <button [disabled]="!productEntryForm.valid" (click)="saveUpdateProduct()">
+              {{showProductSaveUpdate === false ? 'Save' : 'Update'}}
+            </button>
+          </div>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </form>
+</div>
+
+
+
+
+
+
+
+

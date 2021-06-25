@@ -1,0 +1,87 @@
+<!--<button (click)="changeState()">Change Size</button>
+<br />
+<div [@changeDivSize]="currentState"></div>
+<br />-->
+
+<div class="row">
+  <div class="col-md-4">
+    <p-card>
+      <div class="info">
+        <div *ngIf="show1;else content1" (@move.done)="onEnd1($event)" [@move]="card1State">
+          <div class="title">{{card1Front.title}}</div>
+          <br />
+          <div class="content">{{card1Front.content}}</div>
+          <div class="last">{{card1Front.last}}</div>
+        </div>
+      </div>
+
+      <ng-template #content1>
+
+        <div>
+          <div (@move.done)="onEnd1($event)" [@move]="card1State">
+            <div class="title">{{card1Back.title}}</div>
+            <br />
+            <div class="content">{{card1Back.content}}</div>
+            <div class="last">{{card1Back.last}}</div>
+          </div>
+        </div>
+      </ng-template>
+
+    </p-card>
+  </div>
+
+  <div class="col-md-4">
+    <p-card>
+      <div class="primary">
+        <div *ngIf="show3;else content3" (@move.done)="onEnd3($event)" [@move]="card3State">
+          <div class="title">{{card3Front.title}}</div>
+          <br />
+          <div class="content">{{card3Front.content}}</div>
+          <div class="last">{{card3Front.last}}</div>
+        </div>
+      </div>
+
+      <ng-template #content3>
+        <div (@move.done)="onEnd3($event)" [@move]="card3State">
+
+          <table>
+            <tbody *ngFor="let item of card3Back">
+              <tr>
+                <td>{{item.name}}</td>
+                <td>{{item.value}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </ng-template>
+    </p-card>
+  </div>
+
+  <div class="col-md-4">
+    <p-card>
+      <div class="danger">
+        <div *ngIf="show2;else content2" (@move.done)="onEnd2($event)" [@move]="card2State">
+          <div class="title">{{card2Front.title}}</div>
+          <br />
+          <div class="content">{{card2Front.content}}</div>
+          <div class="last">{{card2Front.last}}</div>
+        </div>
+      </div>
+
+      <ng-template #content2>
+        <div>
+          <div (@move.done)="onEnd2($event)" [@move]="card2State">
+            <div class="title">{{card2Back.title}}</div>
+            <br />
+            <div class="content">{{card2Back.content}}</div>
+            <div class="last">{{card2Back.last}}</div>
+          </div>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+
+</div>
+
+

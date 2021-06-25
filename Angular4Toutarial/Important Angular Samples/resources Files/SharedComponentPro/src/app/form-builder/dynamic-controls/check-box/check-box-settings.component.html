@@ -1,0 +1,68 @@
+<div class=" panel panel-default">
+  <form class="panel-body" name="addEditForm" [formGroup]="form">
+
+    <!-- order -->
+    <div class="form-row">
+      <label class="settings-label">Order</label>
+      <input type="number" class="form-control input-sm" name="order" placeholder="Order" [value]="control.order" formControlName="order" readonly />
+    </div>
+
+    <!-- Key -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Key</label>
+      <input type="text" class="form-control input-sm" name="key" placeholder="Key" formControlName="key"   />
+    </div>
+
+    <!-- Label -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Label's Text</label>
+      <input type="text" class="form-control input-sm" name="label" placeholder="Text" formControlName="name" />
+    </div>
+
+    <!-- optionSource -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Option Source</label>
+      <p-dropdown [options]="optionSource" class="form-control-ng " formControlName="optionSource"  >
+      </p-dropdown>
+    </div>
+
+    <!-- options -->
+    <div class="form-row settings-row" *ngIf="form.get('optionSource').value == 3 || control.optionSource==3">
+      <label class="settings-label">Options</label>
+      <div>
+        <button class="btn btn-primary btn-xs" (click)="showOptions()">
+          <span class="glyphicon glyphicon-edit"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- API URL -->
+    <div class="form-row settings-row" *ngIf="form.get('optionSource').value == 2 || control.optionSource==2">
+      <label class="settings-label">Api Url</label>
+      <input type="text" class="form-control input-sm" name="apiUrl" placeholder="Api Url" formControlName="apiUrl" />
+    </div>
+
+    <!--Domain Id -->
+    <div class="form-row settings-row" *ngIf="form.get('optionSource').value == 1 || control.optionSource==1">
+      <label class="settings-label">Domain ID</label>
+      <input type="text" class="form-control input-sm" name="domainId" placeholder="Domain ID" formControlName="domainId" />
+    </div>
+
+
+
+    <!-- Width -->
+    <div class="form-row settings-row">
+      <label class="settings-label">Width</label>
+      <p-selectButton class="form-control-ng" [options]="widthOptions" formControlName="width"></p-selectButton>
+    </div>
+
+
+
+  </form>
+   <!-- Save Button -->
+   <div class="form-row box-footer settings-row">
+   <button class="btn btn-primary fb-button" (click)="save($event)">Save</button>
+  </div>
+</div>
+<shc-options-dialog [displayDialog]="displayDialog" [rows]="rows" (delete)="delete($event)" (save)="saveRow($event)">
+</shc-options-dialog>

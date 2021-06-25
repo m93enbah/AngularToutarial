@@ -1,0 +1,34 @@
+ <div class="container-fuld">
+   <div>
+     <img src="../../../assets/images/payment/{{paymentType}}.png"  alt="{{paymentType}}"/>
+   </div>
+           <form [formGroup]="infoForm" style="width:100%" (ngSubmit)="onSave()">
+             <div class="form-group">
+               <label [ngClass]="{'invalid':submttied && this.infoForm.controls['carrency'].invalid}">Currency</label>
+               <p-dropdown [style]="{'width':'100%'}" [options]="carrencies" formControlName="carrency"></p-dropdown>
+             </div>
+             <div class="form-group">
+               <label [ngClass]="{'invalid':submttied && this.infoForm.controls['merchantID'].invalid}">Merchant ID</label>
+               <input pInputText type="text" class="form-control" formControlName="merchantID" />
+             </div>
+             <div class="form-group">
+               <label [ngClass]="{'invalid':submttied && this.infoForm.controls['APILoginID'].invalid}">API Login ID</label>
+               <input pInputText type="text" class="form-control" formControlName="APILoginID" />
+             </div>
+             <div class="form-group">
+               <label [ngClass]="{'invalid':submttied && this.infoForm.controls['transKey'].invalid}">Secure Transaction Key</label>
+               <input pInputText type="text" class="form-control" formControlName="transKey" />
+             </div>
+             <div class="form-group">
+               <label [ngClass]="{'invalid':submttied && this.infoForm.controls['transPassword'].invalid}">Transaction Password</label>
+               <input pInputText type="password" class="form-control " formControlName="transPassword" />
+             </div>
+             <div class="form-group">
+               <label [ngClass]="{'invalid':submttied && this.infoForm.controls['AuthType'].invalid}">Authentication Type</label>
+               <p-dropdown [style]="{'width':'100%'}" [options]="authTypes" formControlName="AuthType"></p-dropdown>
+             </div>
+             <div class="float-right">
+               <button class="btn btn-primary">Save</button>
+             </div>
+           </form>
+         </div>

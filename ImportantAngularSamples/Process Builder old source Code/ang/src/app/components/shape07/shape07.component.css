@@ -1,0 +1,25 @@
+body div.mxPopupMenu {
+    position: absolute;
+    padding: 3px;
+}
+body table.mxPopupMenu {
+    border-collapse: collapse;
+    margin: 0px;
+}
+body tr.mxPopupMenuItem {
+    cursor: default;
+}
+body td.mxPopupMenuItem {
+    padding: 10px 60px 10px 30px;
+    font-family: Arial;
+    font-size: 9pt;
+}
+body td.mxPopupMenuIcon {
+    padding: 0px;
+}
+table.mxPopupMenu hr {
+    border-top: solid 1px #cccccc;
+}
+table.mxPopupMenu tr {
+    font-size: 4pt;
+}

@@ -1,0 +1,32 @@
+@import 'node_modules/@theme/styles/themes';
+
+@include nb-install-component() {
+  .fa-arrow-right {
+    position: absolute;
+    right: 0;
+    top: 0;
+    @include nb-rtl(right, auto);
+    @include nb-rtl(left, 0);
+    padding: 1.5rem;
+    cursor: pointer;
+  }
+
+  .fa-arrow-right::before {
+    color: black;
+    font-weight: bold;
+  }
+
+  ::ng-deep .flipped {
+    .back-container {
+      .fa-arrow-right {
+        transform: scaleX(-1);
+      }
+    }
+
+    .front-container {
+      .fa-arrow-right {
+        display: none;
+      }
+    }
+  }
+}
