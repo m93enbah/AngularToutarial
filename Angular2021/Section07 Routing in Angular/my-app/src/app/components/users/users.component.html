@@ -1,0 +1,21 @@
+<div class="row">
+  <div class="col-xs-12 col-sm-4">
+    <div class="list-group"  *ngFor="let user of users">
+      <a
+        href="#"
+        class="list-group-item">
+        {{ user.name }}
+      </a>
+      <button class="btn btn-primary" [routerLink]="['/users/',user.id]">Navigate Absolute User Page</button>
+
+      <!-- <button class="btn btn-primary" [routerLink]="['../users',user.id]">Navigate Absolute User Page</button> -->
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-4">
+    <!-- <button class="btn btn-primary" routerLink="['/servers']">Navigate Relative Page</button> -->
+    <!-- <app-user></app-user> -->
+    <router-outlet></router-outlet>
+  </div>
+</div>
+
+

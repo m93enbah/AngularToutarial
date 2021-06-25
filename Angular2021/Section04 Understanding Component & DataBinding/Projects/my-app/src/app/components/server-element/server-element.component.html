@@ -1,0 +1,12 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    {{element.name}}
+  </div>
+  <div class="panel-heading" #headingEle>
+    {{name}}
+  </div>
+  <div class="panel-body">
+    <!-- it will replaced with the content between caller child component -->
+   <ng-content></ng-content>
+  </div>
+</div>

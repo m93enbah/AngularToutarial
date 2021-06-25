@@ -1,0 +1,13 @@
+<p>assigment2 works!</p>
+
+
+<button (click)="showDetails()">Display Details</button>
+
+<p *ngIf="showScret">Secret Password = tuna</p>
+
+<div 
+   *ngFor="let log of logs;let i=index" 
+   [ngStyle]="{backgroundColor: i > 5 ? 'blue': 'transparent'}">
+   {{log}}
+</div>
+

@@ -1,0 +1,7 @@
+<router-outlet></router-outlet>
+
+<app-game-control (eventCount)="onAddCount($event)"></app-game-control>
+
+<app-odd *ngFor="let odd of oddLst" [oddNo]="odd"></app-odd>
+
+<app-even *ngFor="let even of evenLst" [evenNo]="even"></app-even>

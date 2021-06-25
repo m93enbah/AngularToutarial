@@ -1,0 +1,10 @@
+<!-- <p>server works!</p>
+
+<span>{{serverId}}   {{name}}</span>
+
+<h3>{{getServerStatus("pending")}}</h3>
+ -->
+
+ <p
+ [ngClass]="{online:serverStatus}"
+ [ngStyle]="{backgroundColor: getColor()}">{{'server'}} with ID {{serverId}} is {{getServerStatus(serverStatus)}}</p>

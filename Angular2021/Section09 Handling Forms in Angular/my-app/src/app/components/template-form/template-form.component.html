@@ -1,0 +1,60 @@
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
+      <form (ngSubmit)="onSubmit()" #f="ngForm">
+        <!-- we create form group with apply local reference  and use validation check for the form group-->
+        <div id="user-data" ngModelGroup="userData" #userData="ngModelGroup">
+          <div class="form-group" >
+            <label for="username">Username</label>
+            <input type="text" id="username" class="form-control" ngModel name="username" required #userName="ngModel">
+            <span class="help-block" *ngIf="!userName.valid && userName.touched">Please enter valid email</span>
+          </div>
+          <button class="btn btn-default" type="button" (click)="suggestUserName()">Suggest an Username</button>
+          <div class="form-group">
+            <label for="email">Mail</label>
+            <input type="email" id="email" class="form-control" ngModel name="email" required email #email="ngModel">
+            <span class="help-block" *ngIf="!email.valid && email.touched">Please enter valid email</span>
+          </div>
+        </div>
+        <span class="help-block" *ngIf="!userData.valid && userData.touched">User Data Group is invalid</span>
+
+        <div class="form-group">
+          <label for="secret">Secret Questions</label>
+          <select id="secret" class="form-control" ngModel name="secret" [(ngModel)]="defaultValue">
+            <option value="pet">Your first Pet?</option>
+            <option value="teacher">Your first teacher?</option>
+          </select>
+        </div>
+
+        <!-- we can apply two way binding from back to view and vice versa -->
+        <div class="form-group">
+          <textarea name="questionAnswer" class="form-control" rows="10" [(ngModel)]="answer"></textarea>
+        </div>
+
+        <div class="radio" *ngFor="let gender of genders" >
+          <label>
+            <input type="radio" name="gender"  #genderEle="ngModel" ngModel  [value]="gender" required>
+            {{gender}}
+          </label>
+        </div>
+
+        <p>You reply: {{answer}}</p>
+        <button class="btn btn-primary" type="submit" [disabled]="!f.valid">Submit</button>
+        <button class="btn btn-secondary" type="button" (click)="resetForm()">Reset</button>
+      </form>
+    </div>
+
+    <hr>
+    <div class="row" *ngIf="submitted">
+      <div class="col-xs-12">
+        <h3>Your Data</h3>
+        <p>Username : {{user.username}}</p>
+        <p>Mail :  {{user.email}}</p>
+        <p>Secrete Question: Your fist {{user.answer}}</p>
+        <p>Answer:  {{user.answer}}</p>
+        <p>Gender: {{user.gender}} </p>
+      </div>
+    </div>
+
+  </div>
+</div>

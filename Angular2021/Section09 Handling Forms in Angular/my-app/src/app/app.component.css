@@ -1,0 +1,8 @@
+.container {
+  margin-top: 30px;
+}
+
+/* it will show when the control is touched and invalid its added these class automatically in Angular Form template */
+input.ng-invalid.ng-touched{
+  border: 1px solid red;
+}

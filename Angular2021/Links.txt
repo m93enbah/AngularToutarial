@@ -1,0 +1,25 @@
+Issues:-
+	
+01-How To Solve The Schematic Workflow Failed Error In Angular
+https://www.c-sharpcorner.com/article/how-to-solve-the-schematic-workflow-failed-error-in-angular/
+
+or do the following steps
+In addition to using the --legacy-peer-deps command line option, this can also be set more permanently as a config option:
+npm config set legacy-peer-deps true
+npm install --save --legacy-peer-deps
+===================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
